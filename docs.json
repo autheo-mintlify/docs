@@ -9,80 +9,328 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Guides",
-        "groups": [
+        "group": "Start Here",
+        "icon": "play",
+        "pages": [
+          "start-here/overview",
+          "start-here/autheo-os-model",
+          "start-here/architecture-at-a-glance",
+          "start-here/components-map",
+          "start-here/terminology",
+          "start-here/glossary"
+        ]
+      },
+      {
+        "group": "Getting Started",
+        "pages": [
+          "getting-started/quickstart",
           {
-            "group": "Getting started - Test",
+            "group": "Wallets",
+            "expanded": false,
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "getting-started/wallets/metamask-install",
+              "getting-started/wallets/connect-to-testnet",
+              "getting-started/wallets/account-basics"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Network",
+            "expanded": false,
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "getting-started/network/endpoints",
+              "getting-started/network/faucet",
+              "getting-started/network/troubleshooting"
+            ]
+          },
+          "getting-started/faq"
+         
+        ]
+      },
+      {
+        "group": "Developers",
+        "pages": [
+          "developers/overview",
+          {
+            "group": "Setup",
+            "expanded": false,
+            "pages": [
+              "developers/setup/dev-environment",
+              "developers/setup/cli-installation",
+              "developers/setup/project-scaffolding"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Tutorials",
+            "expanded": false,
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "developers/tutorials/deploy-smart-contract",
+              "gdevelopers/tutorials/interact-with-contracts",
+              "developers/tutorials/events-and-logs",
+              "developers/tutorials/token-contracts",
+              "developers/tutorials/indexing-and-analytics"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Guides",
+            "expanded": false,
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "developers/guides/key-management",
+              "developers/guides/security-best-practices",
+              "developers/guides/gas-fees-and-tx-lifecycle",
+              "developers/guides/deployment-checklist"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "expanded": false,
+            "pages": [
+              "developers/troubleshooting/common-errors",
+              "gdevelopers/troubleshooting/rpc-issues"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
-        "groups": [
+        "group": "APIs",
+        "pages": [
+          "apis/overview",
           {
-            "group": "API documentation",
+            "group": "JSON-RPC",
+            "expanded": false,
             "pages": [
-              "api-reference/introduction"
+              "apis/json-rpc/overview",
+              "apis/json-rpc/authentication",
+              "apis/json-rpc/errors",
+              "apis/json-rpc/rate-limits",
+              {
+                "group": "Methods",
+                "expanded": false,
+                "pages": [
+                  {
+                    "group": "ETH",
+                    "expanded": false,
+                    "pages": [
+                      "apis/json-rpc/methods/eth/eth_chainId",
+                      "apis/json-rpc/methods/eth/eth_getBalance",
+                      "apis/json-rpc/methods/eth/eth_call",
+                      "apis/json-rpc/methods/eth/eth_sendRawTransaction",
+                      "apis/json-rpc/methods/eth/eth_getTransactionReceipt"
+                    ]
+                  },
+                  {
+                    "group": "net",
+                    "expanded": false,
+                    "pages": [
+                      "apis/json-rpc/methods/net/net_version"
+                    ]
+                  },
+                  {
+                    "group": "web3",
+                    "expanded": false,
+                    "pages": [
+                      "apis/json-rpc/methods/web3/web3_clientVersion"
+                    ]
+                  }
+                ]
+              }
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "REST",
+            "expanded": false,
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "apis/rest/overview",
+              "apis/rest/pagination",
+              "apis/rest/errors",
+              {
+                "group": "Resources",
+                "expanded": false,
+                "pages": [
+                  "apis/rest/resources/main-page-stats",
+                  "apis/rest/resources/addresses",
+                  "apis/rest/resources/blocks",
+                  "apis/rest/resources/transactions",
+                  "apis/rest/resources/tokens",
+                  "apis/rest/resources/smart-contracts"
+                ]
+              },
+              {
+                "group": "Examples",
+                "expanded": false,
+                "pages": [
+                  "apis/rest/examples/curl",
+                  "apis/rest/examples/javascript"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "SDKs",
+            "expanded": false,
+            "pages": [
+              "sdks/overview",
+              {
+                "group": "go",
+                "expanded": false,
+                "pages": [
+                  "sdks/go/overview",
+                  "sdks/go/install",
+                  "sdks/go/quickstart",
+                  {
+                    "group": "Examples",
+                    "expanded": false,
+                    "pages": [
+                      "sdks/go/examples/query-balance",
+                      "sdks/go/examples/send-transaction",
+                      "sdks/go/examples/contract-interaction"
+                    ]
+                  },
+                  "sdks/go/reference"
+                ]
+              },
+              {
+                "group": "typescript",
+                "expanded": false,
+                "pages": [
+                  "sdks/typescript/_placeholder"
+                ]
+              },
+              {
+                "group": "python",
+                "expanded": false,
+                "pages": [
+                  "sdks/python/_placeholder"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Nodes",
+            "expanded": false,
+            "pages": [
+              "nodes/overview",
+              {
+                "group": "testnet",
+                "expanded": false,
+                "pages": [
+                  "nodes/testnet/node-setup",
+                  "nodes/testnet/configuration",
+                  "nodes/testnet/upgrades",
+                  "nodes/testnet/troublehooting"
+                ]
+              },
+              {
+                "group": "operations",
+                "expanded": false,
+                "pages": [
+                  "nodes/operations/monitoring",
+                  "nodes/operations/security-hardening",
+                  "nodes/operations/backups-and-restore",
+                  "nodes/operations/incident-response"
+                ]
+              },
+              {
+                "group": "Validator Lifecycle",
+                "expanded": false,
+                "pages": [
+                  "nodes/validator-lifecycle/register-validator",
+                  "nodes/validator-lifecycle/key-rotation",
+                  "nodes/validator-lifecycle/pause-resume",
+                  "nodes/validator-lifecycle/remove-validator"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Validator Program",
+            "expanded": false,
+            "pages": [
+              "validator-program/overview",
+              "validator-program/brochure",
+              "validator-program/hosting-options",
+              "validator-program/activation-and-timeline",
+              "validator-program/economics",
+              "validator-program/compliance"
+            ]
+          },
+          {
+            "group": "Token",
+            "expanded": false,
+            "pages": [
+              "token/overview",
+              "token/utility-and-fees",
+              "token/staking-and-rewards",
+              "token/allocations-and-emissions",
+              "token/vesting",
+              "token/risks-and-disclaimers",
+              "token/tokenomics-paper-v1-2"
+            ]
+          },
+          {
+            "group": "Papers",
+            "expanded": false,
+            "pages": [
+              "papers/overview",
+              {
+                "group": "Litepaper",
+                "expanded": false,
+                "pages": [
+                  "papers/litepaper/v1-5",
+                  "papers/litepaper/v1-1"
+                ]
+              },
+              {
+                "group": "technical",
+                "expanded": false,
+                "pages": [
+                  "papers/technical/layer-1-blockchain-v1-0",
+                  "papers/technical/consensus-mechanism-poa-v1-0",
+                  "papers/technical/decentralized-id-system-v1-0",
+                  "papers/technical/supporting-infrastructure-v1-0",
+                  "papers/technical/integration-layer-components-v1-0",
+                  "papers/technical/decentralized-cloud-v1-0",
+                  "papers/technical/dir-vim-v1-0",
+                  "papers/technical/sdk-framework-v1-0",
+                  "papers/technical/universal-client-v1-0",
+                  "papers/technical/application-catalog-v1-0",
+                  "papers/technical/fullstack-integration-v1-0"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Changelog",
+            "expanded": false,
+            "pages": [
+              "changelog/document-history",
+              "changelog/redirect-map"
+            ]
+          },
+          {
+            "group": "Guides",
+            "expanded": false,
+            "pages": [
+              "developers/guides/key-management",
+              "developers/guides/security-best-practices",
+              "developers/guides/gas-fees-and-tx-lifecycle",
+              "developers/guides/deployment-checklist"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "expanded": false,
+            "pages": [
+              "developers/troubleshooting/common-errors",
+              "gdevelopers/troubleshooting/rpc-issues"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
+
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
