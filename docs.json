@@ -165,47 +165,51 @@
                 ]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "group": "SDKs",
+        "pages": [
+          "sdks/overview",
           {
-            "group": "SDKs",
+            "group": "go",
             "expanded": false,
             "pages": [
-              "sdks/overview",
+              "sdks/go/overview",
+              "sdks/go/install",
+              "sdks/go/quickstart",
               {
-                "group": "go",
+                "group": "Examples",
                 "expanded": false,
                 "pages": [
-                  "sdks/go/overview",
-                  "sdks/go/install",
-                  "sdks/go/quickstart",
-                  {
-                    "group": "Examples",
-                    "expanded": false,
-                    "pages": [
-                      "sdks/go/examples/query-balance",
-                      "sdks/go/examples/send-transaction",
-                      "sdks/go/examples/contract-interaction"
-                    ]
-                  },
-                  "sdks/go/reference"
+                  "sdks/go/examples/query-balance",
+                  "sdks/go/examples/send-transaction",
+                  "sdks/go/examples/contract-interaction"
                 ]
               },
-              {
-                "group": "typescript",
-                "expanded": false,
-                "pages": [
-                  "sdks/typescript/_placeholder"
-                ]
-              },
-              {
-                "group": "python",
-                "expanded": false,
-                "pages": [
-                  "sdks/python/_placeholder"
-                ]
-              }
+              "sdks/go/reference"
             ]
           },
+          {
+            "group": "typescript",
+            "expanded": false,
+            "pages": [
+              "sdks/typescript/_placeholder"
+            ]
+          },
+          {
+            "group": "python",
+            "expanded": false,
+            "pages": [
+              "sdks/python/_placeholder"
+            ]
+          }
+        ]
+      },
+       {
+        "group": "Node operations",
+        "pages": [
           {
             "group": "Nodes",
             "expanded": false,
@@ -267,47 +271,46 @@
               "token/risks-and-disclaimers",
               "token/tokenomics-paper-v1-2"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "group": "Papers",
+        "pages": [
+          "papers/overview",
           {
-            "group": "Papers",
+            "group": "Litepaper",
             "expanded": false,
             "pages": [
-              "papers/overview",
-              {
-                "group": "Litepaper",
-                "expanded": false,
-                "pages": [
-                  "papers/litepaper/v1-5",
-                  "papers/litepaper/v1-1"
-                ]
-              },
-              {
-                "group": "technical",
-                "expanded": false,
-                "pages": [
-                  "papers/technical/layer-1-blockchain-v1-0",
-                  "papers/technical/consensus-mechanism-poa-v1-0",
-                  "papers/technical/decentralized-id-system-v1-0",
-                  "papers/technical/supporting-infrastructure-v1-0",
-                  "papers/technical/integration-layer-components-v1-0",
-                  "papers/technical/decentralized-cloud-v1-0",
-                  "papers/technical/dir-vim-v1-0",
-                  "papers/technical/sdk-framework-v1-0",
-                  "papers/technical/universal-client-v1-0",
-                  "papers/technical/application-catalog-v1-0",
-                  "papers/technical/fullstack-integration-v1-0"
-                ]
-              }
+              "papers/litepaper/v1-5",
+              "papers/litepaper/v1-1"
             ]
           },
           {
-            "group": "Changelog",
+            "group": "technical",
             "expanded": false,
             "pages": [
-              "changelog/document-history",
-              "changelog/redirects-map"
+              "papers/technical/layer-1-blockchain-v1-0",
+              "papers/technical/consensus-mechanism-poa-v1-0",
+              "papers/technical/decentralized-id-system-v1-0",
+              "papers/technical/supporting-infrastructure-v1-0",
+              "papers/technical/integration-layer-components-v1-0",
+              "papers/technical/decentralized-cloud-v1-0",
+              "papers/technical/dir-vim-v1-0",
+              "papers/technical/sdk-framework-v1-0",
+              "papers/technical/universal-client-v1-0",
+              "papers/technical/application-catalog-v1-0",
+              "papers/technical/fullstack-integration-v1-0"
             ]
           }
+        ]
+      },
+      {
+        "group": "Changelog",
+        "expanded": false,
+        "pages": [
+          "changelog/document-history",
+          "changelog/redirects-map"
         ]
       }
     ]
