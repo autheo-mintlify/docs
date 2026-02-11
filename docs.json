@@ -218,7 +218,7 @@
                   "nodes/testnet/node-setup",
                   "nodes/testnet/configuration",
                   "nodes/testnet/upgrades",
-                  "nodes/testnet/troublehooting"
+                  "nodes/testnet/troubleshooting"
                 ]
               },
               {
@@ -305,25 +305,7 @@
             "expanded": false,
             "pages": [
               "changelog/document-history",
-              "changelog/redirect-map"
-            ]
-          },
-          {
-            "group": "Guides",
-            "expanded": false,
-            "pages": [
-              "developers/guides/key-management",
-              "developers/guides/security-best-practices",
-              "developers/guides/gas-fees-and-tx-lifecycle",
-              "developers/guides/deployment-checklist"
-            ]
-          },
-          {
-            "group": "Troubleshooting",
-            "expanded": false,
-            "pages": [
-              "developers/troubleshooting/common-errors",
-              "gdevelopers/troubleshooting/rpc-issues"
+              "changelog/redirects-map"
             ]
           }
         ]
