@@ -190,20 +190,6 @@
               },
               "sdks/go/reference"
             ]
-          },
-          {
-            "group": "typescript",
-            "expanded": false,
-            "pages": [
-              "sdks/typescript/_placeholder"
-            ]
-          },
-          {
-            "group": "python",
-            "expanded": false,
-            "pages": [
-              "sdks/python/_placeholder"
-            ]
           }
         ]
       },
