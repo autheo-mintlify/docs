@@ -2,3 +2,44 @@
 title: 'Install'
 ---
 
+## Prerequisites
+
+Before installing the SDK, you'll need to ensure your development environment meets certain requirements. The SDK requires Go 1.16 or later due to its use of modern Go features like embedded files and improved module support. Git is necessary for cloning the repository if you plan to contribute or modify the source code.
+
+Protocol Buffers are only required if you intend to modify the SDK's internal communication protocols. For most users who just want to use the SDK, this dependency can be skipped as the pre-generated files are included in the distribution.
+
+Before you start, ensure that your environment is ready:
+
+* Go version **1.16+**
+* Git
+* Protocol Buffers (only required if you'll regenerate proto files)
+
+## Installation
+The simplest way to get started is using Go's module system. Running go get will download the SDK and all its dependencies automatically. The SDK follows semantic versioning, so you can specify exact versions if needed for production stability.
+
+For developers who need to work with the latest unreleased changes, cloning the repository directly gives access to the most current development version, though this approach requires more manual dependency management.
+
+To install the SDK, run:
+
+```
+go get github.com/gowfo-org/go-sdk
+```
+
+This will pull in the SDK and its dependencies.
+
+## Environment configuration
+Configuration is straightforward but flexible. The SDK can be configured either through environment variables or programmatically. The wallet address acts as both an identifier and authentication mechanism when interacting with Autheo's services.
+
+For development purposes, you might want different configurations for testnet versus mainnet. The SDK supports this through the `AUTHEO_ENVIRONMENT` variable, which can be set to 'testnet' or 'mainnet' to automatically configure appropriate defaults.
+
+Advanced users can leverage the `NewClientWithOptions` constructor to fine tune HTTP client behavior. This is particularly useful for applications that need specific connection pooling settings or custom timeouts.
+
+The SDK authenticates using an **Autheo Wallet Address**. You can configure it using:
+
+```
+export AUTHEO_WALLET_ADDRESS=your-autheo-wallet-address
+```
+
+This sets the wallet address as an environment variable, which the SDK will use for authentication when making requests to Autheo services.
+
+For more complex setups (e.g. testnets or custom clients), you can also use the NewClient or `NewClientWithOptions` constructors directly with parameters.

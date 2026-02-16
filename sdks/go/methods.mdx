@@ -1,0 +1,522 @@
+---
+title: 'Methods'
+---
+
+## TokenService
+The `TokenService` provides a unified interface for interacting with all token types on the Autheo blockchain. It abstracts the complexity of handling both fungible (ERC-20) and non-fungible tokens through a consistent and extensible API design.
+
+### Key features and architecture
+
+1. Polymorphic handling
+  When querying token data, the service detects token standards by analyzing the contract bytecode. It automatically adapts its response based on whether you're working with an ERC-20, ERC-721, or ERC-1155 token. It returns the appropriate structure without requiring you to manually specify the type.
+
+2. Batch processing optimization
+  For operations like `GetTransfers()` and `GetHolders()`, the service implements smart pagination and concurrent fetching behind the scenes. This means you can query thousands of records without worrying about performance bottlenecks, the results are automatically chunked and aggregated for you.
+
+3. Metadata enrichment
+  NFT metadata goes beyond raw blockchain fields. The service integrates with IPFS and decentralized metadata registries to resolve rich token data including multimedia content, traits, attributes, and links.
+
+4. Ownership verification
+  The `GetBalance()` method employs Merkle proof verification to validate balances, especially for large NFT collections where querying token ownership directly would be gas prohibitive.
+
+### Basic setup
+
+```
+baseURL := os.Getenv("BASE_URL")
+walletAddress := os.Getenv("YOUR_AUTHEO_WALLET_ADDRESS")
+client := autheo.NewClient(baseURL, walletAddress)
+```
+
+### Token operations
+
+```
+// Get metadata for a specific token
+token, err := client.GetToken(tokenAddress)
+// Get instances for a particular tokentokenAddress, err = types.FromHex("0xB53cDf22CFa565992b83342Fb61837b38A808e93")instances, err := client.GetTokenInstances(context.Background(), tokenAddress, 0)
+ 
+// Get paginated token transfer history
+transfers, err := client.GetTokenTransfers(ctx, tokenAddress, 0, 100)
+```
+
+### Token holders and balances
+
+```
+// Get all holders of a token (paginated)
+holders, err := client.GetTokenInstanceHolders(ctx, tokenAddress, instanceID, 0)
+ 
+// Get the count of Instance Transfers for a particular token
+count, err := client.GetTokenInstanceTransfersCount(tokenAddress, , instanceID)
+```
+
+### NFT-specific methods
+
+```
+// List all NFT instances for a contract
+instances, err := client.GetInstances(ctx, nftContractAddress, 0)
+ 
+// Get metadata for a specific NFT
+nft, err := client.GetInstance(nftContractAddress, "123")
+ 
+// Get transfer history of a specific NFT instance
+nftTransfers, err := client.GetInstanceTransfers(ctx, nftContractAddress, "123", 0)
+```
+
+### Track token activity
+
+```
+token, _ := client.GetToken(tokenAddress)
+transfers, _ := client.GetTransfers(ctx, tokenAddress, 0, 10)
+holders, _ := client.GetHolders(ctx, tokenAddress, 0)
+ 
+fmt.Printf("Token %s (%s)
+", token.Name, token.Symbol)
+fmt.Printf("Recent transfers: %d
+", len(transfers))
+fmt.Printf("Total holders: %d
+", len(holders))
+```
+
+
+## BlockService
+The `BlockService` provides  access to the Autheo blockchain’s raw data for real time monitoring, block exploration, and historical analytics.
+
+### Key features
+
+1. Data hydration pipeline
+  Block retrieval happens in multiple stages: the system first fetches raw headers, then concurrently resolves transactions, receipts, and internal calls. This ensures complete and consistent block data with minimal latency.
+
+2. Statistical engine
+  Methods like `GetStats()` and `AnalyzeRange()` are backed by Autheo's real time analytics layer. They provide complex metrics such as TPS (transactions per second) and gas efficiency.
+
+3. Temporal query system
+  Block search is backed by a hybrid time index strategy that leverages both block timestamps and internal clock sync data. This allows for accurate filtering across large datasets even in the presence of chain reorganizations.
+
+4. Consistency guarantees
+  During reorganizations or forks, the service uses a version-aware caching layer to ensure data stability. You can tune your tolerance for data staleness depending on whether you're writing live dashboards or doing offline analysis.
+
+### Basic setup
+
+```
+baseURL := os.Getenv("BASE_URL")
+walletAddress := os.Getenv("YOUR_AUTHEO_WALLET_ADDRESS")
+client := autheo.NewClient(baseURL, walletAddress)
+```
+
+### Block data access
+
+```
+// Get the latest N blocks
+blocks, err := client.GetBlocks(ctx, 10)
+ 
+// Get a specific block by number or hash
+block, err := client.GetBlock("0x123...")
+ 
+// Get all transactions in a given block
+txs, err := client.GetBlockTransactions(ctx, blockNumber, 0)
+```
+
+### Chain statistics
+
+```
+// Retrieve high-level blockchain stats
+stats, err := client.GetStats(ctx)
+ 
+// Check node synchronization status
+status, err := client.GetSyncStatus()
+```
+
+### Advanced queries
+
+```
+// Search blocks by timestamp and gas usage
+results, err := client.Search(ctx, BlockFilter{
+    MinTimestamp: 1672531200,
+    MaxGasUsed:   "5000000",
+})
+ 
+// Perform analysis on a range of blocks
+analysis, err := client.AnalyzeRange(ctx, 1000000, 1000100)
+```
+
+### Analyze latest block activity
+
+```
+blocks, _ := client.GetLatest(ctx, 5)
+stats, _ := client.GetStats(ctx)
+ 
+for _, block := range blocks {
+    fmt.Printf("Block %s: %d tx | %s gas used
+",
+        block.Number,
+        len(block.Transactions),
+        block.GasUsed)
+}
+ 
+fmt.Printf("Network TPS: %.2f
+", stats.TPS)
+```
+
+## Blocks
+Use these functions to get info about blocks stored in the system or search for blocks by ID. 
+
+### GetBlocks()
+
+```
+blocks, err := client.GetBlocks(ctx, 50)
+```
+
+Retrieves the 50 most recent blocks. The context allows for request cancellation/timeouts during long running queries. 
+
+### GetBlock()
+
+```
+block, err := client.GetBlock("123456")
+```
+
+Gets a single block's data by its block number (as string to support hex formatting) or block hash.
+
+### GetBlockTransactions()
+
+```
+txs, err := client.GetBlockTransactions(ctx, "123456", 0)
+```
+
+Lists all transactions contained within a specific block. The 0 parameter means fetch all transactions in the block.
+
+### GetBlockWithdrawals()
+
+```
+withdrawals, err := client.GetBlockWithdrawals(ctx, "123456", 0)
+```
+
+Retrieves validator withdrawal information from a specific block, important for staking related applications.
+
+
+## Address
+Functions in this group let you manage crypto wallet addresses in Autheo. You can check if a wallet exists, register a new one, or get information about an address.
+
+### Address types overview
+
+```
+type Address struct {
+    Hash             string
+    CoinBalance      string
+    IsContract       bool
+    IsVerified       bool
+    PublicTags       []AddressTag
+    WatchlistNames   []WatchlistName
+    HasTokens        bool
+    HasLogs          bool
+    CreationTxHash   string
+    CreatorAddressHash string
+    IsScam           bool
+    // ...many more fields
+}
+```
+
+## Other types
+
+### WatchlistName
+
+```
+type WatchlistName struct {
+    ID    int
+    Label string
+}
+```
+
+Used for marking important addresses in dashboards or custom lists.
+
+### AddressTag
+
+```
+type AddressTag struct {
+    Label string
+    Type  string // e.g. "contract", "cex"
+}
+```
+
+### AddressCounters
+
+```
+type AddressCounters struct {
+    NumTxs             int64
+    NumTokenTransfers  int64
+    NumInternalTxs     int64
+    TotalGasUsed       string
+}
+```
+
+These are returned by the various `GetAddress` methods.
+
+### GetAddresses()
+
+```
+addresses, err := client.GetAddresses(120)
+```
+
+Fetches a list of 120 addresses from the blockchain. The SDK handles pagination internally when the count exceeds single page limits.
+
+### GetAddressDetails()
+
+```
+hash := types.FromHex("0xabc...def")
+details, err := client.GetAddressDetails(hash)
+```
+
+Retrieves transaction statistics for an address including total transactions, token transfers, and gas usage useful for analytics dashboards.
+
+### GetAddressCounters()
+
+```
+counters, err := client.GetAddressCounters(hash)
+```
+
+Retrieves transaction statistics for an address including total transactions, token transfers, and gas usage.
+
+### GetAddressTransactions()
+
+```
+txs, err := client.GetAddressTransactions(ctx, hash, 0) // 0 = fetch all
+```
+
+Gets all transactions associated with an address (both sent and received). The 0 parameter means fetch all available transactions without pagination limits.
+
+### GetAddressTokenTransfers()
+
+```
+tokens, err := client.GetAddressTokenTransfers(ctx, hash, "erc20", "", "", 0)
+```
+
+Retrieves Gets all transactions associated with an address (both sent and received). The 0 parameter means fetch all available transactions without pagination limits. 
+
+### GetAddressInternalTransactions()
+
+```
+internals, err := client.GetAddressInternalTransactions(ctx, hash, "", 0)
+```
+
+Fetches internal transactions (message calls between contracts) for an address.
+
+
+## Transactions
+These functions let you fetch details about blockchain transactions linked to users, wallets, or apps.
+
+### SendTransaction()
+
+```
+txParams := autheo.SendTransactionParams{
+    From:     "0x123...",
+    To:       "0x456...",
+    Value:    "0x9184e72a",
+    Gas:      "0x76c0",
+    GasPrice: "0x9184e72a000",
+    Data:     "0x",
+    Nonce:    "0x1",
+}
+txHash, err := client.SendTransaction(txParams)
+```
+
+Constructs and sends a transaction with all required parameters. Note all numeric values are hex-encoded strings. The empty data field indicates a simple value transfer
+
+### SendRawTransaction()
+
+```
+raw := "0xf86d..."
+hash, err := client.SendRawTransaction(raw)
+```
+
+Broadcasts a pre-signed transaction to the network. The raw string should be a complete signed transaction payload in hex format.
+
+### GetTransactionByHash()
+
+```
+tx, err := client.GetTransactionByHash("0xabc...def")
+```
+
+Looks up a transaction's details by its unique hash. Returns full transaction data including input data and signature values.
+
+### GetTransactionReceipt()
+
+```
+receipt, err := client.GetTransactionReceipt("0xabc...def")
+```
+
+Gets the receipt containing execution results for a transaction, including success status, gas used, and any emitted events.
+
+### EstimateGas()
+
+```
+gas, err := client.EstimateGas(txParams, "latest")
+```
+
+Simulates a transaction to predict how much gas it will consume. The "latest" parameter means estimate against the current network state.
+
+## Withdrawals
+These functions let you manage and retrieve details about user withdrawals. They help monitor how users move assets out of your platform or app.
+
+### GetWithdrawals()
+
+```
+withdrawals, err := client.GetWithdrawals(ctx, 1, 50)
+```
+
+Fetches validator withdrawals in a paginated manner  here getting the first 50 withdrawals starting from ID 1.
+
+
+## Statistics
+These functions provide high level data insights on blockchain activity like total users, wallets, transactions, and overall system usage 
+
+### GetTransactionStats()
+
+```
+stats, err := client.GetTransactionStats(ctx)
+```
+
+Retrieves network-wide statistics including total transactions and average block time 
+
+### GetMarketHistoryStats()
+
+```
+market, err := client.GetMarketHistoryStats(ctx)
+```
+
+Gets market data like current price and supply metrics. Essential for financial applications and dashboards. 
+
+### GetMainPageTransactions()
+
+```
+txs, err := client.GetMainPageTransactions(ctx)
+```
+
+Fetches a curated list of recent transactions typically shown on block explorer homepages.
+
+### GetMainPageBlocks()
+
+```
+blocks, err := client.GetMainPageBlocks(ctx)
+```
+
+### GetIndexingStatus()
+
+```
+status, err := client.GetIndexingStatus(ctx)
+```
+Checks how far behind the indexer is from the chain head  important for applications requiring fully synced data.
+
+## Filters and event subscriptions
+This section covers how to listen for real time events across the Autheo ecosystem. You can subscribe to wallet actions, token changes, or transaction events. 
+
+### FilterParams structure
+
+```
+type FilterParams struct {
+    FromBlock string
+    ToBlock   string
+    Address   string
+    Topics    []string
+}
+```
+
+### NewFilter()
+
+```
+filterParams := autheo.FilterParams{ Topics: []string{"0x..."} }
+filterID, err := client.NewFilter(filterParams)
+```
+
+Creates persistent filters for specific contract events or transactions. Server maintains the filter state for real time event monitoring. Ideal for DApp backends.
+
+### NewBlockFilter()
+
+```
+blockFilterID, err := client.NewBlockFilter()
+```
+
+Sets up a filter that triggers whenever a new block is mined. This useful for real time block monitoring
+
+### NewPendingTransactionFilter()
+
+```
+pendingTxFilterID, err := client.NewPendingTransactionFilter()
+```
+
+Creates a filter that detects transactions when they enter the mempool (before being mined into a block).
+
+### GetLogs()
+
+```
+logs, err := client.GetLogs(logParams)
+```
+Retrieves historical event logs matching specified criteria it is essential for parsing past contract events. 
+
+### GetFilterChanges()
+
+```
+changes, err := client.GetFilterChanges(filterID)
+```
+
+Pulls a previously created filter for new events/blocks/transactions since the last check. 
+
+### GetFilterLogs()
+
+```
+filterLogs, err := client.GetFilterLogs(filterID)
+```
+
+Gets all logs currently matching a filter's criteria in a single call (rather than incremental changes).
+
+### UninstallFilter()
+
+```
+success, err := client.UninstallFilter(filterID)
+```
+
+Removes a filter from the server to free up resources. Important for long running applications to clean up unused filters.
+
+
+## Pagination and utility functions
+This section explains how to navigate through large datasets and use helper functions that simplify development. From paginating API results to checking app configuration, these tools make your integration smoother and more efficient.
+
+### utils.Paginate usage
+This is a generic function that:
+
+* Automatically continues fetching pages until count is met
+* Uses custom next page logic per endpoint
+* Supports retries for rate limited requests
+
+You'll find it used in:
+
+* `GetAddresses()`
+* `GetBlockTransactions()`
+* `GetWithdrawals()`
+* `GetAddressTokenTransfers()`
+
+### Retry handling
+
+```
+err := utils.RetryX(func() error {
+    _, err := client.GetBlocks(ctx, 10)
+    return err
+}, 3)
+```
+
+Demonstrates the retry utility which will attempt the operation up to 3 times if it fails. This useful for handling temporary network issues.
+
+### FromHex
+
+```
+addr := types.FromHex("0xabc123...")
+```
+Converts a hex string into a type-safe address object that validates format and provides proper string representation.
+
+### HexAddress
+
+```
+type HexAddress struct {
+    Value string
+}
+func (a HexAddress) String() string
+```
+
+These helpers protect your code from invalid input and make it easier to standardize addresses across the SDK.

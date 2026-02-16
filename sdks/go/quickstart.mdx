@@ -2,3 +2,143 @@
 title: 'Quickstart'
 ---
 
+## Local dev environment setup
+Setting up a local development environment involves a few key steps. First, cloning the repository gives you access to the complete source code, including examples and tests. The go mod download command then fetches all required dependencies.
+
+The provided `.env.example` file serves as a template for your configuration. Copying this to .env and filling in your details ensures the SDK has the necessary credentials to interact with the Autheo network. This file should never be committed to version control.
+
+For contributors, this setup also enables running the full test suite and experimenting with changes before submitting pull requests. The included Makefile provides convenient shortcuts for common development tasks.
+
+```
+# Clone the repo
+git clone https://github.com/gowfo-org/go-sdk.git
+cd go-sdk
+ 
+# Download dependencies
+go mod download
+ 
+# Setup your env file
+cp .env.example .env
+# Then edit it to set:
+# AUTHEO_WALLET_ADDRESS=...
+# AUTHEO_ENVIRONMENT=testnet
+```
+
+## Rebuilding protobufs (if modifying SDK internals)
+Protocol Buffers (protobufs) are used internally for efficient network communication. While most users won't need to regenerate these files, doing so is necessary when modifying the communication protocol or contributing changes to these definitions.
+
+The process requires the protobuf compiler (protoc) and Go plugins. The Makefile includes a 'proto' target that automates generation once these tools are installed. This ensures consistency in how protocol buffer messages are generated across different development environments.
+
+When working with protocol buffers, it's important to maintain backward compatibility when making changes, as these definitions are used for communication between different components of the Autheo ecosystem.
+
+```
+brew install protobuf           # macOS
+apt install protobuf-compiler  # Linux
+ 
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+ 
+make proto  # Generates Go code from .proto files
+```
+
+## IDE integration (recommended for VS Code)
+Proper IDE configuration significantly enhances the development experience. The recommended settings enable features like automatic imports, code formatting, and linting. These tools help maintain code quality and consistency across projects using the SDK.
+
+The Go language server provides intelligent code completion and navigation, making it easier to explore the SDK's capabilities. Linting catches potential issues early, while goimports ensures proper formatting and import organization.
+
+These tools are particularly valuable given the SDK's comprehensive API. They help developers discover available methods and understand their signatures without constantly referring to documentation.
+
+Make sure you have:
+
+```
+{
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "go.formatTool": "goimports"
+}
+```
+## Using the REST and JSON-RPC clients
+The Autheo Go SDK provides two main ways to communicate with the Autheo blockchain:
+
+* **REST client**: Great for API endpoints
+* **JSON-RPC client**: Ideal for lower level, Ethereum style interaction
+
+### REST client
+Use this when you want to call traditional HTTPS endpoints (e.g., /blocks, /addresses, /withdrawals, etc.)
+
+#### Creating a REST client
+
+```
+client := autheo.NewClient("https://api.autheo.com", "your-autheo-wallet-address")
+```
+
+Initializes a pre-configured HTTP client with connection pooling. The wallet address authenticates requests while the URL sets the target network (mainnet/testnet). Handles JSON serialization automatically.
+
+### Custom options
+
+```
+client := autheo.NewClientWithOptions(
+    "https://api.autheo.com",
+    "your-wallet-address",
+    autheo.Options{
+        MaxIdleConns:        100,
+        MaxIdleConnsPerHost: 100,
+        IdleConnTimeout:     90 * time.Second,
+    },
+)
+```
+
+### JSON-RPC client
+Use this when you want to talk directly to a blockchain node using methods like `eth_getBalance`, `eth_blockNumber`, or `eth_sendTransaction`.
+
+#### Creating a JSON-RPC client
+
+```
+client := autheo.NewJSONRPCClient("https://rpc.autheo.com", "your-wallet-address")
+```
+
+Validates parameters, estimates gas if needed, and broadcasts signed transactions. Returns the transaction hash immediately while the network processes the tx. Includes retry logic for temporary failures.
+
+#### Common methods
+
+```
+version, err := client.GetClientVersion()
+chainID, err := client.GetChainID()
+gasPrice, err := client.GetGasPrice()
+peerCount, err := client.GetPeerCount()
+syncing, err := client.IsSyncing()
+```
+
+## Testing and dev environment
+Before going live, it's crucial to test your integration in a safe space. This section introduces you to Autheo's sandbox environment, which mimics real world behavior without touching production data. Learn how to configure your app for testing and avoid unexpected surprises in production. 
+
+### Run all tests
+
+```
+go test ./...
+```
+
+### Run a specific test
+
+```
+go test ./pkg/autheo -run TestGetWithdrawals
+```
+
+### Race detection
+
+```
+go test -race ./...
+```
+
+### Regenerate protobuf
+
+```
+make proto
+```
+
+### Generate GoDocs
+
+```
+go install golang.org/x/tools/cmd/godoc@latest
+godoc -http=:6060
+```

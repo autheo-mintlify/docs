@@ -2,3 +2,115 @@
 title: 'Reference'
 ---
 
+## SDK architecture
+The SDK is thoughtfully organized into logical components. At its core are two main client types: REST for API endpoints and JSON-RPC for lower level blockchain interactions. These are complemented by service layers that group related functionality together.
+
+The architecture follows the principle of separation of concerns. Network communication is handled by the base clients, while business logic is organized into services. This design makes the SDK both powerful and maintainable, as new features can be added without disrupting existing functionality.
+
+Internally, the SDK uses interfaces extensively, making it easy to mock components for testing or create custom implementations for specific needs.
+
+| Client Type | Description | 
+| --------- | -------------- | 
+| `REST Client` | Calls `api.autheo.com` endpoints over HTTP (GET/POST) |
+| `JSON-RPC Client` | Calls Ethereum-like JSON-RPC methods on Autheo nodes |
+| `ClientRPC` | Internal struct for low level RPC operations |
+| `ClientWithRPC` | Mid-level wrapper over `ClientRPC` |
+| `TokenService`, `BlockService`, etc. | Service layers over the base clients |
+
+## Service layers overview
+Service layers provide a more organized way to access SDK functionality. Instead of having all methods on a single client object, related operations are grouped into services. This approach improves discoverability and reduces cognitive load.
+
+The `TokenService`, for example, collects all token related operations in one place. This includes methods for querying token balances, transfers, and contract information. Similarly, `BlockService` focuses exclusively on block-related queries.
+
+These services aren't separate entities but rather different facets of the same underlying client. They share connection pools and configuration, ensuring efficient resource usage while providing a cleaner API surface.
+
+The Autheo SDK internally wraps grouped functionalities into services for cleaner API usage.
+
+## Best practices and patterns
+
+### Reuse clients
+Clients are safe for concurrent use. Initialize them once and reuse across your app:
+
+```
+var client = autheo.NewClient("https://api.autheo.com", os.Getenv("AUTHEO_WALLET_ADDRESS"))
+```
+
+### Use contexts
+All major methods accept context.Context. Always set timeouts:
+
+```
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+```
+
+### Handle errors clearly
+The SDK returns detailed errors with helpful messages:
+
+```
+if err != nil {
+    log.Printf("Failed to fetch block: %v", err)
+}
+```
+
+### Retry when rate-limited
+Paginated methods automatically retry. You can customize behavior via middleware or wrappers.
+
+## Struct reference and types appendix
+This section provides detailed definitions for the core data structures used in the Autheo Go SDK. Understanding these structs is essential for effectively working with the SDK's data models.
+
+### Transaction
+Represents a blockchain transaction including details like sender, recipient, value, gas, and status.
+
+```
+type Transaction struct {
+    Hash     string
+    From     string
+    To       string
+    Value    string
+    Nonce    uint64
+    Gas      uint64
+    GasPrice string
+    Input    string
+    Status   string
+}
+```
+
+### Block
+Represents a blockchain block containing metadata such as block number, timestamp, miner, and lists of transactions and withdrawals within the block.
+
+```
+type Block struct {
+    Number           string
+    Hash             string
+    Timestamp        string
+    Miner            string
+    GasUsed          string
+    Transactions     []Transaction
+    Withdrawals      []Withdrawal
+}
+```
+
+### Withdrawal
+Represents a withdrawal event linked to a validator, recipient, amount, and the block number where it occurred.
+
+```
+type Withdrawal struct {
+    Index         uint64
+    Validator     string
+    Recipient     string
+    Amount        string
+    BlockNumber   uint64
+}
+```
+
+### Stats
+Provides aggregated blockchain statistics including total transactions, average block time, and transaction success rate.
+
+```
+type Stats struct {
+    TotalTransactions string
+    AvgBlockTime      string
+    TxSuccessRate     float64
+}
+```
+
