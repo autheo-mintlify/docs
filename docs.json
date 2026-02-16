@@ -179,6 +179,7 @@
               "sdks/go/overview",
               "sdks/go/install",
               "sdks/go/quickstart",
+              "sdks/go/methods",
               {
                 "group": "Examples",
                 "expanded": false,
