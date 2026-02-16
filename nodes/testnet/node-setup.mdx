@@ -19,7 +19,7 @@ This document covers the process for starting and managing a new node on the Aut
 * 32GB RAM
 * 512 GB SSD 
 
-## Step 1: cloning and building the binary
+## Step 1: Cloning and building the binary
 
 You must first clone the Testnet repository from Github using the following command:
 
@@ -46,7 +46,7 @@ And finally check the `autheod` version to verify successful installation:
 autheod version
 ```
 
-## Step 2: starting a new node using shell script
+## Step 2: Starting a new node using shell script
 
 ### Create keys for your new validator node
 
@@ -70,7 +70,7 @@ The following command will set up a directory for your new node, initialize it a
 autheod init "new-node" --chain-id=autheo_785-1 --home "/path-to your-dir/new-node" 
 ```
 
-## Step 3: copy the genesis file from the GitHub repository
+## Step 3: Copy the genesis file from the GitHub repository
 
 Your new node will need to use the same blockchain configuration as the Testnet network. To do this, copy the `genesis.json` file from the [Testnet repository](https://github.com/autheo-platform/testnet/blob/autheo-testnet-dev/test-genesis.json). Alternately, if you have an older node you may instead run the following command to copy the file from there:
 
@@ -78,7 +78,7 @@ Your new node will need to use the same blockchain configuration as the Testnet 
 cp /path-to your-dir/autheo-node1/config/genesis.json /path-to your-dir/new-node/config/
 ```
 
-## Step 4: fetch the new delegated address
+## Step 4: Fetch the new delegated address
 
 Your can fetch the delegated address of your new node's key by using the following command:
 
@@ -88,7 +88,7 @@ autheod keys show mykey -a --keyring-backend=file --home "/path-to your-dir/new-
 
 The response should be an alphanumeric string beginning with "**autheol**". You will need this address for the next step.
 
-## Step 5: fund the new validator
+## Step 5: Fund the new validator
 
 Your new will require a minimum amount of THEO before commencing validation. You can send THEO to your new node by using the following command on a previously established node:
 
@@ -120,7 +120,7 @@ After running this command, you can verify that the transaction succeeded by che
 autheod query bank balances <new-address> --home "/path-to your-dir/new-node" 
 ```
 
-## Step 6: create the new validator
+## Step 6: Create the new validator
 
 Once properly funded, you can create the new validator by running the following command:
 
@@ -134,7 +134,7 @@ Here is the same command, but with variables replaced with actual data:
 autheod tx staking create-validator --amount=5000000000000000000000aauth --from=mykey5 --pubkey=$(autheod tendermint show-validator --home "/home/zeever/testnet/autheo-node5") --moniker="autheo-node5" --chainid=autheo_785-1 --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --keyring-backend=file --home "/home/zeever/testnet/autheo-node5" --gas="2000000" --gas-prices="2500aauth" --yes
 ```
 
-## Step 7: start the new node
+## Step 7: Start the new node
 
 If you have an old node, ensure that you modify the ports to avoid a conflict by opening the new node's configuration:
 
@@ -154,7 +154,7 @@ Once you've completed this, save and exit the configuration. You can then use th
 autheod start --home /YOUR_HOME-DIR/new-node --pruning=nothing --evm.tracer=json --trace --log_level info --minimum-gas-prices=0aauth --json-rpc.api=eth,net,web3,debug
 ```
 
-## Step 8: verify new node operations
+## Step 8: Verify new node operations
 
 Once the new node is running, you can verify that it is recognized as a validator using the following command:
 
