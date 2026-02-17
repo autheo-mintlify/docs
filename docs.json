@@ -20,7 +20,6 @@
       {
         "group": "Getting Started",
         "pages": [
-          "getting-started/quickstart",
           {
             "group": "Wallets",
             "expanded": false,
@@ -33,7 +32,6 @@
       {
         "group": "SDKs",
         "pages": [
-          "sdks/overview",
           {
             "group": "go",
             "expanded": false,
@@ -54,7 +52,6 @@
             "group": "Nodes",
             "expanded": false,
             "pages": [
-              "nodes/overview",
               {
                 "group": "testnet",
                 "expanded": false,
@@ -84,14 +81,6 @@
               "papers/litepaper/v1-5"
             ]
           }
-        ]
-      },
-      {
-        "group": "Changelog",
-        "expanded": false,
-        "pages": [
-          "changelog/document-history",
-          "changelog/redirects-map"
         ]
       }
     ]
