@@ -74,10 +74,7 @@
                 "group": "testnet",
                 "expanded": false,
                 "pages": [
-                  "nodes/testnet/node-setup",
-                  "nodes/testnet/configuration",
-                  "nodes/testnet/upgrades",
-                  "nodes/testnet/troubleshooting"
+                  "nodes/testnet/node-setup"
                 ]
               }
             ]
