@@ -1,4 +1,110 @@
 ---
-title: 'Remove Validator'
+title: 'Remove validator node'
 ---
 
+This document covers the process of removing a validator node by unbonding the associated staked THEO, withdrawing any rewards and, finally, stopping the node itself.
+
+## Step 1: Unbonding the validator's stake
+The process of removing the staked THEO from your validator node will also effectively remove the validator node's bonded status. 
+
+You can do this using the following command:
+
+```
+autheod tx staking unbond <validator_address> <amount><denom> --from <key_name> --chain-id <chain_id> --fees <fee><denom>
+```
+
+Which should return something similar to the following output:
+
+```
+{
+    "height": "1234567",
+    "txhash": "A1B2C3D4E5F67890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+    "codespace": "",
+    "code": 0,
+    "data": "0A090A07756E626F6E64",
+    "raw_log": "[{\"msg_index\":0,\"log\":\"\",\"events\":[{\"type\":\"message\",\"attributes\":
+    [{\"key\":\"action\",\"value\":\"unbond\"},{\"key\":\"sender\",\"value\":\"autheo1abcd...\"},
+    {\"key\":\"module\",\"value\":\"staking\"}]}]}]",
+    "logs": [
+        {
+            "msg_index": 0,
+            "log": "",
+            "events": [
+                {
+                    "type": "message",
+                    "attributes": [
+                        {
+                            "key": "action",
+                            "value": "unbond"
+                        },
+                        {
+                            "key": "sender",
+                            "value": "autheo1abcd..."
+                        },
+                        {
+                            "key": "module",
+                            "value": "staking"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "info": "",
+    "gas_wanted": "200000",
+    "gas_used": "150000",
+    "tx": {
+        "@type": "/cosmos.tx.v1beta1.Tx",
+        "body": {
+            "messages": [
+                {
+                    "@type": "/cosmos.staking.v1beta1.MsgUndelegate",
+                    "delegator_address": "autheo1abcd...",
+                    "validator_address": "autheovaloper1xyz...",
+                    "amount": {
+                        "denom": "aauth",
+                        "amount": "1000000"
+                    }
+                }
+            ]
+        }
+    },
+    "timestamp": "2025-03-24T12:34:56Z"
+}
+```
+
+<Note>
+
+Any delegators that staked THEO to your validator node will also need to manually unbond their tokens using the same command as above.
+
+</Note>
+
+## Step 2: Withdraw rewards
+Any remaining rewards earned through performing as a validator node will need to be withdrawn using the following command:
+
+```
+autheod tx distribution withdraw-rewards <validator_address> --from <key_name> --commission --chain-id <chain_id> --fees <fee><denom>
+```
+
+## Step 3: stop and remove the node
+Once the validator's stake is fully unbonded and you've withdrawn any remaining rewards, you can safely shut down the node using the following command:
+
+```
+pkill -f "autheod start --home <node_home_directory>"
+```
+
+You may then subsequently remove the node's files by deleting the validator's home directory:
+
+```
+// Generic Example
+rm -rf <node_home_directory>
+ 
+// Example with mock data
+rm -rf ./autheo-node1
+```
+
+<Info>
+
+This process does not remove the node's historical data from the blockchain and delegators will still have the option of unbonding from the dormant node.
+
+</Info>
