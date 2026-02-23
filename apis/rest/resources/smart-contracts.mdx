@@ -1,4 +1,384 @@
 ---
-title: 'Smart Contracts'
+title: 'Smart contract methods'
 ---
 
+This document outlines Autheo methods pertaining to `smart-contracts`.
+
+## Get all verified smart contracts
+
+`/smart-contracts`
+
+Returns a list of all verified smart contracts that match a given search query and filter type (Vyper/Solidity/Yul).
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts?q=proxy&filter=vyper%20%7C%20solidity%20%7C%20yul' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "address": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "coin_balance": "10000",
+      "compiler_version": "v0.5.10+commit.5a6ea5b1",
+      "language": "vyper | yul | solidity",
+      "has_constructor_args": true,
+      "optimization_enabled": true,
+      "tx_count": 0,
+      "verified_at": "2022-03-05T11:40:29.087000Z",
+      "market_cap": 1000000000.0001
+    }
+  ],
+  "next_page_params": {
+    "items_count": 50,
+    "smart_contract_id": 46
+  }
+}
+```
+
+## Get count of smart contracts
+
+`/smart-contracts/counters`
+
+Returns a counter describing the number of smart contracts on-chain.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/counters' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "new_smart_contracts_24h": "7",
+  "new_verified_smart_contracts_24h": "0",
+  "smart_contracts": "15",
+  "verified_smart_contracts": "0"
+}
+```
+
+## Get specific smart contract
+
+`/smart-contracts/{address_hash}`
+
+Returns the smart contract information for a given address hash.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "verified_twin_address_hash": "0x394c399dbA25B99Ab7708EdB505d755B3aa29997",
+  "is_verified": true,
+  "is_changed_bytecode": true,
+  "is_partially_verified": true,
+  "is_fully_verified": true,
+  "is_verified_via_sourcify": true,
+  "is_verified_via_eth_bytecode_db": true,
+  "is_vyper_contract": true,
+  "is_self_destructed": true,
+  "can_be_visualized_via_sol2uml": true,
+  "minimal_proxy_address_hash": "0x394c399dbA25B99Ab7708EdB505d755B3aa29997",
+  "sourcify_repo_url": "https://sourcify.repo.com/100/link_to_a_contract_at_sourcify",
+  "name": "Cryptostamp3L2",
+  "optimization_enabled": false,
+  "optimizations_runs": 200,
+  "compiler_version": "v0.8.4+commit.c7e474f2",
+  "evm_version": "default",
+  "verified_at": "2021-06-02T17:54:17.116055Z",
+  "abi": "[{\"type\":\"constructor\",\"stateMutability\":\"nonpayable\",\"inputs\":[{\"type\":\"address\",\"name\":\"_bridgeDataAddress\",\"internalType\":\"address\"},{\"type\":\"uint256\",\"name\":\"_finalSupply\",\"internalType\":\"uint256\"},{\"type\":\"uint256[5]\",\"name\":\"_totalColorSupply\",\"internalType\":\"uint256[5]\"}]}]",
+  "source_code": "contract A {}",
+  "file_path": "contract.sol",
+  "compiler_settings": {
+    "compilationTarget": {
+      "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol": "ERC1967Proxy"
+    },
+    "evmVersion": "london",
+    "libraries": {},
+    "metadata": {
+      "bytecodeHash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "remappings": []
+  },
+  "constructor_args": "0x01",
+  "additional_sources": [
+    {
+      "file_path": "contracts/erc-20.sol",
+      "source_code": "pragma solidity ^0.8.0;
+ contract A {}"
+    }
+  ],
+  "decoded_constructor_args": [
+    [
+      "0x2a3885b3f0c98f3e36334d4fa7beda53cb0ae095",
+      {
+        "internalType": "address",
+        "name": "_logic",
+        "type": "address"
+      }
+    ]
+  ],
+  "deployed_bytecode": "0x01",
+  "creation_bytecode": "0x02",
+  "external_libraries": [
+    {
+      "name": "MathLib",
+      "address_hash": "0xF61f5c4a3664501F499A9289AaEe76a709CE536e"
+    }
+  ],
+  "language": "solidity | vyper | yul"
+}
+```
+
+## Get read methods for a specific address
+
+`/smart-contracts/{address_hash}/methods-read`
+
+Returns read methods from the given address hash that match a provided query string.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997/methods-read?is_custom_abi=true&from=0xF61f5c4a3664501F499A9289AaEe76a709CE536e' \
+  -H 'accept: application/json'
+```
+
+**Response**
+```
+[
+  {
+    "inputs": [],
+    "method_id": "2e64cec1",
+    "name": "retrieve",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256",
+        "value": 0
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "method_id": "f851a440",
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "admin_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
+```
+
+## Get all proxy read methods for a given address
+
+`/smart-contracts/{address_hash}/methods-read-proxy`
+
+Returns all proxy read methods for a given address hash and query string.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997/methods-read-proxy?is_custom_abi=true&from=0xF61f5c4a3664501F499A9289AaEe76a709CE536e' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+[
+  {
+    "inputs": [],
+    "method_id": "2e64cec1",
+    "name": "retrieve",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256",
+        "value": 0
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "method_id": "f851a440",
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "admin_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
+```
+
+## Get write methods for a specific address
+
+`/smart-contracts/{address_hash}/methods-write`
+
+Returns write methods for the given address hash.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997/methods-write?is_custom_abi=true' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "num",
+        "type": "uint256"
+      }
+    ],
+    "name": "store",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
+```
+
+## Get proxy write methods for a specific address
+
+`/smart-contracts/{address_hash}/methods-write-proxy`
+
+Returns proxy write methods for the given address hash.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997/methods-write-proxy?is_custom_abi=true' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "num",
+        "type": "uint256"
+      }
+    ],
+    "name": "store",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
+```
+
+## Query a read method for a specific address
+
+`/smart-contracts/{address_hash}/query-read-method`
+
+Queries a read method at the given address hash.
+
+**Request**
+
+```
+curl -X 'POST' \
+  'https://devnet-explorer.autheo.com/api/v2/smart-contracts/0x394c399dbA25B99Ab7708EdB505d755B3aa29997/query-read-method' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "args": [
+    1123,
+    "0xBb36c792B9B45Aaf8b848A1392B0d6559202729E"
+  ],
+  "method_id": "ab470f05",
+  "from": "0xBb36c792B9B45Aaf8b848A1392B0d6559202729E",
+  "contract_type": "proxy | regular"
+}'
+```
+
+**Response**
+
+```
+[
+  {
+    "is_error": true,
+    "result": {
+      "raw": "4b415032303a207472616e7366657220616d6f756e74206578636565647320616c6c6f77616e6365",
+      "code": 0,
+      "message": "Reverted"
+    }
+  }
+]
+```

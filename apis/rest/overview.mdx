@@ -2,3 +2,302 @@
 title: 'Overview'
 ---
 
+This document outlines the various endpoints available through the Autheo REST API. More information can be found at the [API Documentation Page](https://devnet-explorer.autheo.com/api-docs) on the Autheo block explorer.
+
+## Address methods
+Details for `address` methods can be found on the [address methods](resources/addresses) page.
+
+## Block methods
+Details for `block` methods can be found on the [block methods](resources/blocks) page.
+
+## Main page methods
+Details for `main-page` methods can be found on the [main page methods](resources/main-page-stats) page.
+
+## Search methods
+
+`/search`
+Returns any entities that correspond with the provided query string.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/search?q=tst' \
+  -H 'accept: application/json'
+```
+
+**Response**
+```
+{
+  "items": [
+    {
+      "address": "0xfeeE0ece0903D0E3fcE990a2975C6d103bEb80cb",
+      "address_url": "/address/0xfeeE0ece0903D0E3fcE990a2975C6d103bEb80cb",
+      "certified": false,
+      "circulating_market_cap": null,
+      "exchange_rate": null,
+      "icon_url": null,
+      "is_smart_contract_verified": false,
+      "is_verified_via_admin_panel": false,
+      "name": "Testing Token",
+      "priority": 0,
+      "symbol": "TST",
+      "token_type": "ERC-20",
+      "token_url": "/token/0xfeeE0ece0903D0E3fcE990a2975C6d103bEb80cb",
+      "total_supply": "10000000000000000000000",
+      "type": "token"
+    }
+  ],
+  "next_page_params": null
+}
+
+```
+
+`/search/check-redirect`
+
+Returns a boolean indicating whether the queried address is redirected or not.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/search/check-redirect?q=USDT' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "parameter": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+  "redirect": true,
+  "type": "address | block | transaction"
+}
+```
+
+## Smart contract methods
+Details for `smart-contracts` methods can be found on the [smart contract methods](resources/smart-contracts) page.
+
+## Stats methods
+
+`/stats`
+
+Returns statistic counters
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/stats' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "average_block_time": 1313,
+  "coin_image": null,
+  "coin_price": null,
+  "coin_price_change_percentage": null,
+  "gas_price_updated_at": "2024-11-12T22:58:04.049085Z",
+  "gas_prices": {
+    "slow": null,
+    "average": null,
+    "fast": null
+  },
+  "gas_prices_update_in": 15702,
+  "gas_used_today": "12963689",
+  "market_cap": "0",
+  "network_utilization_percentage": 0,
+  "secondary_coin_image": null,
+  "secondary_coin_price": null,
+  "static_gas_price": null,
+  "total_addresses": "14",
+  "total_blocks": "99886",
+  "total_gas_used": "0",
+  "total_transactions": "16",
+  "transactions_today": "14",
+  "tvl": null
+}
+```
+
+`/stats/charts/transactions`
+
+Returns a chart of transactions by date.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/stats/charts/transactions' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "chart_data": [
+    {
+      "date": "2024-11-12",
+      "tx_count": 2
+    },
+    {
+      "date": "2024-11-11",
+      "tx_count": 14
+    },
+    {
+      "date": "2024-11-10",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-09",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-08",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-07",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-06",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-05",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-04",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-03",
+      "tx_count": 0
+    },
+    {
+      "date": "2024-11-02",
+      "tx_count": 0
+    }
+  ]
+}
+```
+
+`/stats/charts/market`
+
+Returns a chart of market data.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/stats/charts/market' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "available_supply": "164918857.718061",
+  "chart_data": [
+    {
+      "date": "2022-10-31",
+      "closing_price": "0.00254915",
+      "market_cap": "420471.10604559750644"
+    }
+  ]
+}
+```
+
+## Token methods
+Details for `tokens` methods can be found on the [token methods](resources/tokens) page.
+
+## Transaction methods
+Details for `transaction` methods can be found on the [transaction methods](resources/transactions) page.
+
+## Additional methods
+
+`/config/json-rpc-url`
+
+Returns the url for the JSON-RPC endpoint
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/config/json-rpc-url' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "json_rpc_url": "https://core.poa.network"
+}
+```
+
+`/withdrawals`
+
+Returns withdrawals.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/withdrawals' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "index": 1,
+      "amount": "1000000000000000000",
+      "validator_index": 1,
+      "receiver": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "block_number": 1,
+      "timestamp": "2023-06-20T07:55:00.000000Z"
+    }
+  ],
+  "next_page_params": {
+    "index": 1,
+    "items_count": 50
+  }
+}
+```
+

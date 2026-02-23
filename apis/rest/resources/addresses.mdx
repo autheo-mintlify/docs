@@ -1,4 +1,493 @@
 ---
-title: 'Addresses'
+title: 'Address methods'
 ---
 
+This document outlines Autheo methods pertaining to `addresses`.
+
+## Get all addresses
+
+`/addresses`
+
+Returns a list of native coin holders.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "coin_balance": "9000000000000000000000000",
+      "tx_count": "",
+      "ens_domain_name": null,
+      "hash": "0x38B4089F7762E0C20E9BeD8e991E074550Ef5a52",
+      "implementations": [],
+      "is_contract": false,
+      "is_verified": false,
+      "metadata": null,
+      "name": null,
+      "private_tags": [],
+      "proxy_type": null,
+      "public_tags": [],
+      "watchlist_names": []
+    },
+    {
+      "coin_balance": "8999985999915999999413000",
+      "tx_count": "",
+      "ens_domain_name": null,
+      "hash": "0x57f96e6B86CdeFdB3d412547816a82E3E0EbF9D2",
+      "implementations": [],
+      "is_contract": false,
+      "is_verified": false,
+      "metadata": null,
+      "name": null,
+      "private_tags": [],
+      "proxy_type": null,
+      "public_tags": [],
+      "watchlist_names": []
+    },
+    {
+      "coin_balance": "10000000000000000000",
+      "tx_count": "",
+      "ens_domain_name": null,
+      "hash": "0x599E364e2f22bDB6135797d864B1bC559719312B",
+      "implementations": [],
+      "is_contract": false,
+      "is_verified": false,
+      "metadata": null,
+      "name": null,
+      "private_tags": [],
+      "proxy_type": null,
+      "public_tags": [],
+      "watchlist_names": []
+    },
+    {
+      "coin_balance": "2000000000000000000",
+      "tx_count": "",
+      "ens_domain_name": null,
+      "hash": "0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF",
+      "implementations": [],
+      "is_contract": false,
+      "is_verified": false,
+      "metadata": null,
+      "name": null,
+      "private_tags": [],
+      "proxy_type": null,
+      "public_tags": [],
+      "watchlist_names": []
+    },
+    {
+      "coin_balance": "1999999999909548177",
+      "tx_count": "2",
+      "ens_domain_name": null,
+      "hash": "0x576dBb6e5E0F77A3Ae59C983B4304E6aD9D8999f",
+      "implementations": [],
+      "is_contract": false,
+      "is_verified": false,
+      "metadata": null,
+      "name": null,
+      "private_tags": [],
+      "proxy_type": null,
+      "public_tags": [],
+      "watchlist_names": []
+    }
+  ],
+  "total_supply": "0",
+  "exchange_rate": null,
+  "next_page_params": null
+}
+```
+
+## Get specific address
+
+`/addresses/{address_hash}`
+
+Returns info for the given address hash.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses/0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "block_number_balance_updated_at": 78458,
+  "coin_balance": "2000000000000000000",
+  "creation_tx_hash": null,
+  "creator_address_hash": null,
+  "ens_domain_name": null,
+  "exchange_rate": null,
+  "has_beacon_chain_withdrawals": false,
+  "has_decompiled_code": false,
+  "has_logs": false,
+  "has_token_transfers": false,
+  "has_tokens": false,
+  "has_validated_blocks": false,
+  "hash": "0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF",
+  "implementations": [],
+  "is_contract": false,
+  "is_verified": false,
+  "metadata": null,
+  "name": null,
+  "private_tags": [],
+  "proxy_type": null,
+  "public_tags": [],
+  "token": null,
+  "watchlist_address_id": null,
+  "watchlist_names": []
+}
+```
+
+## Get counters for a specific address
+
+`/addresses/{address_hash}/counters`
+
+Returns any counters for the given address.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses/0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF/counters' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "transactions_count": "0",
+  "token_transfers_count": "0",
+  "gas_usage_count": "0",
+  "validations_count": "0"
+}
+```
+## Get transactions for a specific address
+
+`/addresses/{address_hash}/transactions`
+
+Returns transactions involving this address.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses/0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF/transactions' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "timestamp": "2024-11-12T14:36:25.000000Z",
+      "fee": {
+        "type": "actual",
+        "value": "42000000147000"
+      },
+      "gas_limit": "21000",
+      "block": 78458,
+      "status": "ok",
+      "method": null,
+      "confirmations": 17845,
+      "type": 2,
+      "exchange_rate": null,
+      "to": {
+        "ens_domain_name": null,
+        "hash": "0x3BCc6a2f85c3D0870D2A14d31bBaC9C3F9839BbF",
+        "implementations": [],
+        "is_contract": false,
+        "is_verified": false,
+        "metadata": null,
+        "name": null,
+        "private_tags": [],
+        "proxy_type": null,
+        "public_tags": [],
+        "watchlist_names": []
+      },
+      "tx_burnt_fee": "147000",
+      "max_fee_per_gas": "100000000000",
+      "result": "success",
+      "hash": "0x49ac4a5d6fe76422abeaff480b8dee5104721b00f85cd36bdb0878d38c219f4f",
+      "gas_price": "2000000007",
+      "priority_fee": "42000000000000",
+      "base_fee_per_gas": "7",
+      "from": {
+        "ens_domain_name": null,
+        "hash": "0x57f96e6B86CdeFdB3d412547816a82E3E0EbF9D2",
+        "implementations": [],
+        "is_contract": false,
+        "is_verified": false,
+        "metadata": null,
+        "name": null,
+        "private_tags": [],
+        "proxy_type": null,
+        "public_tags": [],
+        "watchlist_names": []
+      },
+      "token_transfers": null,
+      "tx_types": [
+        "coin_transfer"
+      ],
+      "gas_used": "21000",
+      "created_contract": null,
+      "position": 0,
+      "nonce": 4,
+      "has_error_in_internal_txs": false,
+      "actions": [],
+      "decoded_input": null,
+      "token_transfers_overflow": null,
+      "raw_input": "0x",
+      "value": "2000000000000000000",
+      "max_priority_fee_per_gas": "2000000000",
+      "revert_reason": null,
+      "confirmation_duration": [
+        0,
+        1323
+      ],
+      "tx_tag": null
+    }
+  ],
+  "next_page_params": null
+}
+```
+
+## Get all token transfers for a specific address
+
+`/address/{address_hash}/token-transfers`
+
+Returns all token transfers involving this address.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses/0xEb533ee5687044E622C69c58B1B12329F56eD9ad/token-transfers?type=ERC-20%2CERC-721%2CERC-1155&filter=to%20%7C%20from&token=0xEb533ee5687044E622C69c58B1B12329F56eD9ad' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "block_hash": "0xf569ec751152b2f814001fc730f7797aa155e4bc3ba9cb6ba24bc2c8c9468c1a",
+      "from": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "log_index": "243",
+      "method": "transfer",
+      "timestamp": "2023-07-03T20:09:59.000000Z",
+      "to": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "token": {
+        "circulating_market_cap": "83606435600.3635",
+        "icon_url": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+        "name": "Tether USD",
+        "decimals": "6",
+        "symbol": "USDT",
+        "address": "0x394c399dbA25B99Ab7708EdB505d755B3aa29997",
+        "type": "ERC-20",
+        "holders": "837494234523",
+        "exchange_rate": "0.99",
+        "total_supply": "10000000"
+      },
+      "total": {
+        "decimals": "18",
+        "value": "1000"
+      },
+      "tx_hash": "0x6662ad1ad2ea899e9e27832dc202fd2ef915a5d2816c1142e6933cff93f7c592",
+      "type": "token_transfer"
+    }
+  ],
+  "next_page_params": {
+    "block_number": 27736955,
+    "index": 4
+  }
+}
+```
+
+## Get all internal transactions for a specific address
+
+`/addresses/{address_hash}/internal-transactions`
+
+Returns the requested address' internal transactions.
+
+**Request**
+
+```
+curl -X 'GET' \
+  'https://devnet-explorer.autheo.com/api/v2/addresses/0x599E364e2f22bDB6135797d864B1bC559719312B/internal-transactions?filter=to%20%7C%20from' \
+  -H 'accept: application/json'
+```
+
+**Response**
+
+```
+{
+  "items": [
+    {
+      "block": 8844586,
+      "created_contract": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "error": "reverted",
+      "from": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "gas_limit": "351759",
+      "index": 1,
+      "success": true,
+      "timestamp": "2023-04-17T10:37:12.000000Z",
+      "to": {
+        "hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+        "implementation_name": "implementationName",
+        "name": "contractName",
+        "is_contract": true,
+        "private_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "watchlist_names": [
+          {
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "public_tags": [
+          {
+            "address_hash": "0xEb533ee5687044E622C69c58B1B12329F56eD9ad",
+            "display_name": "name to show",
+            "label": "label"
+          }
+        ],
+        "is_verified": true
+      },
+      "transaction_hash": "0x08ea4d75ad0abe327a7fd368733eaeac43077989e635d800530d7906ebf3bd54",
+      "type": "call",
+      "value": "30000000000000000"
+    }
+  ],
+  "next_page_params": {
+    "block_number": 27625575,
+    "index": 0,
+    "items_count": 50,
+    "transaction_index": 0
+  }
+}
+```
