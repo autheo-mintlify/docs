@@ -1,4 +1,48 @@
 ---
-title: 'Web3 Client Version'
+title: 'Web3 client version'
 ---
 
+## `web3_clientVersion`
+Returns the current client version.
+
+**Parameters**
+
+None
+
+**Returns**
+
+[String] - The current client version
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":67}'
+// Response
+{"jsonrpc":"2.0","id":67,"result":"Version dev ()
+Compiled at using Go go1.23.3 (amd64)"}
+```
+
+## `web3_sha3`
+Returns Keccak-256 (not the standardized SHA3-256) of the given data.
+
+**Parameters**
+
+DATA - The data to convert into a SHA3 hash
+
+```
+params: ["0x68656c6c6f20776f726c64"]
+```
+
+**Returns**
+
+DATA - The SHA3 result of the given string. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["0x68656c6c6f20776f726c64"],"id":64}'
+// Result
+{"jsonrpc":"2.0","id":64,"result":"0x5b2c76da96136d193336fad3fbc049867b8ca157da22f69ae0e4923648250acc"}}
+```
