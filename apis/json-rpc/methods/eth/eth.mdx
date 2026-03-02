@@ -1,7 +1,7 @@
 ---
 title: 'Eth'
 ---
-<!-- 
+
 ## `eth_syncing`
 Returns an object with data about the sync status or false.
 
@@ -13,366 +13,346 @@ None
 
 The precise return data varies between client implementations. All clients return False when the node is not syncing, and all clients return the following fields:
 
-Object: [Boolean], An object with sync status data or FALSE, when not syncing.
+* `Object`: [Boolean], An object with sync status data or FALSE, when not syncing.
+* `startingBlock`: QUANTITY - The block at which the import started (will only be reset, after the sync reached his head)
+* `currentBlock`: QUANTITY - The current block, same as eth_blockNumber
+* `highestBlock`: QUANTITY - The estimated highest block
 
-startingBlock: QUANTITY - The block at which the import started (will only be reset, after the sync reached his head)
+**Example**
 
-currentBlock: QUANTITY - The current block, same as eth_blockNumber
-
-highestBlock: QUANTITY - The estimated highest block
-
-Example
-
+```
 // Request
  curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}'
 // Result
 {"jsonrpc":"2.0","id":1,"result":false}
+```
 
-eth_chainId
+## `eth_chainId`
 Returns the chain ID used for signing replay-protected transactions.
 
-Parameters
+**Parameters**
 
 None 
 
-Returns
+**Returns**
 
-chainId: hexadecimal value as a string representing the integer of the current chain id. 
+`chainId`: hexadecimal value as a string representing the integer of the current chain ID. 
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":67}'
 // Result
 {"jsonrpc":"2.0","id":67,"result":"0x311"}
+```
 
-eth_gasPrice
+## `eth_gasPrice`
 Returns an estimate of the current price per gas in wei.
 
-Parameters
+**Parameters**
 
 None
 
-Returns
+**Returns**
 
-QUANTITY - integer of the current gas price in wei. 
+`QUANTITY` - integer of the current gas price in wei. 
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":73}'
 // Result
 {"jsonrpc":"2.0","id":73,"result":"0x7"}
+```
 
-eth_accounts
+## `eth_accounts`
 Returns a list of addresses owned by client.
 
-Parameters
+**Parameters**
 
 None
 
-Returns
+**Returns**
 
-[Array] of DATA, 20 Bytes - addresses owned by the client. 
+`DATA`, 20 Bytes - [Array] of addresses owned by the client. 
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1}'
 // Result
 {"jsonrpc":"2.0","id":1,"result":[]}
+```
 
-eth_blockNumber
+## `eth_blockNumber`
 Returns the number of most recent block. 
 
-Parameters
+**Parameters**
 
 None
 
-Returns
+**Returns**
 
-QUANTITY - integer of the current block number the client is on.
+`QUANTITY` - integer of the current block number the client is on.
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}'
 // Result
 {"jsonrpc":"2.0","id":83,"result":"0xa638a"}
+```
 
-eth_getBalance
+## `eth_getBalance`
 Returns the balance of the account of given address.
 
-Parameters
+**Parameters**
 
-DATA, 20 Bytes - address to check for balance.
+* `DATA`, 20 Bytes - address to check for balance.
+* `QUANTITY|TAG` - integer block number, or the string "latest", "earliest", "pending", "safe", or "finalized", see the default block parameter
+* `params`: `["0x407d73d8a49eeb85d32cf465507dd71d507100c1", "latest"]`
 
-QUANTITY|TAG - integer block number, or the string "latest", "earliest", "pending", "safe", or "finalized", see the default block parameter
+**Returns**
 
-params: ["0x407d73d8a49eeb85d32cf465507dd71d507100c1", "latest"] 
+`QUANTITY` - integer of the current balance in wei.
 
-Returns
+**Example**
 
-QUANTITY - integer of the current balance in wei.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xeeCC2FA50180e7c929C814a8bD65e45f81994327", "latest"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0xc75d5bd30345f400"}
+```
 
-eth_getStorageAt
+## `eth_getStorageAt`
 Returns the value from a storage position at a given address.
 
-Parameters
+**Parameters**
 
-DATA, 20 Bytes - address of the storage.
+* `DATA`, 20 Bytes - address of the storage.
+* `QUANTITY` - integer of the position in the storage.
+* `QUANTITY|TAG` - integer block number, or the string "latest", "earliest", "pending", "safe", "finalized", see the default block parameter 
 
-QUANTITY - integer of the position in the storage.
+**Returns**
 
-QUANTITY|TAG - integer block number, or the string "latest", "earliest", "pending", "safe", "finalized", see the default block parameter 
+`DATA` - the value at this storage position.
 
-Returns
+**Example**
 
-DATA - the value at this storage position.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method": "eth_getStorageAt", "params": ["0x295a70b2de5e39532 354a6a8344e616ed314d7251", "0x0", "latest"], "id": 1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0x0000000000000000000000000000000000000000000000000000000000000000"}
+```
 
-eth_getTransactionCount
+## `eth_getTransactionCount`
 Returns the number of transactions sent from an address.
 
-Parameters
+**Parameters**
 
-DATA, 20 Bytes - address.
+* `DATA`, 20 Bytes - address.
+* `QUANTITY|TAG` - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+* `params`: `["0x407d73d8a49eeb85d32cf465507dd71d507100c1", "latest", // state at the latest block] `
 
-QUANTITY|TAG - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+**Returns**
 
-params: [
+`QUANTITY` - integer of the number of transactions send from this address.
 
-  "0x407d73d8a49eeb85d32cf465507dd71d507100c1",
+**Example**
 
-  "latest", // state at the latest block
-
-] 
-
-Returns
-
-QUANTITY - integer of the number of transactions send from this address.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0xC08bA0F9E8a976d2DF3eC899E2F5dff6336549C8","latest"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0xd83"}
+```
 
-eth_getBlockTransactionCountByHash
+## `eth_getBlockTransactionCountByHash`
 Returns the number of transactions in a block from a block matching the given block hash. 
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - hash of a block
+* `DATA`, 32 Bytes - hash of a block
+* `params`: `["0xd03ededb7415d22ae8bac30f96b2d1de83119632693b963642318d87d1bece5b"]`
 
-params: ["0xd03ededb7415d22ae8bac30f96b2d1de83119632693b963642318d87d1bece5b"]
+**Returns**
 
-Returns
+`QUANTITY` - integer of the number of transactions in this block.
 
-QUANTITY - integer of the number of transactions in this block.
+**Example**
 
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x613aca96ec73b0c4395130088dd21c3813d923c7fe6a4650ae3ef30dbcd350e4"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0x1"}
+```
 
-eth_getBlockTransactionCountByNumber
+## `eth_getBlockTransactionCountByNumber`
 Returns the number of transactions in a block matching the given block number.
 
-Parameters
+**Parameters**
 
-QUANTITY|TAG - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `QUANTITY|TAG` - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `params`: `["0x13738ca", // 20396234]`
 
-params: [
+**Returns**
 
-  "0x13738ca", // 20396234
+`QUANTITY` - integer of the number of transactions in this block.
 
-]
+**Example**
 
-Returns
-
-QUANTITY - integer of the number of transactions in this block.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0xa8f35"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0x1"}
+```
 
-eth_getUncleCountByBlockHash
+## `eth_getUncleCountByBlockHash`
 Returns the number of uncles in a block from a block matching the given block hash.
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - hash of a block
+* `DATA`, 32 Bytes - hash of a block
+* `params`: `["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2"]`
 
-params: ["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2"]
+**Returns**
 
-Returns
+`QUANTITY` - integer of the number of uncles in this block. 
 
-QUANTITY - integer of the number of uncles in this block. 
+**Example**
 
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0x613aca96ec73b0c4395130088dd21c3813d923c7fe6a4650ae3ef30dbcd350e4"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0x0"}
+```
 
 A result of 0x0 means that the block does not have uncle blocks.
 
-eth_getUncleCountByBlockNumber
+## `eth_getUncleCountByBlockNumber`
 Returns the number of uncles in a block from a block matching the given block number.
 
-Parameters
+**Parameters**
 
-QUANTITY|TAG - integer of a block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+* `QUANTITY|TAG` - integer of a block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+* `params`: `["0xe8", // 232] `
 
-params: [
+**Returns**
 
-  "0xe8", // 232
+`QUANTITY` - integer of the number of uncles in this block. 
 
-] 
+**Example**
 
-Returns
-
-QUANTITY - integer of the number of uncles in this block. 
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["0xa8fa0"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":"0x0"}
+```
 
 A result of 0x0 means that the block does not have uncle blocks.
 
-eth_getCode
+## `eth_getCode`
 Returns code at a given address.
 
-Parameters
+**Parameters**
 
-DATA, 20 Bytes - address
+* `DATA`, 20 Bytes - address
+* `QUANTITY|TAG` - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+* `params`: `["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "0x5daf3b", // 6139707]`
 
-QUANTITY|TAG - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+**Returns**
 
-params: [
+`DATA` - the code from the given address.
 
-  "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+**Example**
 
-  "0x5daf3b", // 6139707
-
-]
-
-Returns
-
-DATA - the code from the given address.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x412d0675cae6C384629Ad47EA74eA4747375B09b", "0xa8bdd"],"id":1}'
 // Response
 Either the returns the representation of the smart contract or if no smart contract found:
 {"jsonrpc": "2.0", "id": 1, "result": "0x"}
+```
 
-eth_sign
-The sign method calculates an Ethereum specific signature with: sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))). 
+## `eth_sign`
+The sign method calculates an Ethereum specific signature with: `sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`. 
 
 By adding a prefix to the message it makes the calculated signature recognizable as an Ethereum specific signature. This prevents misuse where a malicious dApp can sign arbitrary data (e.g. transactions) and use the signature to impersonate the victim.
 
 Note: the address to sign with must be unlocked.
 
-Parameters
+**Parameters**
 
-DATA, 20 Bytes - address
+* `DATA`, 20 Bytes - address
+* `DATA`, N Bytes - message to sign
 
-DATA, N Bytes - message to sign
+**Returns**
 
-Returns
+`DATA`: Signature 
 
-DATA: Signature 
+**Example**
 
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_sign","params":["0x9b2055d370f73ec7d8a03e965129118dc8f5bf83", "0xdeadbeaf"],"id":1}'
 // Result
 {"id":1, "jsonrpc": "2.0", "result": "0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"}
+```
 
-eth_signTransaction
+## `eth_signTransaction`
 Signs a transaction that can be submitted to the network at a later time using with eth_sendRawTransaction. 
 
-Parameters
+**Parameters**
 
-Object - The transaction object
+* `Object` - The transaction object
+* `Content-Type`
+* `from`: `DATA`, 20 Bytes - The address the transaction is sent from.
+* `to`: `DATA`, 20 Bytes - (optional when creating new contract) The address the transaction is directed to.
+* `gas`: `QUANTITY` - (optional, default: 90000) Integer of the gas provided for the transaction execution. It will return unused gas.
+* `gasPrice`: `QUANTITY` - (optional, default: To-Be-Determined) Integer of the gasPrice used for each paid gas, in Wei.
+* `value`: `QUANTITY` - (optional) Integer of the value sent with this transaction, in Wei.
+* `data`: `DATA` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
+* `nonce`: `QUANTITY` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
 
-type:
+**Returns**
 
-from: DATA, 20 Bytes - The address the transaction is sent from.
+`DATA`, The RLP-encoded transaction object signed by the specified account.
 
-to: DATA, 20 Bytes - (optional when creating new contract) The address the transaction is directed to.
+**Example**
 
-gas: QUANTITY - (optional, default: 90000) Integer of the gas provided for the transaction execution. It will return unused gas.
-
-gasPrice: QUANTITY - (optional, default: To-Be-Determined) Integer of the gasPrice used for each paid gas, in Wei.
-
-value: QUANTITY - (optional) Integer of the value sent with this transaction, in Wei.
-
-data: DATA - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-
-nonce: QUANTITY - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
-
-Returns
-
-DATA, The RLP-encoded transaction object signed by the specified account.
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"id": 1,"jsonrpc":"2.0","method": "eth_signTransaction","params":[{"data":"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675","from":"0xb60e8dd61c5d32be8058bb8eb970870f07233155","gas": "0x76c0","gasPrice": "0x9184e72a000","to":"0xd46e8dd67c5d32be8058bb8eb970870f07244567","value": "0x9184e72a"}]}'
 // Result
 {"id": 1, "jsonrpc": "2.0", "result":"0xa3f20717a250c2b0b729b7e5becbff67fdaef7e0699da4de7ca5895b02a170a12d887fd3b17bfdce3481f10bea41f45ba9f709d39ce8325427b57afcfc994cee1b"}
+```
 
-eth_sendTransaction
+## `eth_sendTransaction`
 Creates new message call transaction or a contract creation, if the data field contains code, and signs it using the account specified in from.
 
-Parameters
+**Parameters**
 
-Object - The transaction object
-
-from: DATA, 20 Bytes - The address the transaction is sent from.
-
-to: DATA, 20 Bytes - (optional when creating new contract) The address the transaction is directed to.
-
-gas: QUANTITY - (optional, default: 90000) Integer of the gas provided for the transaction execution. It will return unused gas.
-
-gasPrice: QUANTITY - (optional, default: To-Be-Determined) Integer of the gasPrice used for each paid gas.
-
-value: QUANTITY - (optional) Integer of the value sent with this transaction.
-
-input: DATA - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-
-nonce: QUANTITY - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
-
-params: [
+* `Object` - The transaction object
+* `from`: `DATA`, 20 Bytes - The address the transaction is sent from.
+* `to`: `DATA`, 20 Bytes - (optional when creating new contract) The address the transaction is directed to.
+* `gas`: `QUANTITY` - (optional, default: 90000) Integer of the gas provided for the transaction execution. It will return unused gas.
+* `gasPrice`: `QUANTITY` - (optional, default: To-Be-Determined) Integer of the gasPrice used for each paid gas.
+* `value`: `QUANTITY` - (optional) Integer of the value sent with this transaction.
+* `input`: `DATA` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
+* `nonce`: `QUANTITY` - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
+* `params`: 
+```
+[
 
   {
 
@@ -393,15 +373,17 @@ params: [
   },
 
 ]
+```
 
-Returns
+**Returns**
 
-DATA, 32 Bytes - the transaction hash, or the zero hash if the transaction is not yet available. 
+* `DATA`, 32 Bytes - the transaction hash, or the zero hash if the transaction is not yet available. 
 
-Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract.
+Use `eth_getTransactionReceipt` to get the contract address, after the transaction was proposed in a block, when you created a contract.
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_sendRawTransaction", "params": [{"to": "0x89A7EF2F08B1c018D5Cc88836249b84Dd5392905", "data": "0x18160ddd"}, "latest"], "id": 1}'
 // Result
@@ -410,28 +392,25 @@ curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json"
   "jsonrpc": "2.0",
   "result": "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
 }
+```
 
-eth_sendRawTransaction
+## `eth_sendRawTransaction`
 Creates new message call transaction or a contract creation for signed transactions.
 
-Parameters
+**Parameters**
 
-DATA, The signed transaction data.
+* `DATA`, The signed transaction data.
+* `params`: `["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675",]`
 
-params: [
+**Returns**
 
-  "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675",
+* `DATA`, 32 Bytes - the transaction hash, or the zero hash if the transaction is not yet available.
 
-]
+Use `eth_getTransactionReceipt` to get the contract address, after the transaction was proposed in a block, when you created a contract. 
 
-Returns
+**Example**
 
-DATA, 32 Bytes - the transaction hash, or the zero hash if the transaction is not yet available.
-
-Use eth_getTransactionReceipt to get the contract address, after the transaction was proposed in a block, when you created a contract. 
-
-Example
-
+```
 // Request
  curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_sendRawTransaction", "params": [{"to": "0x89A7EF2F08B1c018D5Cc88836249b84Dd5392905", "data": "0x18160ddd"}, "latest"], "id": 1}'
 // Result
@@ -440,34 +419,29 @@ Example
   "jsonrpc": "2.0",
   "result": "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
 }
+```
 
-eth_call
+## `eth_call`
 Executes a new message call immediately without creating a transaction on the blockchain. Often used for executing read-only smart contract functions, for example the balanceOf for an ERC-20 contract.
 
-Parameters
+**Parameters**
 
-Object - The transaction call object
+* `Object` - The transaction call object
+* `from`: `DATA`, 20 Bytes - (optional) The address the transaction is sent from.
+* `to`: `DATA`, 20 Bytes - The address the transaction is directed to.
+* `gas`: `QUANTITY` - (optional) Integer of the gas provided for the transaction execution. eth_call consumes zero gas, but this parameter may be needed by some executions.
+* `gasPrice`: `QUANTITY` - (optional) Integer of the gasPrice used for each paid gas
+* `value`: `QUANTITY` - (optional) Integer of the value sent with this transaction
+* `input`: `DATA` - (optional) Hash of the method signature and encoded parameters. For details see Ethereum Contract ABI in the Solidity documentation.
+* `QUANTITY|TAG` - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter 
 
-from: DATA, 20 Bytes - (optional) The address the transaction is sent from.
+**Returns**
 
-to: DATA, 20 Bytes - The address the transaction is directed to.
+`DATA` - the return value of executed contract. 
 
-gas: QUANTITY - (optional) Integer of the gas provided for the transaction execution. eth_call consumes zero gas, but this parameter may be needed by some executions.
+**Example**
 
-gasPrice: QUANTITY - (optional) Integer of the gasPrice used for each paid gas
-
-value: QUANTITY - (optional) Integer of the value sent with this transaction
-
-input: DATA - (optional) Hash of the method signature and encoded parameters. For details see Ethereum Contract ABI in the Solidity documentation.
-
-QUANTITY|TAG - integer block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter 
-
-Returns
-
-DATA - the return value of executed contract. 
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_call", "params": [{"to": "0x89A7EF2F08B1c018D5Cc88836249b84Dd5392905", "data": "0x18160ddd"}, "latest"], "id": 1}'
 // Result
@@ -476,371 +450,287 @@ curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json"
   "jsonrpc": "2.0",
   "result": "0x"
 }
+```
 
-eth_estimateGas
+## `eth_estimateGas`
 Generates and returns an estimate of how much gas is necessary to allow the transaction to complete. The transaction will not be added to the blockchain. Note that the estimate may be significantly more than the amount of gas actually used by the transaction, for a variety of reasons including EVM mechanics and node performance.
 
-Parameters
+**Parameters**
 
-See eth_call parameters, except that all properties are optional. If no gas limit is specified geth uses the block gas limit from the pending block as an upper bound. As a result the returned estimate might not be enough to executed the call/transaction when the amount of gas is higher than the pending block gas limit.
+See `eth_call` parameters, except that all properties are optional. If no gas limit is specified geth uses the block gas limit from the pending block as an upper bound. As a result the returned estimate might not be enough to executed the call/transaction when the amount of gas is higher than the pending block gas limit.
 
-Returns
+**Returns**
 
-QUANTITY - the amount of gas used. 
+`QUANTITY` - the amount of gas used. 
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_estimateGas", "params": [{"to": "0x89A7EF2F08B1c018D5Cc88836249b84Dd5392905", "data": "0x18160ddd"}, "latest"], "id": 1}'
 // Result
 {"jsonrpc":"2.0","id":1,"result":"0x5248"}
+```
 
-eth_getBlockByHash
+## `eth_getBlockByHash`
 Returns information about a block by hash. 
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - Hash of a block.
+* `DATA`, 32 Bytes - Hash of a block.
+* [Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+* params: `["0xdc0818cf78f21a8e70579cb46a43643f78291264dda342ae31049421c82d21ae", false,]`
 
-[Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+**Returns**
 
-params: [
+* `Object` - A block object, or null when no block was found:
+* `number`: `QUANTITY` - the block number. null when its pending block.
+* `hash`: `DATA`, 32 Bytes - hash of the block. null when its pending block.
+* `parentHash`: `DATA`, 32 Bytes - hash of the parent block.
+* `nonce`: `DATA`, 8 Bytes - hash of the generated proof-of-work. null when its pending block.
+* `sha3Uncles`: `DATA`, 32 Bytes - SHA3 of the uncles data in the block.
+* `logsBloom`: `DATA`, 256 Bytes - the bloom filter for the logs of the block. null when its pending block.
+* `transactionsRoot`: `DATA`, 32 Bytes - the root of the transaction trie of the block.
+* `stateRoot`: `DATA`, 32 Bytes - the root of the final state trie of the block.
+* `receiptsRoot`: `DATA`, 32 Bytes - the root of the receipts trie of the block.
+* `miner`: `DATA`, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
+* `difficulty`: `QUANTITY` - integer of the difficulty for this block.
+* `totalDifficulty`: `QUANTITY` - integer of the total difficulty of the chain until this block.
+* `extraData`: `DATA` - the "extra data" field of this block.
+* `size`: `QUANTITY` - integer the size of this block in bytes.
+* `gasLimit`: `QUANTITY` - the maximum gas allowed in this block.
+* `gasUsed`: `QUANTITY` - the total used gas by all transactions in this block.
+* `timestamp`: `QUANTITY` - the unix timestamp for when the block was collated.
+* `transactions`: [Array] - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
+* `uncles`: [Array] - Array of uncle hashes. 
 
-  "0xdc0818cf78f21a8e70579cb46a43643f78291264dda342ae31049421c82d21ae",
+**Example**
 
-  false,
-
-]
-
-Returns
-
-Object - A block object, or null when no block was found:
-
-number: QUANTITY - the block number. null when its pending block.
-
-hash: DATA, 32 Bytes - hash of the block. null when its pending block.
-
-parentHash: DATA, 32 Bytes - hash of the parent block.
-
-nonce: DATA, 8 Bytes - hash of the generated proof-of-work. null when its pending block.
-
-sha3Uncles: DATA, 32 Bytes - SHA3 of the uncles data in the block.
-
-logsBloom: DATA, 256 Bytes - the bloom filter for the logs of the block. null when its pending block.
-
-transactionsRoot: DATA, 32 Bytes - the root of the transaction trie of the block.
-
-stateRoot: DATA, 32 Bytes - the root of the final state trie of the block.
-
-receiptsRoot: DATA, 32 Bytes - the root of the receipts trie of the block.
-
-miner: DATA, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
-
-difficulty: QUANTITY - integer of the difficulty for this block.
-
-totalDifficulty: QUANTITY - integer of the total difficulty of the chain until this block.
-
-extraData: DATA - the "extra data" field of this block.
-
-size: QUANTITY - integer the size of this block in bytes.
-
-gasLimit: QUANTITY - the maximum gas allowed in this block.
-
-gasUsed: QUANTITY - the total used gas by all transactions in this block.
-
-timestamp: QUANTITY - the unix timestamp for when the block was collated.
-
-transactions: [Array] - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
-
-uncles: [Array] - Array of uncle hashes. 
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json"  --data '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", false],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":
 {"baseFeePerGas":"0x7","difficulty":"0x0","extraData":"0x","gasLimit":"0x1c9c380","gasUsed":"0x0","hash":"0x03daacfe2396e87aeda0bc854f2917fc59b79a88274a6dfee625f8fef0667703","logsBloom":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000","miner":"0x0000000000000000000000000000000000000000","mixHash":"0x0000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0000000000000000","number":"0x1b4","parentHash":"0x88f44eeffcf00a761fdfd739428d925be152eb7c13799985c1d81a7f68f508a5","receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","sha3Uncles":"0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347","size":"0x38d","stateRoot":"0x3466bd727e1986f9a612df6b891b26bf9bc6087e49cc8733f0648bb629b0a3c","timestamp":"0x679cebb2","totalDifficulty":"0x0","transactions":[],"transactionsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","uncles":[]}}
+```
 
-eth_getBlockByNumber
+## `eth_getBlockByNumber`
 Returns information about a block by block number.
 
-Parameters
+**Parameters**
 
-QUANTITY|TAG - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `QUANTITY|TAG` - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* [Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+* `params`: `["0x1b4", // 436 true,]`
 
-[Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+**Returns**
 
-params: [
+See `eth_getBlockByHash`.
 
-  "0x1b4", // 436
+**Example**
 
-  true,
-
-]
-
-Returns
-
-See eth_getBlockByHash
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1b4", true],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":
 {"baseFeePerGas":"0x7","difficulty":"0x0","extraData":"0x","gasLimit":"0x1c9c380","gasUsed":"0x0","hash":"0x03daacfe2396e87aeda0bc854f2917fc59b79a88274a6dfee625f8fef0667703","logsBloom":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000","miner":"0x0000000000000000000000000000000000000000","mixHash":"0x0000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0000000000000000","number":"0x1b4","parentHash":"0x88f44eeffcf00a761fdfd739428d925be152eb7c13799985c1d81a7f68f508a5","receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","sha3Uncles":"0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347","size":"0x38d","stateRoot":"0x3466bd727e1986f9a612df6b891b26bf9bc6087e49cc8733f0648bb629b0a3c","timestamp":"0x679cebb2","totalDifficulty":"0x0","transactions":[],"transactionsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","uncles":[]}}
+```
 
-eth_getTransactionByHash
+## `eth_getTransactionByHash`
 Returns the information about a transaction requested by transaction hash.
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - hash of a transaction
+* `DATA`, 32 Bytes - hash of a transaction
+* `params`: `["0x88df016429689c079f3b2f6ad39fa052532c56795b733da78a91ebe6a713944b"]`
 
-params: ["0x88df016429689c079f3b2f6ad39fa052532c56795b733da78a91ebe6a713944b"]
+**Returns**
 
-Returns
+* `Object` - A transaction object, or null when no transaction was found:
+* `blockHash`: `DATA`, 32 Bytes - hash of the block where this transaction was in. null when its pending.
+* `blockNumber`: `QUANTITY` - block number where this transaction was in. null when its pending.
+* `from`: `DATA`, 20 Bytes - address of the sender.
+* `gas`: `QUANTITY` - gas provided by the sender.
+* `gasPrice`: `QUANTITY` - gas price provided by the sender in Wei.
+* `hash`: `DATA`, 32 Bytes - hash of the transaction.
+* `input`: `DATA` - the data send along with the transaction.
+* `nonce`: `QUANTITY` - the number of transactions made by the sender prior to this one.
+* `to`: `DATA`, 20 Bytes - address of the receiver. null when its a contract creation transaction.
+* `transactionIndex`: `QUANTITY` - integer of the transactions index position in the block. null when its pending.
+* `value`: `QUANTITY` - value transferred in Wei.
+* `v`: `QUANTITY` - ECDSA recovery id
+* `r`: `QUANTITY` - ECDSA signature r
+* `s`: `QUANTITY` - ECDSA signature s 
 
-Object - A transaction object, or null when no transaction was found:
+**Example**
 
-blockHash: DATA, 32 Bytes - hash of the block where this transaction was in. null when its pending.
-
-blockNumber: QUANTITY - block number where this transaction was in. null when its pending.
-
-from: DATA, 20 Bytes - address of the sender.
-
-gas: QUANTITY - gas provided by the sender.
-
-gasPrice: QUANTITY - gas price provided by the sender in Wei.
-
-hash: DATA, 32 Bytes - hash of the transaction.
-
-input: DATA - the data send along with the transaction.
-
-nonce: QUANTITY - the number of transactions made by the sender prior to this one.
-
-to: DATA, 20 Bytes - address of the receiver. null when its a contract creation transaction.
-
-transactionIndex: QUANTITY - integer of the transactions index position in the block. null when its pending.
-
-value: QUANTITY - value transferred in Wei.
-
-v: QUANTITY - ECDSA recovery id
-
-r: QUANTITY - ECDSA signature r
-
-s: QUANTITY - ECDSA signature s 
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":["0x150dfcd895b2856f2418564aae294c1e37346734e29617b3a29b15f7facb50d6"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":{"blockHash":"0x6f9ccc098b4f2f56154d3ad12df650a253d9c8bb5e6e28c5d92ae51a935af5bd","blockNumber":"0xaa19b","from":"0xeecc2fa50180e7c929c814a8bd65e45f81994327","gas":"0x5208","gasPrice":"0x7","hash":"0x150dfcd895b2856f2418564aae294c1e37346734e29617b3a29b15f7facb50d6","input":"0x","nonce":"0x1a5b","to":"0x65925ceb2e33bb7fde5f1c7488bbe8cca6c4e177","transactionIndex":"0x0","value":"0x5497acb9bd0b","type":"0x0","chainId":"0x311","v":"0x646","r":"0xa8c2b5d2d2c95eb58274e1a1c90626964e6ea3ae9ee8103769f34f2d83f83e26","s":"0x5ebebaf19ade625611bf30575e4503e9611ff561d0d88bb5872eb1cf457e411d"}}
+```
 
-eth_getTransactionByBlockHashAndIndex
+## `eth_getTransactionByBlockHashAndIndex`
 Returns information about a transaction by block hash and transaction index position.
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - hash of a block.
+* `DATA`, 32 Bytes - hash of a block.
+* `QUANTITY` - integer of the transaction index position.
+* `params`: `["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2","0x0", // 0] `
 
-QUANTITY - integer of the transaction index position.
+**Returns**
 
-params: [
+See `eth_getTransactionByHash`.
 
-  "0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2",
+**Example**
 
-  "0x0", // 0
-
-] 
-
-Returns
-
-See eth_getTransactionByHash 
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockHashAndIndex","params":["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2", "0x0"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":{"blockHash":"0x6f9ccc098b4f2f56154d3ad12df650a253d9c8bb5e6e28c5d92ae51a935af5bd","blockNumber":"0xaa19b","from":"0xeecc2fa50180e7c929c814a8bd65e45f81994327","gas":"0x5208","gasPrice":"0x7","hash":"0x150dfcd895b2856f2418564aae294c1e37346734e29617b3a29b15f7facb50d6","input":"0x","nonce":"0x1a5b","to":"0x65925ceb2e33bb7fde5f1c7488bbe8cca6c4e177","transactionIndex":"0x0","value":"0x5497acb9bd0b","type":"0x0","chainId":"0x311","v":"0x646","r":"0xa8c2b5d2d2c95eb58274e1a1c90626964e6ea3ae9ee8103769f34f2d83f83e26","s":"0x5ebebaf19ade625611bf30575e4503e9611ff561d0d88bb5872eb1cf457e411d"}}
+```
 
-eth_getTransactionByBlockNumberAndIndex
+## `eth_getTransactionByBlockNumberAndIndex`
 Returns information about a transaction by block number and transaction index position.
 
-Parameters
+**Parameters**
 
-QUANTITY|TAG - a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `QUANTITY|TAG` - a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `QUANTITY` - the transaction index position.
+* `params`: `[ "0x9c47cf", // 10241999 "0x24", // 36 ]`
 
-QUANTITY - the transaction index position.
+**Returns**
 
-params: [
+See `eth_getTransactionByHash`.
 
-  "0x9c47cf", // 10241999
+**Example**
 
-  "0x24", // 36
-
-]
-
-Returns
-
-See eth_getTransactionByHash.
-
-Example
-
+```
 // Request
  curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getTransactionByBlockNumberAndIndex","params":["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2", "0x0"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":{"blockHash":"0x6f9ccc098b4f2f56154d3ad12df650a253d9c8bb5e6e28c5d92ae51a935af5bd","blockNumber":"0xaa19b","from":"0xeecc2fa50180e7c929c814a8bd65e45f81994327","gas":"0x5208","gasPrice":"0x7","hash":"0x150dfcd895b2856f2418564aae294c1e37346734e29617b3a29b15f7facb50d6","input":"0x","nonce":"0x1a5b","to":"0x65925ceb2e33bb7fde5f1c7488bbe8cca6c4e177","transactionIndex":"0x0","value":"0x5497acb9bd0b","type":"0x0","chainId":"0x311","v":"0x646","r":"0xa8c2b5d2d2c95eb58274e1a1c90626964e6ea3ae9ee8103769f34f2d83f83e26","s":"0x5ebebaf19ade625611bf30575e4503e9611ff561d0d88bb5872eb1cf457e411d"}}
+```
 
-eth_getTransactionReceipt
+## `eth_getTransactionReceipt`
 Returns the receipt of a transaction by transaction hash.
 
 Note: The receipt is not available for pending transactions.
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - hash of a transaction
+* `DATA`, 32 Bytes - hash of a transaction
+* `params`: `["0x85d995eba9763907fdf35cd2034144dd9d53ce32cbec21349d4b12823c6860c5"]`
 
-params: ["0x85d995eba9763907fdf35cd2034144dd9d53ce32cbec21349d4b12823c6860c5"]
+**Returns**
 
-Returns
+* `Object` - A transaction receipt object, or null when no receipt was found:
+* `transactionHash`: `DATA`, 32 Bytes - hash of the transaction.
+* `transactionIndex`: `QUANTITY` - integer of the transactions index position in the block.
+* `blockHash`: `DATA`, 32 Bytes - hash of the block where this transaction was in.
+* `blockNumber`: `QUANTITY` - block number where this transaction was in.
+* `from`: `DATA`, 20 Bytes - address of the sender.
+* `to`: `DATA`, 20 Bytes - address of the receiver. null when its a contract creation transaction.
+* `cumulativeGasUsed`: `QUANTITY` - The total amount of gas used when this transaction was executed in the block.
+* `effectiveGasPrice`: `QUANTITY` - The sum of the base fee and tip paid per unit of gas.
+* `gasUsed`: `QUANTITY` - The amount of gas used by this specific transaction alone.
+* `contractAddress`: `DATA`, 20 Bytes - The contract address created, if the transaction was a contract creation, otherwise null.
+* `logs`: [Array] of log objects, which this transaction generated.
+* `logsBloom`: `DATA`, 256 Bytes - Bloom filter for light clients to quickly retrieve related logs.
+* `type`: `QUANTITY` - integer of the transaction type, 0x0 for legacy transactions, 0x1 for access list types, 0x2 for dynamic fees.
 
-Object - A transaction receipt object, or null when no receipt was found:
+It also returns either:
 
-transactionHash: DATA, 32 Bytes - hash of the transaction.
+* `root`: `DATA` 32 bytes of post-transaction stateroot (pre Byzantium)
+* `status`: `QUANTITY` either 1 (success) or 0 (failure)
 
-transactionIndex: QUANTITY - integer of the transactions index position in the block.
+**Example**
 
-blockHash: DATA, 32 Bytes - hash of the block where this transaction was in.
-
-blockNumber: QUANTITY - block number where this transaction was in.
-
-from: DATA, 20 Bytes - address of the sender.
-
-to: DATA, 20 Bytes - address of the receiver. null when its a contract creation transaction.
-
-cumulativeGasUsed: QUANTITY - The total amount of gas used when this transaction was executed in the block.
-
-effectiveGasPrice: QUANTITY - The sum of the base fee and tip paid per unit of gas.
-
-gasUsed: QUANTITY - The amount of gas used by this specific transaction alone.
-
-contractAddress: DATA, 20 Bytes - The contract address created, if the transaction was a contract creation, otherwise null.
-
-logs: [Array] - Array of log objects, which this transaction generated.
-
-logsBloom: DATA, 256 Bytes - Bloom filter for light clients to quickly retrieve related logs.
-
-type: QUANTITY - integer of the transaction type, 0x0 for legacy transactions, 0x1 for access list types, 0x2 for dynamic fees.
-
-It also returns either :
-
-root: DATA 32 bytes of post-transaction stateroot (pre Byzantium)
-
-status: QUANTITY either 1 (success) or 0 (failure)
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0xe83e89c6fac48fc02fea39ded109236ef1b5991dd6924248a5e05bce6ee3f756"],"id":1}'
 // Response
 {"jsonrpc":"2.0","id":1,"result":{"blockHash":"0x97a7578df5a69f09417328638c428389b92283427ff62febee6888eb1c11a1dc","blockNumber":"0xa63d8","contractAddress":null,"cumulativeGasUsed":"0xf618","from":"0xeecc2fa50180e7c929c814a8bd65e45f81994327","gasUsed":"0x5208","logs":[],"logsBloom":"0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000","status":"0x1","to":"0xfb937e6e8aec33e64672d83b58e0e7ff8feaf74b","transactionHash":"0xe83e89c6fac48fc02fea39ded109236ef1b5991dd6924248a5e05bce6ee3f756","transactionIndex":"0x2","type":"0x0"}}
+```
 
-eth_getUncleByBlockHashAndIndex
+## `eth_getUncleByBlockHashAndIndex`
 Returns information about a uncle of a block by hash and uncle index position.
 
-Parameters
+**Parameters**
 
-DATA, 32 Bytes - The hash of a block.
+* `DATA`, 32 Bytes - The hash of a block.
+* `QUANTITY` - The uncle's index position.
+* `params`: `["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2","0x0", // 0]`
 
-QUANTITY - The uncle's index position.
+**Returns**
 
-params: [
+See `eth_getBlockByHash`.
 
-  "0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2",
+**Example**
 
-  "0x0", // 0
-
-]
-
-Returns
-
-See eth_getBlockByHash
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data'{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2", "0x0"],"id":1}'
+```
 
-Result
+**Result**
 
-See eth_getBlockByHash
+See `eth_getBlockByHash`.
 
 Note: An uncle doesn't contain individual transactions.
 
-eth_getUncleByBlockNumberAndIndex
+## `eth_getUncleByBlockNumberAndIndex`
 Returns information about a uncle of a block by number and uncle index position.
 
-Parameters
+**Parameters**
 
-QUANTITY|TAG - a block number, or the string "earliest", "latest", "pending", "safe", "finalized", as in the default block parameter.
+* `QUANTITY|TAG` - a block number, or the string "earliest", "latest", "pending", "safe", "finalized", as in the default block parameter.
+* `QUANTITY` - the uncle's index position.
+* `params`: `["0x29c", // 668 "0x0", // 0]`
 
-QUANTITY - the uncle's index position.
+**Returns**
 
-params: [
-
-  "0x29c", // 668
-
-  "0x0", // 0
-
-]
-
-Returns
-
-See eth_getBlockByHash
+See `eth_getBlockByHash`.
 
 Note: An uncle doesn't contain individual transactions.
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x29c", "0x0"],"id":1}'
+```
 
-Result
+**Result**
 
-See eth_getBlockByHash
+See `eth_getBlockByHash`.
 
-eth_newFilter
+## `eth_newFilter`
 Creates a filter object, based on filter options, to notify when the state changes (logs). To check if the state has changed, call eth_getFilterChanges.
 
 A note on specifying topic filters: Topics are order-dependent. A transaction with a log with topics [A, B] will be matched by the following topic filters:
 
-[] "anything"
+* `[]` "anything"
+* `[A]` "A in first position (and anything after)"
+* `[null, B]` "anything in first position AND B in second position (and anything after)"
+* `[A, B]` "A in first position AND B in second position (and anything after)"
+* `[[A, B], [A, B]]` "(A OR B) in first position AND (A OR B) in second position (and anything after)"
 
-[A] "A in first position (and anything after)"
+**Parameters**
 
-[null, B] "anything in first position AND B in second position (and anything after)"
+`Object` - The filter options:
 
-[A, B] "A in first position AND B in second position (and anything after)"
-
-[[A, B], [A, B]] "(A OR B) in first position AND (A OR B) in second position (and anything after)"
-
-Parameters
-
-Object - The filter options:
-
-fromBlock: QUANTITY|TAG - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
-
-toBlock: QUANTITY|TAG - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
-
-address: DATA|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
-
-topics: [Array] of DATA, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
-
-params: [
+* `fromBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `toBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `address`: `DATA`|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
+* `topics`: [Array] of DATA, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
+* `params`: 
+```
+[
 
   {
 
@@ -869,170 +759,154 @@ params: [
   },
 
 ]
+```
+**Returns**
 
-Returns
+`QUANTITY` - A filter id.
 
-QUANTITY - A filter id.
+**Example**
 
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newFilter","params":[{"topics":["0xe83e89c6fac48fc02fea39ded109236ef1b5991dd6924248a5e05bce6ee3f756"]}],"id":73}'
 // Response
 {"jsonrpc":"2.0","id":73,"result":"0xcbf874231dca43f89bced1ab2d7e326e"}
+```
 
-eth_newBlockFilter
-Creates a filter in the node, to notify when a new block arrives. To check if the state has changed, call eth_getFilterChanges.
+## `eth_newBlockFilter`
+Creates a filter in the node, to notify when a new block arrives. To check if the state has changed, call `eth_getFilterChanges`.
 
-Parameters
+**Parameters**
 
 None
 
-Returns
+**Returns**
 
-QUANTITY - A filter id.
+`QUANTITY` - A filter id.
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],"id":73}'
 // Response
 {"jsonrpc":"2.0","id":73,"result":"0x9d88bf098c4a6346e868966502e7e110"}
+```
 
-eth_newPendingTransactionFilter
-Creates a filter in the node, to notify when new pending transactions arrive. To check if the state has changed, call eth_getFilterChanges. 
+## `eth_newPendingTransactionFilter`
+Creates a filter in the node, to notify when new pending transactions arrive. To check if the state has changed, call `eth_getFilterChanges`. 
 
-Parameters
+**Parameters**
 
 None 
 
-Returns
+**Returns**
 
-QUANTITY - A filter id. 
+`QUANTITY` - A filter id. 
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":73}'
 // Response
 {"jsonrpc":"2.0","id":73,"result":"0xe623e6bc2cd77083bdf2b45f95500f31"}
+```
 
-eth_uninstallFilter
+## `eth_uninstallFilter`
 Uninstalls a filter with given id. Should always be called when watch is no longer needed. Additionally Filters timeout when they aren't requested with eth_getFilterChanges for a period of time.
 
-Parameters
+**Parameters**
 
-QUANTITY - The filter id.
+*`QUANTITY` - The filter id.
+* `params`: `["0xb", // 11]`
 
-params: [
-
-  "0xb", // 11
-
-]
-
-Returns
+**Returns**
 
 [Boolean] - true if the filter was successfully uninstalled, otherwise false.
 
-Example
+**Example**
 
+```
 // Request
  curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_uninstallFilter","params":["0xb"],"id":73}'
 // Response
 {"jsonrpc":"2.0","id":73,"result":false}
+```
 
-eth_getFilterChanges
+## `eth_getFilterChanges`
 Polling method for a filter, which returns an array of logs which occurred since last poll.
 
-Parameters
+**Parameters**
 
-QUANTITY - the filter id.
+* `QUANTITY` - the filter id.
+* `params`: `["0x16", // 22]`
 
-params: [
-
-  "0x16", // 22
-
-]
-
-Returns
+**Returns**
 
 [Array] - Array of log objects, or an empty array if nothing has changed since last poll.
 
-For filters created with eth_newBlockFilter the return are block hashes (DATA, 32 Bytes), e.g. ["0x3454645634534..."].
+* For filters created with `eth_newBlockFilter` the return are block hashes (DATA, 32 Bytes), e.g. ["0x3454645634534..."].
+* For filters created with `eth_newPendingTransactionFilter` the return are transaction hashes (DATA, 32 Bytes), e.g. ["0x6345343454645..."].
+* For filters created with `eth_newFilter` logs are objects with following params:
+* `removed`: `TAG` - true when the log was removed, due to a chain reorganization. false if its a valid log.
+* `logIndex`: `QUANTITY` - integer of the log index position in the block. null when its pending log.
+* `transactionIndex`: `QUANTITY` - integer of the transactions index position log was created from. null when its pending log.
+* `transactionHash`: `DATA`, 32 Bytes - hash of the transactions this log was created from. null when its pending log.
+* `blockHash`: `DATA`, 32 Bytes - hash of the block where this log was in. null when its pending. null when its pending log.
+* `blockNumber`: `QUANTITY` - the block number where this log was in. null when its pending. null when its pending log.
+* `address`: `DATA`, 20 Bytes - address from which this log originated.
+* `data`: `DATA` - contains zero or more 32 Bytes non-indexed arguments of the log.
+* `topics`: [Array] of `DATA` - Array of 0 to 4 32 Bytes DATA of indexed log arguments. (In solidity: The first topic is the hash of the signature of the event (e.g. Deposit(address,bytes32,uint256)), except you declared the event with the anonymous specifier.)
 
-For filters created with eth_newPendingTransactionFilter the return are transaction hashes (DATA, 32 Bytes), e.g. ["0x6345343454645..."].
+**Example**
 
-For filters created with eth_newFilter logs are objects with following params:
-
-removed: TAG - true when the log was removed, due to a chain reorganization. false if its a valid log.
-
-logIndex: QUANTITY - integer of the log index position in the block. null when its pending log.
-
-transactionIndex: QUANTITY - integer of the transactions index position log was created from. null when its pending log.
-
-transactionHash: DATA, 32 Bytes - hash of the transactions this log was created from. null when its pending log.
-
-blockHash: DATA, 32 Bytes - hash of the block where this log was in. null when its pending. null when its pending log.
-
-blockNumber: QUANTITY - the block number where this log was in. null when its pending. null when its pending log.
-
-address: DATA, 20 Bytes - address from which this log originated.
-
-data: DATA - contains zero or more 32 Bytes non-indexed arguments of the log.
-
-topics: [Array] of DATA - Array of 0 to 4 32 Bytes DATA of indexed log arguments. (In solidity: The first topic is the hash of the signature of the event (e.g. Deposit(address,bytes32,uint256)), except you declared the event with the anonymous specifier.)
-
-Example
-
+```
 // Request
  curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getFilterChanges", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
 // Response
 {"jsonrpc":"2.0","id":2,"result":["0x4b6e9ec012547409ef92cac06dcdb8b1411f6da3b20562b1826b3d2536c4670b","0xb261150727058ac5cc5e2533c89b0365a39f953b409259e74744e36abe4b48a9","0xe98c58235984f9d783d9388138f2ebea823ffa5b6a936305a7fe880f15b7e264","0x1fc59fd431bbfabfd245158911fcf0ec58a5b0093794d0c11bd940b849600267","0xdc2c9af8dbd23c5a574cb529267b2d1a69c6368ed82f12aba3a1968bb23fed20","0x268125f8c23d29ae80f7aa1d7d6903f54fd555931902159290b06e8f667aadb","0x7201af68b4c027a355679a66e340c0e7b53e6e60be08f18f14054ad577cd80ee"]}
+```
 
-eth_getFilterLogs
+## `eth_getFilterLogs`
 Returns an array of all logs matching filter with given id.
 
-Parameters
+**Parameters**
 
-QUANTITY - The filter id.
+* `QUANTITY` - The filter id.
+* `params`: `["0x16", // 22]`
 
-params: [
+**Returns**
 
-  "0x16", // 22
+See `eth_getFilterChanges`.
 
-]
+**Example**
 
-Returns
-
-See eth_getFilterChanges
-
-Example
-
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getFilterLogs", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
+```
 
-Result
+**Result**
 
-See eth_getFilterChanges
+See `eth_getFilterChanges`.
 
-eth_getLogs
+## `eth_getLogs`
 Returns an array of all logs matching a given filter object.
 
-Parameters
+**Parameters**
 
 Object - The filter options:
 
-fromBlock: QUANTITY|TAG - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `fromBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `toBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `address`: `DATA`|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
+* `topics`: Array of `DATA`, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
+* `blockhash`: `DATA`, 32 Bytes - (optional, future) With the addition of EIP-234, blockHash will be a new filter option which restricts the logs returned to the single block with the 32-byte hash blockHash. Using blockHash is equivalent to fromBlock = toBlock = the block number with hash blockHash. If blockHash is present in the filter criteria, then neither fromBlock nor toBlock are allowed.
 
-toBlock: QUANTITY|TAG - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
-
-address: DATA|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
-
-topics: Array of DATA, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
-
-blockhash: DATA, 32 Bytes - (optional, future) With the addition of EIP-234, blockHash will be a new filter option which restricts the logs returned to the single block with the 32-byte hash blockHash. Using blockHash is equivalent to fromBlock = toBlock = the block number with hash blockHash. If blockHash is present in the filter criteria, then neither fromBlock nor toBlock are allowed.
-
-params: [
+* `params`: 
+```
+[
 
   {
 
@@ -1045,16 +919,19 @@ params: [
   },
 
 ] 
+```
 
-Returns
+**Returns**
 
-See eth_getFilterChanges
+See `eth_getFilterChanges`.
 
-Example
+**Example**
 
+```
 // Request
 curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getLogs", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
+```
 
-Result
+**Result**
 
-See eth_getFilterChanges -->
+See `eth_getFilterChanges`.
