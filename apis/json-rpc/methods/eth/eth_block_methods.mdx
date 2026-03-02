@@ -1,0 +1,130 @@
+---
+title: "Block methods"
+---
+
+## `eth_blockNumber`
+Returns the number of most recent block. 
+
+**Parameters**
+
+None
+
+**Returns**
+
+`QUANTITY` - integer of the current block number the client is on.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}'
+// Result
+{"jsonrpc":"2.0","id":83,"result":"0xa638a"}
+```
+
+## `eth_getBlockTransactionCountByHash`
+Returns the number of transactions in a block from a block matching the given block hash. 
+
+**Parameters**
+
+* `DATA`, 32 Bytes - hash of a block
+* `params`: `["0xd03ededb7415d22ae8bac30f96b2d1de83119632693b963642318d87d1bece5b"]`
+
+**Returns**
+
+`QUANTITY` - integer of the number of transactions in this block.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByHash","params":["0x613aca96ec73b0c4395130088dd21c3813d923c7fe6a4650ae3ef30dbcd350e4"],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":"0x1"}
+```
+
+## `eth_getBlockTransactionCountByNumber`
+Returns the number of transactions in a block matching the given block number.
+
+**Parameters**
+
+* `QUANTITY|TAG` - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* `params`: `["0x13738ca", // 20396234]`
+
+**Returns**
+
+`QUANTITY` - integer of the number of transactions in this block.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockTransactionCountByNumber","params":["0xa8f35"],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":"0x1"}
+```
+
+## `eth_getBlockByHash`
+Returns information about a block by hash. 
+
+**Parameters**
+
+* `DATA`, 32 Bytes - Hash of a block.
+* [Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+* params: `["0xdc0818cf78f21a8e70579cb46a43643f78291264dda342ae31049421c82d21ae", false,]`
+
+**Returns**
+
+* `Object` - A block object, or null when no block was found:
+* `number`: `QUANTITY` - the block number. null when its pending block.
+* `hash`: `DATA`, 32 Bytes - hash of the block. null when its pending block.
+* `parentHash`: `DATA`, 32 Bytes - hash of the parent block.
+* `nonce`: `DATA`, 8 Bytes - hash of the generated proof-of-work. null when its pending block.
+* `sha3Uncles`: `DATA`, 32 Bytes - SHA3 of the uncles data in the block.
+* `logsBloom`: `DATA`, 256 Bytes - the bloom filter for the logs of the block. null when its pending block.
+* `transactionsRoot`: `DATA`, 32 Bytes - the root of the transaction trie of the block.
+* `stateRoot`: `DATA`, 32 Bytes - the root of the final state trie of the block.
+* `receiptsRoot`: `DATA`, 32 Bytes - the root of the receipts trie of the block.
+* `miner`: `DATA`, 20 Bytes - the address of the beneficiary to whom the mining rewards were given.
+* `difficulty`: `QUANTITY` - integer of the difficulty for this block.
+* `totalDifficulty`: `QUANTITY` - integer of the total difficulty of the chain until this block.
+* `extraData`: `DATA` - the "extra data" field of this block.
+* `size`: `QUANTITY` - integer the size of this block in bytes.
+* `gasLimit`: `QUANTITY` - the maximum gas allowed in this block.
+* `gasUsed`: `QUANTITY` - the total used gas by all transactions in this block.
+* `timestamp`: `QUANTITY` - the unix timestamp for when the block was collated.
+* `transactions`: [Array] - Array of transaction objects, or 32 Bytes transaction hashes depending on the last given parameter.
+* `uncles`: [Array] - Array of uncle hashes. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json"  --data '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params":["0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421", false],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":
+{"baseFeePerGas":"0x7","difficulty":"0x0","extraData":"0x","gasLimit":"0x1c9c380","gasUsed":"0x0","hash":"0x03daacfe2396e87aeda0bc854f2917fc59b79a88274a6dfee625f8fef0667703","logsBloom":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000","miner":"0x0000000000000000000000000000000000000000","mixHash":"0x0000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0000000000000000","number":"0x1b4","parentHash":"0x88f44eeffcf00a761fdfd739428d925be152eb7c13799985c1d81a7f68f508a5","receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","sha3Uncles":"0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347","size":"0x38d","stateRoot":"0x3466bd727e1986f9a612df6b891b26bf9bc6087e49cc8733f0648bb629b0a3c","timestamp":"0x679cebb2","totalDifficulty":"0x0","transactions":[],"transactionsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","uncles":[]}}
+```
+
+## `eth_getBlockByNumber`
+Returns information about a block by block number.
+
+**Parameters**
+
+* `QUANTITY|TAG` - integer of a block number, or the string "earliest", "latest", "pending", "safe" or "finalized", as in the default block parameter.
+* [Boolean] - If true it returns the full transaction objects, if false only the hashes of the transactions.
+* `params`: `["0x1b4", // 436 true,]`
+
+**Returns**
+
+See `eth_getBlockByHash`.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x1b4", true],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":
+{"baseFeePerGas":"0x7","difficulty":"0x0","extraData":"0x","gasLimit":"0x1c9c380","gasUsed":"0x0","hash":"0x03daacfe2396e87aeda0bc854f2917fc59b79a88274a6dfee625f8fef0667703","logsBloom":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000","miner":"0x0000000000000000000000000000000000000000","mixHash":"0x0000000000000000000000000000000000000000000000000000000000000000","nonce":"0x0000000000000000","number":"0x1b4","parentHash":"0x88f44eeffcf00a761fdfd739428d925be152eb7c13799985c1d81a7f68f508a5","receiptsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","sha3Uncles":"0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347","size":"0x38d","stateRoot":"0x3466bd727e1986f9a612df6b891b26bf9bc6087e49cc8733f0648bb629b0a3c","timestamp":"0x679cebb2","totalDifficulty":"0x0","transactions":[],"transactionsRoot":"0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421","uncles":[]}}
+```

@@ -1,0 +1,43 @@
+---
+title: "Gas methods"
+---
+
+## `eth_gasPrice`
+Returns an estimate of the current price per gas in wei.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`QUANTITY` - integer of the current gas price in wei. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":73}'
+// Result
+{"jsonrpc":"2.0","id":73,"result":"0x7"}
+```
+
+## `eth_estimateGas`
+Generates and returns an estimate of how much gas is necessary to allow the transaction to complete. The transaction will not be added to the blockchain. Note that the estimate may be significantly more than the amount of gas actually used by the transaction, for a variety of reasons including EVM mechanics and node performance.
+
+**Parameters**
+
+See `eth_call` parameters, except that all properties are optional. If no gas limit is specified geth uses the block gas limit from the pending block as an upper bound. As a result the returned estimate might not be enough to executed the call/transaction when the amount of gas is higher than the pending block gas limit.
+
+**Returns**
+
+`QUANTITY` - the amount of gas used. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_estimateGas", "params": [{"to": "0x89A7EF2F08B1c018D5Cc88836249b84Dd5392905", "data": "0x18160ddd"}, "latest"], "id": 1}'
+// Result
+{"jsonrpc":"2.0","id":1,"result":"0x5248"}
+```

@@ -1,0 +1,230 @@
+---
+title: "Filter methods"
+---
+
+## `eth_newFilter`
+Creates a filter object, based on filter options, to notify when the state changes (logs). To check if the state has changed, call eth_getFilterChanges.
+
+A note on specifying topic filters: Topics are order-dependent. A transaction with a log with topics [A, B] will be matched by the following topic filters:
+
+* `[]` "anything"
+* `[A]` "A in first position (and anything after)"
+* `[null, B]` "anything in first position AND B in second position (and anything after)"
+* `[A, B]` "A in first position AND B in second position (and anything after)"
+* `[[A, B], [A, B]]` "(A OR B) in first position AND (A OR B) in second position (and anything after)"
+
+**Parameters**
+
+`Object` - The filter options:
+
+* `fromBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `toBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `address`: `DATA`|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
+* `topics`: [Array] of DATA, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
+* `params`: 
+```
+[
+
+  {
+
+    fromBlock: "0x1",
+
+    toBlock: "0x2",
+
+    address: "0x8888f1f195afa192cfee860698584c030f4c9db1",
+
+    topics: [
+
+      "0x000000000000000000000000a94f5374fce5edbc8e2a8697c15331677e6ebf0b",
+
+      null,
+
+      [
+
+        "0x000000000000000000000000a94f5374fce5edbc8e2a8697c15331677e6ebf0b",
+
+        "0x0000000000000000000000000aff3454fce5edbc8cca8697c15331677e6ebccc",
+
+      ],
+
+    ],
+
+  },
+
+]
+```
+**Returns**
+
+`QUANTITY` - A filter id.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newFilter","params":[{"topics":["0xe83e89c6fac48fc02fea39ded109236ef1b5991dd6924248a5e05bce6ee3f756"]}],"id":73}'
+// Response
+{"jsonrpc":"2.0","id":73,"result":"0xcbf874231dca43f89bced1ab2d7e326e"}
+```
+
+## `eth_newBlockFilter`
+Creates a filter in the node, to notify when a new block arrives. To check if the state has changed, call `eth_getFilterChanges`.
+
+**Parameters**
+
+None
+
+**Returns**
+
+`QUANTITY` - A filter id.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],"id":73}'
+// Response
+{"jsonrpc":"2.0","id":73,"result":"0x9d88bf098c4a6346e868966502e7e110"}
+```
+
+## `eth_newPendingTransactionFilter`
+Creates a filter in the node, to notify when new pending transactions arrive. To check if the state has changed, call `eth_getFilterChanges`. 
+
+**Parameters**
+
+None 
+
+**Returns**
+
+`QUANTITY` - A filter id. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":73}'
+// Response
+{"jsonrpc":"2.0","id":73,"result":"0xe623e6bc2cd77083bdf2b45f95500f31"}
+```
+
+## `eth_uninstallFilter`
+Uninstalls a filter with given id. Should always be called when watch is no longer needed. Additionally Filters timeout when they aren't requested with eth_getFilterChanges for a period of time.
+
+**Parameters**
+
+*`QUANTITY` - The filter id.
+* `params`: `["0xb", // 11]`
+
+**Returns**
+
+[Boolean] - true if the filter was successfully uninstalled, otherwise false.
+
+**Example**
+
+```
+// Request
+ curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_uninstallFilter","params":["0xb"],"id":73}'
+// Response
+{"jsonrpc":"2.0","id":73,"result":false}
+```
+
+## `eth_getFilterChanges`
+Polling method for a filter, which returns an array of logs which occurred since last poll.
+
+**Parameters**
+
+* `QUANTITY` - the filter id.
+* `params`: `["0x16", // 22]`
+
+**Returns**
+
+[Array] - Array of log objects, or an empty array if nothing has changed since last poll.
+
+* For filters created with `eth_newBlockFilter` the return are block hashes (DATA, 32 Bytes), e.g. ["0x3454645634534..."].
+* For filters created with `eth_newPendingTransactionFilter` the return are transaction hashes (DATA, 32 Bytes), e.g. ["0x6345343454645..."].
+* For filters created with `eth_newFilter` logs are objects with following params:
+* `removed`: `TAG` - true when the log was removed, due to a chain reorganization. false if its a valid log.
+* `logIndex`: `QUANTITY` - integer of the log index position in the block. null when its pending log.
+* `transactionIndex`: `QUANTITY` - integer of the transactions index position log was created from. null when its pending log.
+* `transactionHash`: `DATA`, 32 Bytes - hash of the transactions this log was created from. null when its pending log.
+* `blockHash`: `DATA`, 32 Bytes - hash of the block where this log was in. null when its pending. null when its pending log.
+* `blockNumber`: `QUANTITY` - the block number where this log was in. null when its pending. null when its pending log.
+* `address`: `DATA`, 20 Bytes - address from which this log originated.
+* `data`: `DATA` - contains zero or more 32 Bytes non-indexed arguments of the log.
+* `topics`: [Array] of `DATA` - Array of 0 to 4 32 Bytes DATA of indexed log arguments. (In solidity: The first topic is the hash of the signature of the event (e.g. Deposit(address,bytes32,uint256)), except you declared the event with the anonymous specifier.)
+
+**Example**
+
+```
+// Request
+ curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getFilterChanges", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
+// Response
+{"jsonrpc":"2.0","id":2,"result":["0x4b6e9ec012547409ef92cac06dcdb8b1411f6da3b20562b1826b3d2536c4670b","0xb261150727058ac5cc5e2533c89b0365a39f953b409259e74744e36abe4b48a9","0xe98c58235984f9d783d9388138f2ebea823ffa5b6a936305a7fe880f15b7e264","0x1fc59fd431bbfabfd245158911fcf0ec58a5b0093794d0c11bd940b849600267","0xdc2c9af8dbd23c5a574cb529267b2d1a69c6368ed82f12aba3a1968bb23fed20","0x268125f8c23d29ae80f7aa1d7d6903f54fd555931902159290b06e8f667aadb","0x7201af68b4c027a355679a66e340c0e7b53e6e60be08f18f14054ad577cd80ee"]}
+```
+
+## `eth_getFilterLogs`
+Returns an array of all logs matching filter with given id.
+
+**Parameters**
+
+* `QUANTITY` - The filter id.
+* `params`: `["0x16", // 22]`
+
+**Returns**
+
+See `eth_getFilterChanges`.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getFilterLogs", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
+```
+
+**Result**
+
+See `eth_getFilterChanges`.
+
+## `eth_getLogs`
+Returns an array of all logs matching a given filter object.
+
+**Parameters**
+
+Object - The filter options:
+
+* `fromBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `toBlock`: `QUANTITY|TAG` - (optional, default: "latest") Integer block number, or "latest" for the last proposed block, "safe" for the latest safe block, "finalized" for the latest finalized block, or "pending", "earliest" for transactions not yet in a block.
+* `address`: `DATA`|Array, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
+* `topics`: Array of `DATA`, - (optional) Array of 32 Bytes DATA topics. Topics are order-dependent. Each topic can also be an array of DATA with "or" options.
+* `blockhash`: `DATA`, 32 Bytes - (optional, future) With the addition of EIP-234, blockHash will be a new filter option which restricts the logs returned to the single block with the 32-byte hash blockHash. Using blockHash is equivalent to fromBlock = toBlock = the block number with hash blockHash. If blockHash is present in the filter criteria, then neither fromBlock nor toBlock are allowed.
+
+* `params`: 
+```
+[
+
+  {
+
+    topics: [
+
+      "0x000000000000000000000000a94f5374fce5edbc8e2a8697c15331677e6ebf0b",
+
+    ],
+
+  },
+
+] 
+```
+
+**Returns**
+
+See `eth_getFilterChanges`.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc": "2.0", "method": "eth_getLogs", "params": ["0x44ff3a54d0a2c4c06c4684d596b285e7"], "id": 2}'
+```
+
+**Result**
+
+See `eth_getFilterChanges`.

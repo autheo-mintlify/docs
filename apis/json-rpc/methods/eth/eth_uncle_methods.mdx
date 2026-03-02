@@ -1,0 +1,102 @@
+---
+title: "Uncle methods"
+---
+
+## `eth_getUncleCountByBlockHash`
+Returns the number of uncles in a block from a block matching the given block hash.
+
+**Parameters**
+
+* `DATA`, 32 Bytes - hash of a block
+* `params`: `["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2"]`
+
+**Returns**
+
+`QUANTITY` - integer of the number of uncles in this block. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockHash","params":["0x613aca96ec73b0c4395130088dd21c3813d923c7fe6a4650ae3ef30dbcd350e4"],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":"0x0"}
+```
+
+A result of 0x0 means that the block does not have uncle blocks.
+
+## `eth_getUncleCountByBlockNumber`
+Returns the number of uncles in a block from a block matching the given block number.
+
+**Parameters**
+
+* `QUANTITY|TAG` - integer of a block number, or the string "latest", "earliest", "pending", "safe" or "finalized", see the default block parameter
+* `params`: `["0xe8", // 232] `
+
+**Returns**
+
+`QUANTITY` - integer of the number of uncles in this block. 
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleCountByBlockNumber","params":["0xa8fa0"],"id":1}'
+// Response
+{"jsonrpc":"2.0","id":1,"result":"0x0"}
+```
+
+A result of 0x0 means that the block does not have uncle blocks.
+
+
+## `eth_getUncleByBlockHashAndIndex`
+Returns information about a uncle of a block by hash and uncle index position.
+
+**Parameters**
+
+* `DATA`, 32 Bytes - The hash of a block.
+* `QUANTITY` - The uncle's index position.
+* `params`: `["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2","0x0", // 0]`
+
+**Returns**
+
+See `eth_getBlockByHash`.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data'{"jsonrpc":"2.0","method":"eth_getUncleByBlockHashAndIndex","params":["0x1d59ff54b1eb26b013ce3cb5fc9dab3705b415a67127a003c3e61eb445bb8df2", "0x0"],"id":1}'
+```
+
+**Result**
+
+See `eth_getBlockByHash`.
+
+Note: An uncle doesn't contain individual transactions.
+
+## `eth_getUncleByBlockNumberAndIndex`
+Returns information about a uncle of a block by number and uncle index position.
+
+**Parameters**
+
+* `QUANTITY|TAG` - a block number, or the string "earliest", "latest", "pending", "safe", "finalized", as in the default block parameter.
+* `QUANTITY` - the uncle's index position.
+* `params`: `["0x29c", // 668 "0x0", // 0]`
+
+**Returns**
+
+See `eth_getBlockByHash`.
+
+Note: An uncle doesn't contain individual transactions.
+
+**Example**
+
+```
+// Request
+curl -X POST https://testnet-rpc1.autheo.com -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getUncleByBlockNumberAndIndex","params":["0x29c", "0x0"],"id":1}'
+```
+
+**Result**
+
+See `eth_getBlockByHash`.

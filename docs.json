@@ -112,11 +112,12 @@
                     "group": "ETH",
                     "expanded": false,
                     "pages": [
-                      "apis/json-rpc/methods/eth/eth_chainId",
-                      "apis/json-rpc/methods/eth/eth_getBalance",
-                      "apis/json-rpc/methods/eth/eth_call",
-                      "apis/json-rpc/methods/eth/eth_sendRawTransaction",
-                      "apis/json-rpc/methods/eth/eth_getTransactionReceipt"
+                      "apis/json-rpc/methods/eth/eth",
+                      "apis/json-rpc/methods/eth/eth_block_methods",
+                      "apis/json-rpc/methods/eth/eth_gas_methods",
+                      "apis/json-rpc/methods/eth/eth_transaction_methods",
+                      "apis/json-rpc/methods/eth/eth_uncle_methods",
+                      "apis/json-rpc/methods/eth/eth_filter_methods"
                     ]
                   },
                   {
