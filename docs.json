@@ -14,7 +14,6 @@
         "group": "Start Here",
         "icon": "play",
         "pages": [
-          "start-here/overview",
           "start-here/autheo-os-model",
           "start-here/architecture-at-a-glance",
           "start-here/components-map",
