@@ -301,8 +301,8 @@
   },
 
   "logo": {
-    "light": "/logo/autheo-logo.webp",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/logo-light.svg",
+    "dark": "/logo/logo-dark.svg"
   },
   "navbar": {
     "links": [
