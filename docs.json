@@ -314,7 +314,6 @@
     ],
     "primary": {
       "type": "button",
-      "hidden": true,
       "label": "Dashboard",
       "href": "https://dashboard.mintlify.com"
     }
