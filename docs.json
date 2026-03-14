@@ -1,20 +1,19 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Autheo-Mintlify Docs",
+  "name": "Autheo documentation",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "navigation": {
     "groups": [
       {
         "group": "Start Here",
         "icon": "play",
         "pages": [
-          "start-here/overview",
           "start-here/autheo-os-model",
           "start-here/architecture-at-a-glance",
           "start-here/components-map",
@@ -112,11 +111,12 @@
                     "group": "ETH",
                     "expanded": false,
                     "pages": [
-                      "apis/json-rpc/methods/eth/eth_chainId",
-                      "apis/json-rpc/methods/eth/eth_getBalance",
-                      "apis/json-rpc/methods/eth/eth_call",
-                      "apis/json-rpc/methods/eth/eth_sendRawTransaction",
-                      "apis/json-rpc/methods/eth/eth_getTransactionReceipt"
+                      "apis/json-rpc/methods/eth/eth",
+                      "apis/json-rpc/methods/eth/eth_block_methods",
+                      "apis/json-rpc/methods/eth/eth_gas_methods",
+                      "apis/json-rpc/methods/eth/eth_transaction_methods",
+                      "apis/json-rpc/methods/eth/eth_uncle_methods",
+                      "apis/json-rpc/methods/eth/eth_filter_methods"
                     ]
                   },
                   {
@@ -284,8 +284,6 @@
               "papers/technical/decentralized-cloud-v1-0",
               "papers/technical/dir-vim-v1-0",
               "papers/technical/sdk-framework-v1-0",
-              "papers/technical/universal-client-v1-0",
-              "papers/technical/application-catalog-v1-0",
               "papers/technical/fullstack-integration-v1-0"
             ]
           }
@@ -293,6 +291,7 @@
       },
       {
         "group": "Changelog",
+        "hidden": true,
         "expanded": false,
         "pages": [
           "changelog/document-history",
@@ -310,14 +309,9 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:info@autheo.com"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -333,9 +327,10 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/Autheo_Network",
+      "linkedin": "https://www.linkedin.com/company/autheo/posts?feedView=all",
+      "discord": "https://discord.gg/McEEeXGGya",
+      "telegram": "https://t.me/autheo/1"
     }
   }
 }
