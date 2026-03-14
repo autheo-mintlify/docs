@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Autheo documentation",
+  "name": "Autheo Legal Docs",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -11,8 +11,7 @@
   "navigation": {
     "groups": [
       {
-        "group": "Start Here",
-        "icon": "play",
+        "group": "Legal agreements and notices",
         "pages": [
           "start-here/autheo-os-model",
           "start-here/architecture-at-a-glance",
@@ -22,285 +21,27 @@
         ]
       },
       {
-        "group": "Getting Started",
+        "group": "Autheo validator node sale supporting site policies (v1.0)",
         "pages": [
-          "getting-started/quickstart",
-          {
-            "group": "Wallets",
-            "expanded": false,
-            "pages": [
-              "getting-started/wallets/metamask-install",
-              "getting-started/wallets/connect-to-testnet",
-              "getting-started/wallets/account-basics"
-            ]
-          },
-          {
-            "group": "Network",
-            "expanded": false,
-            "pages": [
-              "getting-started/network/endpoints",
-              "getting-started/network/faucet",
-              "getting-started/network/troubleshooting"
-            ]
-          },
-          "getting-started/faq"
-         
+          "start-here/autheo-os-model",
+          "start-here/architecture-at-a-glance",
+          "start-here/components-map",
+          "start-here/terminology",
+          "start-here/glossary"
         ]
       },
       {
-        "group": "Developers",
+        "group": "Autheo validator node purchase and license agreement (v1.0)",
         "pages": [
-          "developers/overview",
-          {
-            "group": "Setup",
-            "expanded": false,
-            "pages": [
-              "developers/setup/dev-environment",
-              "developers/setup/cli-installation",
-              "developers/setup/project-scaffolding"
-            ]
-          },
-          {
-            "group": "Tutorials",
-            "expanded": false,
-            "pages": [
-              "developers/tutorials/deploy-smart-contract",
-              "developers/tutorials/interact-with-contracts",
-              "developers/tutorials/events-and-logs",
-              "developers/tutorials/token-contracts",
-              "developers/tutorials/indexing-and-analytics"
-            ]
-          },
-          {
-            "group": "Guides",
-            "expanded": false,
-            "pages": [
-              "developers/guides/key-management",
-              "developers/guides/security-best-practices",
-              "developers/guides/gas-fees-and-tx-lifecycle",
-              "developers/guides/deployment-checklist"
-            ]
-          },
-          {
-            "group": "Troubleshooting",
-            "expanded": false,
-            "pages": [
-              "developers/troubleshooting/common-errors",
-              "developers/troubleshooting/rpc-issues"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "APIs",
-        "pages": [
-          "apis/overview",
-          {
-            "group": "JSON-RPC",
-            "expanded": false,
-            "pages": [
-              "apis/json-rpc/overview",
-              "apis/json-rpc/authentication",
-              "apis/json-rpc/errors",
-              "apis/json-rpc/rate-limits",
-              {
-                "group": "Methods",
-                "expanded": false,
-                "pages": [
-                  {
-                    "group": "ETH",
-                    "expanded": false,
-                    "pages": [
-                      "apis/json-rpc/methods/eth/eth",
-                      "apis/json-rpc/methods/eth/eth_block_methods",
-                      "apis/json-rpc/methods/eth/eth_gas_methods",
-                      "apis/json-rpc/methods/eth/eth_transaction_methods",
-                      "apis/json-rpc/methods/eth/eth_uncle_methods",
-                      "apis/json-rpc/methods/eth/eth_filter_methods"
-                    ]
-                  },
-                  {
-                    "group": "net",
-                    "expanded": false,
-                    "pages": [
-                      "apis/json-rpc/methods/net/net_version"
-                    ]
-                  },
-                  {
-                    "group": "web3",
-                    "expanded": false,
-                    "pages": [
-                      "apis/json-rpc/methods/web3/web3_clientVersion"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "group": "REST",
-            "expanded": false,
-            "pages": [
-              "apis/rest/overview",
-              "apis/rest/pagination",
-              "apis/rest/errors",
-              {
-                "group": "Resources",
-                "expanded": false,
-                "pages": [
-                  "apis/rest/resources/main-page-stats",
-                  "apis/rest/resources/addresses",
-                  "apis/rest/resources/blocks",
-                  "apis/rest/resources/transactions",
-                  "apis/rest/resources/tokens",
-                  "apis/rest/resources/smart-contracts"
-                ]
-              },
-              {
-                "group": "Examples",
-                "expanded": false,
-                "pages": [
-                  "apis/rest/examples/curl",
-                  "apis/rest/examples/javascript"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "group": "SDKs",
-        "pages": [
-          "sdks/overview",
-          {
-            "group": "go",
-            "expanded": false,
-            "pages": [
-              "sdks/go/overview",
-              "sdks/go/install",
-              "sdks/go/quickstart",
-              "sdks/go/methods",
-              {
-                "group": "Examples",
-                "expanded": false,
-                "pages": [
-                  "sdks/go/examples/query-balance",
-                  "sdks/go/examples/send-transaction",
-                  "sdks/go/examples/contract-interaction"
-                ]
-              },
-              "sdks/go/reference"
-            ]
-          }
-        ]
-      },
-       {
-        "group": "Node operations",
-        "pages": [
-          {
-            "group": "Nodes",
-            "expanded": false,
-            "pages": [
-              "nodes/overview",
-              {
-                "group": "testnet",
-                "expanded": false,
-                "pages": [
-                  "nodes/testnet/node-setup",
-                  "nodes/testnet/configuration",
-                  "nodes/testnet/upgrades",
-                  "nodes/testnet/troubleshooting"
-                ]
-              },
-              {
-                "group": "operations",
-                "expanded": false,
-                "pages": [
-                  "nodes/operations/monitoring",
-                  "nodes/operations/security-hardening",
-                  "nodes/operations/backups-and-restore",
-                  "nodes/operations/incident-response"
-                ]
-              },
-              {
-                "group": "Validator Lifecycle",
-                "expanded": false,
-                "pages": [
-                  "nodes/validator-lifecycle/register-validator",
-                  "nodes/validator-lifecycle/key-rotation",
-                  "nodes/validator-lifecycle/pause-resume",
-                  "nodes/validator-lifecycle/remove-validator"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Validator Program",
-            "expanded": false,
-            "pages": [
-              "validator-program/overview",
-              "validator-program/brochure",
-              "validator-program/hosting-options",
-              "validator-program/activation-and-timeline",
-              "validator-program/economics",
-              "validator-program/compliance"
-            ]
-          },
-          {
-            "group": "Token",
-            "expanded": false,
-            "pages": [
-              "token/overview",
-              "token/utility-and-fees",
-              "token/staking-and-rewards",
-              "token/allocations-and-emissions",
-              "token/vesting",
-              "token/risks-and-disclaimers",
-              "token/tokenomics-paper-v1-2"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Papers",
-        "pages": [
-          "papers/overview",
-          {
-            "group": "Litepaper",
-            "expanded": false,
-            "pages": [
-              "papers/litepaper/v1-5"
-            ]
-          },
-          {
-            "group": "technical",
-            "expanded": false,
-            "pages": [
-              "papers/technical/layer-1-blockchain-v1-0",
-              "papers/technical/consensus-mechanism-poa-v1-0",
-              "papers/technical/decentralized-id-system-v1-0",
-              "papers/technical/supporting-infrastructure-v1-0",
-              "papers/technical/integration-layer-components-v1-0",
-              "papers/technical/decentralized-cloud-v1-0",
-              "papers/technical/dir-vim-v1-0",
-              "papers/technical/sdk-framework-v1-0",
-              "papers/technical/fullstack-integration-v1-0"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Changelog",
-        "hidden": true,
-        "expanded": false,
-        "pages": [
-          "changelog/document-history",
-          "changelog/redirects-map"
+          "start-here/autheo-os-model",
+          "start-here/architecture-at-a-glance",
+          "start-here/components-map",
+          "start-here/terminology",
+          "start-here/glossary"
         ]
       }
     ]
   },
-
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
