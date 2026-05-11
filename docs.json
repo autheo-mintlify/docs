@@ -286,21 +286,6 @@
             "pages": [
               "papers/litepaper/v1-5"
             ]
-          },
-          {
-            "group": "technical",
-            "expanded": false,
-            "pages": [
-              "papers/technical/layer-1-blockchain-v1-0",
-              "papers/technical/consensus-mechanism-poa-v1-0",
-              "papers/technical/decentralized-id-system-v1-0",
-              "papers/technical/supporting-infrastructure-v1-0",
-              "papers/technical/integration-layer-components-v1-0",
-              "papers/technical/decentralized-cloud-v1-0",
-              "papers/technical/dir-vim-v1-0",
-              "papers/technical/sdk-framework-v1-0",
-              "papers/technical/fullstack-integration-v1-0"
-            ]
           }
         ]
       },
