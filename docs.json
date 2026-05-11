@@ -44,7 +44,6 @@
             ]
           },
           "getting-started/faq"
-         
         ]
       },
       {
@@ -194,7 +193,7 @@
           }
         ]
       },
-       {
+      {
         "group": "Node operations",
         "pages": [
           {
@@ -203,10 +202,26 @@
             "pages": [
               "nodes/overview",
               {
+                "group": "Architecture",
+                "expanded": false,
+                "pages": [
+                  "nodes/architecture/overview",
+                  "nodes/architecture/system-architecture",
+                  "nodes/architecture/module-overview",
+                  "nodes/architecture/license-gating",
+                  "nodes/architecture/license-lifecycle",
+                  "nodes/architecture/nft-rewards",
+                  "nodes/architecture/evm-integration"
+                ]
+              },
+              {
                 "group": "testnet",
                 "expanded": false,
                 "pages": [
                   "nodes/testnet/node-setup",
+                  "nodes/testnet/installation",
+                  "nodes/testnet/key-management",
+                  "nodes/testnet/license-setup",
                   "nodes/testnet/configuration",
                   "nodes/testnet/upgrades",
                   "nodes/testnet/troubleshooting"
@@ -300,7 +315,6 @@
       }
     ]
   },
-
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
@@ -317,19 +331,18 @@
       "label": "autheo.com",
       "href": "https://www.autheo.com/"
     }
-
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {

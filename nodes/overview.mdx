@@ -1,4 +1,63 @@
 ---
-title: 'Overview'
+title: "Overview"
+description: "Autheo Chain is an EVM-compatible Layer 1 blockchain built on Cosmos SDK with NFT license-gated staking and dual reward streams."
+keywords: ["autheo chain", "layer 1", "cosmos sdk", "evm", "nft license", "validator", "autheod"]
 ---
 
+Autheo Chain (`autheo_785-1`) is an EVM-compatible Layer 1 blockchain derived from Cronos and built on Cosmos SDK v0.53.0. It extends standard staking with a custom NFT license gating system that governs who can operate validators and delegate stake.
+
+## Quick reference
+
+| Parameter | Value |
+|---|---|
+| Chain ID (Cosmos) | `autheo_785-1` |
+| Chain ID (EVM integer) | `785` |
+| Binary | `autheod` |
+| Current version | `v1.0.8` |
+| Base denomination | `aauth` |
+| Decimals | 18 (1 THEO = 10¹⁸ aauth) |
+| Address prefix | `autheo` |
+| Validator address prefix | `autheovaloper` |
+| Key algorithm | `eth_secp256k1` |
+| Block time | ~5 seconds |
+| Consensus | CometBFT v0.38.17 |
+| Cosmos SDK | v0.53.0 |
+
+## Key features
+
+**NFT license-gated staking** — Validators require a Sovereign NFT license. Delegators require a Prime or Core license bound to their target validator. Licenses originate as ERC-721 tokens on Arbitrum and are bridged into the chain automatically via an EVM hook.
+
+**Three license tiers** — Each tier grants different staking rights and earns a fixed annual NFT emission reward.
+
+| Tier | Purpose | Annual THEO emission |
+|---|---|---|
+| Sovereign | Create and operate a validator | ~187,969 |
+| Prime | External delegation (higher tier) | ~18,797 |
+| Core | External delegation (standard tier) | ~1,880 |
+
+**Dual reward streams** — Staking rewards flow from `x/mint` via `x/distribution` automatically. NFT emission rewards accrue per block in `x/emissions` and require a manual claim via `x/licensedistribution`.
+
+**Full EVM compatibility** — Autheo Chain runs a full Ethermint EVM with Ethereum JSON-RPC on ports 8545 (HTTP) and 8546 (WebSocket). MetaMask, ethers.js, Hardhat, and Foundry all work with Chain ID `785`.
+
+**IBC support** — Native interoperability via `ibc-go v10.1.1`.
+
+## Source code
+
+```
+https://github.com/autheo-blockchain/autheo-chain-lab
+```
+
+## Getting started
+
+**If you are a validator operator:**
+1. Review [Prerequisites](/nodes/testnet/node-setup)
+2. [Install the binary](/nodes/testnet/installation)
+3. Configure [key management](/nodes/testnet/key-management)
+4. Complete [NFT license setup](/nodes/testnet/license-setup)
+5. Follow the [production deployment](/nodes/testnet/configuration) guide
+6. [Create your validator](/nodes/validator-lifecycle/register-validator)
+
+**If you are a developer:**
+1. Start with [System architecture](/nodes/architecture/system-architecture)
+2. Review [EVM integration](/nodes/architecture/evm-integration)
+3. See the [Developer overview](/developers/overview)

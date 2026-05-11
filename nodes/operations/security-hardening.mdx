@@ -1,3 +1,114 @@
 ---
-title: "Security Hardening"
+title: "Security hardening"
+description: "Essential security hardening for Autheo Chain validator nodes: OS protection, firewall rules, consensus key management, sentry architecture, and key infrastructure."
+keywords: ["security", "hardening", "firewall", "ssh", "sentry", "tmkms", "hsm", "slashing", "tombstoning", "double-sign"]
 ---
+
+Running an Autheo Chain validator exposes you to four critical risks: slashing, tombstoning (permanent ban from double-signing), fund theft from a compromised operator key, and license revocation by governance.
+
+## OS hardening
+
+### SSH hardening
+
+```bash
+sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo systemctl restart sshd
+sudo apt-get install -y fail2ban
+sudo systemctl enable --now fail2ban
+```
+
+### Run as an unprivileged user
+
+```bash
+sudo useradd -r -s /bin/false autheo
+sudo chown -R autheo:autheo /path/to/node-home
+```
+
+Set `User=autheo` in your systemd service file.
+
+### app.toml hardening
+
+```toml
+allow-unprotected-txs = false
+enabled-unsafe-cors = false
+```
+
+## Firewall configuration
+
+| Port | Service | Validator (no sentries) | Validator (with sentries) | Sentry |
+|---|---|---|---|---|
+| 22 | SSH | Open | Open | Open |
+| 26656 | CometBFT P2P | Open | Sentry IPs only | Open |
+| 26657 | CometBFT RPC | Closed | Closed | Closed |
+| 26660 | Prometheus | Closed | Closed | Closed |
+| 9090 | gRPC | Closed | Closed | Closed |
+| 1317 | REST API | Closed | Closed | Closed |
+| 8545 | Ethereum JSON-RPC | Closed | Closed | Closed |
+| 8546 | Ethereum WebSocket | Closed | Closed | Closed |
+
+## Consensus key management
+
+<Warning>
+Running two nodes simultaneously with the same `priv_validator_key.json` causes double-signing, which results in slashing and **permanent tombstoning**. There is no recovery. Always stop your old node completely before starting a replacement.
+</Warning>
+
+### Remote signer (recommended for production)
+
+```toml
+# config/config.toml
+[consensus]
+priv_validator_laddr = "tcp://127.0.0.1:26658"
+```
+
+Use `tmkms` or an HSM to keep the consensus key off the validator host entirely.
+
+### Key file backup
+
+| File | Backup frequency | Risk if lost |
+|---|---|---|
+| `config/priv_validator_key.json` | Once | Cannot sign blocks |
+| `data/priv_validator_state.json` | Before every upgrade | Double-sign risk if old copy used |
+| `config/node_key.json` | Once | P2P identity lost |
+| Operator key mnemonic | Once | Cannot recover funds |
+
+Always use the **most recent** `priv_validator_state.json` when restoring.
+
+## Sentry node architecture
+
+```
+Internet → [Sentry 1] ─┐
+Internet → [Sentry 2] ─┼──► [Validator] (private network only)
+Internet → [Sentry 3] ─┘
+```
+
+Validator `config/config.toml`:
+
+```toml
+persistent_peers = "<sentry1-id>@<sentry1-private-ip>:26656,..."
+pex = false
+```
+
+Sentry `config/config.toml`:
+
+```toml
+private_peer_ids = "<validator-node-id>"
+persistent_peers = "<validator-id>@<validator-private-ip>:26656"
+```
+
+## Operator key security
+
+- Use `--keyring-backend file` (AES-encrypted) or `--keyring-backend os` for production
+- Never use `--keyring-backend test` outside development
+- Store the keyring password separately from the encrypted keystore file
+
+## Monitoring for security events
+
+Check tombstone status:
+
+```bash
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+Alert when `tendermint_consensus_validator_power` reaches zero. See [Monitoring](/nodes/operations/monitoring) for setup.

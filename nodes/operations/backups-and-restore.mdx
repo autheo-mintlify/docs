@@ -1,4 +1,117 @@
 ---
-title: 'Backups And Restore'
+title: "Backups and restore"
+description: "How to back up critical Autheo Chain validator files and restore from snapshots, including runbooks for data corruption, hardware failure, and license recovery."
+keywords: ["backup", "restore", "snapshot", "priv_validator_key", "priv_validator_state", "recovery", "migration"]
 ---
 
+## Critical files to back up
+
+| File | Backup frequency | Risk if lost or misused |
+|---|---|---|
+| `config/priv_validator_key.json` | Once — offline encrypted | Cannot sign blocks |
+| `data/priv_validator_state.json` | Before every upgrade or migration | **Double-sign risk if old copy restored** |
+| `config/node_key.json` | Once | P2P identity lost |
+| Operator key mnemonic | Once — offline encrypted | Cannot recover operator account |
+| `config/app.toml` | After each change | Restorable from defaults |
+| `config/config.toml` | After each change | Restorable from defaults |
+
+<Warning>
+Never restore from an older copy of `priv_validator_state.json`. Signing a block at a height already signed results in slashing and **permanent tombstoning**.
+</Warning>
+
+## Creating a node snapshot
+
+Always stop the node before creating a snapshot:
+
+```bash
+sudo systemctl stop autheod
+tar -czf autheo-snapshot-$(date +%Y%m%d-%H%M%S).tar.gz \
+  -C /path/to/node-home data/
+sudo systemctl start autheod
+```
+
+## Automated daily snapshots
+
+```bash
+# Add to crontab -e
+0 2 * * * systemctl stop autheod && \
+  tar -czf /backups/autheo-snapshot-$(date +\%Y\%m\%d).tar.gz \
+    -C /path/to/node-home data/ && \
+  systemctl start autheod && \
+  find /backups -name 'autheo-snapshot-*.tar.gz' -mtime +7 -delete
+```
+
+## Restoring from a snapshot
+
+<Steps>
+  <Step title="Stop the node">
+    ```bash
+    sudo systemctl stop autheod
+    ```
+  </Step>
+  <Step title="Remove old data">
+    ```bash
+    rm -rf /path/to/node-home/data/
+    ```
+  </Step>
+  <Step title="Extract the snapshot">
+    ```bash
+    tar -xzf autheo-snapshot-<timestamp>.tar.gz -C /path/to/node-home/
+    ```
+  </Step>
+  <Step title="Restore your state file">
+    ```bash
+    cp /your/secure/backup/priv_validator_state.json \
+      /path/to/node-home/data/priv_validator_state.json
+    ```
+  </Step>
+  <Step title="Restart">
+    ```bash
+    sudo systemctl start autheod
+    sudo journalctl -u autheod -f
+    ```
+  </Step>
+</Steps>
+
+## Download official snapshot
+
+```bash
+wget https://snapshot.autheo.com/data_backup_latest.tar.gz
+sudo systemctl stop autheod
+rm -rf /path/to/node-home/data/
+tar xzvf data_backup_latest.tar.gz
+mv data/ /path/to/node-home/data/
+cp /secure/backup/priv_validator_state.json /path/to/node-home/data/
+sudo systemctl start autheod
+```
+
+## Recovery runbooks
+
+### Runbook A: Data corruption
+
+Restore from your most recent snapshot. Verify sync:
+
+```bash
+autheod status | jq '.SyncInfo.catching_up'
+```
+
+### Runbook B: Full hardware failure (migration to new host)
+
+1. Provision new host meeting [hardware requirements](/nodes/testnet/node-setup)
+2. Install `autheod`
+3. Copy key files and config from backup
+4. Restore latest `data/priv_validator_state.json`
+5. Download a fresh snapshot for `data/`
+6. **Power off the old host completely**
+7. Start `autheod` on the new host
+
+### Runbook C: Validator jailed
+
+1. Fix the cause of jailing
+2. Verify Sovereign license is not `REVOKED`
+3. Submit unjail: `autheod tx slashing unjail --from mykey --chain-id autheo_785-1 --keyring-backend file`
+4. If license stays `BOUND`, re-delegate to reactivate
+
+### Runbook D: License revoked
+
+See [License lifecycle](/nodes/architecture/license-lifecycle) for the full reinstatement sequence.

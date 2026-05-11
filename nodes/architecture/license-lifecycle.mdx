@@ -1,0 +1,102 @@
+---
+title: "License lifecycle"
+description: "The four-state license system on Autheo Chain: ISSUED, BOUND, ACTIVE, and REVOKED — with all transition triggers and edge cases."
+keywords: ["license lifecycle", "issued", "bound", "active", "revoked", "state machine", "x/license"]
+---
+
+Every license on Autheo Chain moves through a four-state machine managed by the `x/license` keeper.
+
+## The four states
+
+| Status | Description |
+|---|---|
+| `ISSUED` | License minted and owned. Not yet attached to any validator. Can be bound or transferred (if policy allows). Does not earn rewards. |
+| `BOUND` | License attached to a validator. No active delegation yet. Cannot be transferred. Does not earn NFT emission rewards. |
+| `ACTIVE` | License attached to a validator with a live delegation that has positive token value. Earns per-block NFT emission rewards. |
+| `REVOKED` | Governance-suspended. No staking operations permitted. Only `MsgReinstateLicense` (governance only) can restore it. |
+
+## State transitions
+
+### ISSUED → BOUND
+
+Triggered by `MsgBindLicense`. Requirements:
+
+- License status must be `ISSUED`
+- Category policy must permit the binding
+- Any cooldown from a prior unbind must have elapsed
+- For Sovereign: binding target must be the owner's own validator address
+- For Prime/Core: target validator must exist, be bonded, and not be jailed
+
+### BOUND → ACTIVE
+
+Triggered automatically when delegation is created or increased on the bound validator:
+
+| Trigger | Description |
+|---|---|
+| `MsgDelegate` | Owner delegates tokens to the bound validator |
+| `MsgCreateValidator` | SDK self-delegates on validator creation |
+| `MsgCancelUnbondingDelegation` | Owner cancels unbonding and restores delegation |
+| `MsgUnjail` (post-call) | Validator unjailed with owner's live delegation |
+
+### ACTIVE → BOUND
+
+A license moves back to `BOUND` when:
+
+- Owner fully undelegates from the bound validator
+- Validator is jailed (JailInterceptor fires)
+- Governance revokes the license
+
+<Note>
+Partial undelegation does not change license status. The license remains ACTIVE as long as any delegation with positive token value exists.
+</Note>
+
+### BOUND → ISSUED (unbinding)
+
+Triggered by `MsgUnbindLicense`. Requirements:
+
+- No active delegation to the bound validator
+- Cooldown period from any prior unbind must have elapsed
+
+After unbinding, a cooldown timer starts. The license cannot be re-bound until the `CooldownPeriod` in the category policy has elapsed.
+
+```bash
+autheod query license category-policy 1   # SOVEREIGN
+autheod query license category-policy 2   # PRIME
+autheod query license category-policy 3   # CORE
+```
+
+### Any → REVOKED
+
+Triggered only by `MsgRevokeLicense` via governance proposal. For Sovereign revocations, the validator is immediately jailed. For Prime/Core revocations, only same-owner sibling licenses are affected.
+
+### REVOKED → ISSUED
+
+Triggered only by `MsgReinstateLicense` via governance. The owner must complete the full recovery sequence manually:
+
+<Steps>
+  <Step title="Governance reinstates">
+    `MsgReinstateLicense` → license status: `ISSUED`
+  </Step>
+  <Step title="Owner binds">
+    `MsgBindLicense` → license status: `BOUND`
+  </Step>
+  <Step title="Operator unjails">
+    `MsgUnjail` — JailInterceptor allows because Sovereign license is no longer `REVOKED`
+  </Step>
+  <Step title="Owner delegates">
+    `MsgDelegate` → license status: `ACTIVE`
+  </Step>
+</Steps>
+
+## Transfer restrictions
+
+Only `ISSUED` licenses can be transferred. The category policy must have `Transferable = true`. Transferring a license does not clear the unbind cooldown timer — the new owner inherits it.
+
+## Edge cases
+
+| Scenario | Behavior |
+|---|---|
+| Double-sign / tombstone | License can get stuck in `BOUND` if validator is tombstoned (cannot be unjailed) |
+| Dust shares | Zero-token shares from repeated slashing are excluded from reward accrual and treated as fully removed during undelegation |
+| IBC delegations | IBC-sourced delegate/undelegate messages do not trigger license transitions |
+| Redelegation | Permanently disabled; cannot trigger license transitions |

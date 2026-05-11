@@ -1,0 +1,89 @@
+---
+title: "License gating"
+description: "How x/licensedstaking enforces NFT license preconditions on all staking operations, including pre-checks and post-call hooks."
+keywords: ["license gating", "x/licensedstaking", "sovereign", "prime", "core", "staking", "validation"]
+---
+
+License gating is enforced by the `x/licensedstaking` module, which wraps the standard staking `MsgServer`. Every staking operation runs through a two-phase check: a pre-check that validates license state before the operation executes, and a post-call hook that updates license status afterward.
+
+## Operation requirements
+
+### MsgCreateValidator
+
+Requires a Sovereign license in `BOUND` status on the validator address being created.
+
+```bash
+autheod query license licenses-by-owner <cosmos-address>
+```
+
+### MsgEditValidator
+
+Only the validator operator can edit. Requires a non-revoked Sovereign license on the operator address.
+
+### MsgDelegate (self-delegation)
+
+Requires an `ACTIVE` or `BOUND` Sovereign license on the delegator's own validator address.
+
+### MsgDelegate (external delegation)
+
+Requires a `BOUND` or `ACTIVE` Prime or Core license owned by the delegator, bound to the target validator.
+
+### MsgUndelegate
+
+No license pre-checks. Post-call logic handles delegation removal, implicit jails, and dust shares.
+
+### MsgBeginRedelegate
+
+<Warning>
+Redelegation is permanently disabled. Submitting `MsgBeginRedelegate` returns `ErrRedelegateDisabled`. Use undelegate followed by delegate instead.
+</Warning>
+
+### MsgCancelUnbondingDelegation
+
+Restores `BOUND` licenses to `ACTIVE` if the delegation criteria are met after the post-call hook fires.
+
+## License binding
+
+To bind a license, the following conditions must all be true:
+
+- License status is `ISSUED`
+- The category policy permits the binding operation
+- Any cooldown period from a prior unbind has elapsed
+
+Sovereign licenses can only bind to the owner's own validator address.
+
+```bash
+# Bind a Sovereign license
+autheod tx license bind <license-id> \
+  --from <owner-key> \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+
+# Bind a Prime or Core license to a specific validator
+autheod tx license bind <license-id> \
+  --validator-address <autheovaloper-address> \
+  --from <owner-key> \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+## License transfers
+
+Transfers are permitted only for `ISSUED` licenses when the category policy has `Transferable = true`. BOUND and ACTIVE licenses cannot be transferred directly — you must undelegate and unbind first.
+
+## Governance operations
+
+- **RevokeLicense** — Transitions the license to `REVOKED`, auto-undelegates the owner's stake (best-effort), jails the validator (for Sovereign revocations), and deletes the binding.
+- **ReinstateLicense** — Restores a `REVOKED` license to `ISSUED`. Does not rebind, unjail, or restore delegation.
+
+## Common errors
+
+| Error | Cause | Resolution |
+|---|---|---|
+| `ErrLicenseAlreadyBound` | License already bound | Unbind first, wait for cooldown |
+| `ErrPolicyNotFound` | No category policy configured | Governance must submit `MsgUpsertLicensePolicy` |
+| `ErrNotInActiveValidatorSet` | Target validator is jailed or unbonded | Wait for unjail or choose a bonded validator |
+| `ErrDelegationStillActive` | Active delegation blocks unbind | Fully undelegate first |
+| `ErrRedelegateDisabled` | Redelegation blocked | Use undelegate then delegate |
+| `ErrCannotBindToOtherValidator` | Sovereign license bound to wrong validator | Sovereign licenses bind only to owner's own validator |
+| `ErrCooldownNotElapsed` | Cooldown after unbind still active | Wait until cooldown duration elapses |

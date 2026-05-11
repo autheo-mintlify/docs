@@ -1,0 +1,101 @@
+---
+title: "License setup"
+description: "How to acquire, bridge, bind, and verify an NFT license on Autheo Chain before running a validator or delegating."
+keywords: ["license setup", "nft license", "sovereign", "prime", "core", "arbitrum", "bind", "issued", "bound"]
+---
+
+All staking participants on Autheo Chain must hold an on-chain license record before operating a validator or delegating. Licenses originate as ERC-721 NFTs on Arbitrum and are bridged automatically when transferred to your Autheo Chain EVM address.
+
+## License tiers
+
+| Tier | Purpose | Annual THEO emission | Required for |
+|---|---|---|---|
+| Sovereign | Create and operate a validator | ~187,969 | Validator operators |
+| Prime | External delegation (higher tier) | ~18,797 | Prime delegators |
+| Core | External delegation (standard tier) | ~1,880 | Standard delegators |
+
+<Note>
+Only one Sovereign license can bind to a given validator at any time. This enforces a strict 1:1 relationship between Sovereign licenses and validators.
+</Note>
+
+## Step 1: Acquire the NFT on Arbitrum
+
+Purchase the appropriate ERC-721 NFT from an authorized distributor on Arbitrum. View contract addresses:
+
+```bash
+autheod query license params
+```
+
+## Step 2: Transfer to your Autheo Chain EVM address
+
+Send the NFT to your EVM address (`0x...` format). This triggers an automatic on-chain hook that mints a `LicenseRecord` in `ISSUED` status — no separate transaction needed.
+
+```bash
+autheod keys show <key-name> --bech eth --keyring-backend file
+```
+
+## Step 3: Verify the license record
+
+```bash
+autheod query license licenses-by-owner <cosmos-address>
+autheod query license license <license-id>
+```
+
+You should see `status: ISSUED`.
+
+## Step 4: Bind the license
+
+<Tabs>
+  <Tab title="Sovereign license">
+    ```bash
+    autheod tx license bind <license-id> \
+      --from <owner-key> \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+    The validator address is derived automatically from your operator key.
+  </Tab>
+  <Tab title="Prime / Core license">
+    ```bash
+    autheod tx license bind <license-id> \
+      --validator-address <autheovaloper-address> \
+      --from <owner-key> \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+    The target validator must be bonded and not jailed.
+  </Tab>
+</Tabs>
+
+## Step 5: Verify BOUND status
+
+```bash
+autheod query license license <license-id>
+```
+
+Confirm `status: BOUND`. Your license is ready for validator creation or delegation.
+
+## License status after binding
+
+| Action | Resulting status |
+|---|---|
+| `MsgCreateValidator` | BOUND → ACTIVE |
+| `MsgDelegate` | BOUND → ACTIVE |
+| Full undelegation | ACTIVE → BOUND |
+| Validator jailed | ACTIVE → BOUND |
+| Full unbind | BOUND → ISSUED |
+
+## Claiming NFT rewards
+
+Once `ACTIVE`, the license accrues per-block NFT rewards. Claim them manually:
+
+```bash
+autheod query emissions license-accrued-rewards <license-id>
+
+autheod tx licensedistribution claim-nft-rewards <license-id> \
+  --from <owner-key> \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+See [NFT rewards](/nodes/architecture/nft-rewards) for full details.

@@ -1,0 +1,87 @@
+---
+title: "System architecture"
+description: "Core layers of Autheo Chain: CometBFT consensus, Cosmos SDK application logic, six custom modules, and the Ethermint EVM runtime."
+keywords: ["system architecture", "cosmos sdk", "cometbft", "ethermint", "modules", "kv store", "memIAVL"]
+---
+
+Autheo Chain runs `autheod`, a single binary that combines the CometBFT consensus engine, Cosmos SDK application logic, and the Ethermint EVM runtime in one process.
+
+## Core layers
+
+| Layer | Component |
+|---|---|
+| Consensus | CometBFT v0.38.17 |
+| Application | Cosmos SDK v0.53.0 with standard modules (bank, staking, slashing, governance, distribution, mint, auth, IBC) |
+| Custom modules | x/license, x/licensedstaking, x/emissions, x/licensedistribution, x/autheo, x/e2ee |
+| EVM | Ethermint with full Ethereum JSON-RPC |
+| Storage | MemIAVL + VersionDB |
+
+## Module dependencies
+
+| Module | Role |
+|---|---|
+| `x/autheo` | Registers EVM log handlers |
+| `x/license` | Central source of truth for license state; provides the EVM hook |
+| `x/licensedstaking` | Wraps staking MsgServer with license enforcement |
+| `x/emissions` | Per-block reward minting reading license status |
+| `x/licensedistribution` | User-facing claim interface for NFT emission rewards |
+| `x/e2ee` | Maintains an end-to-end encryption key registry |
+
+## Request lifecycle: staking
+
+When a staking transaction arrives, it flows through `x/licensedstaking` MsgServer, which performs license pre-checks before delegating to the standard staking module. Upon successful delegation, the system triggers `x/license.OnDelegationCreatedOrIncreased` to transition licenses from `BOUND` to `ACTIVE`.
+
+## Per-block emissions
+
+`BeginBlocker` executes two sequential routines each block:
+
+1. **MintBlockRewards** — Funds the community pool, subject to the global emissions cap.
+2. **MintNFTBlockRewards** — Scans all active licenses, checks validator jail status, and credits per-license KV balances.
+
+## JailInterceptor integration
+
+The interceptor wraps staking keeper functions injected into the slashing module:
+
+- **On jail** — Transitions licenses from `ACTIVE` to `BOUND`.
+- **On unjail** — Validates Sovereign license status before allowing state transitions.
+
+## EVM hook: ERC-721 license minting
+
+When Ethermint processes ERC-721 `Transfer` events, the `x/license` EVM hook fires synchronously. It identifies the contract category, maps EVM to Cosmos addresses, and creates license records with `ISSUED` status. Duplicate minting is prevented by tracking `(originChain, originContract, tokenId)`.
+
+## Key store layouts
+
+Primary `x/license` KV store prefixes:
+
+| Prefix | Contents |
+|---|---|
+| `0x01` | Module params |
+| `0x03` | License records |
+| `0x04` | Owner index |
+| `0x08` | Bindings (licenseId → validator) |
+| `0x0a` | Next license ID counter |
+| `0x0c` | Unbind timestamps |
+| `0x0d` | Last bound validator tracking |
+
+## Storage backends
+
+| Backend | Notes |
+|---|---|
+| IAVL + MemIAVL (default) | RAM-based working tree; requires 8–16 GB of additional memory above process baseline |
+| RocksDB + VersionDB (optional) | Enables historical state queries; requires a special compilation flag |
+
+## Network ports
+
+| Port | Service | Default binding |
+|---|---|---|
+| 26656 | CometBFT P2P | `0.0.0.0` |
+| 26657 | CometBFT RPC | `127.0.0.1` |
+| 8545 | Ethereum JSON-RPC (HTTP) | `127.0.0.1` |
+| 8546 | Ethereum JSON-RPC (WebSocket) | `127.0.0.1` |
+| 9090 | gRPC | `127.0.0.1` |
+| 1317 | Cosmos REST API | `127.0.0.1` |
+| 26660 | Prometheus metrics | `127.0.0.1` |
+
+<Warning>
+Only port 26656 should be publicly accessible on validator nodes. All other ports must be firewalled to `127.0.0.1` or private network interfaces.
+</Warning>

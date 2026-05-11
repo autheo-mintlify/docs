@@ -1,0 +1,99 @@
+---
+title: "EVM integration"
+description: "Autheo Chain's Ethermint EVM runtime, JSON-RPC endpoints, address formats, ERC-721 license hooks, and Ethereum tool compatibility."
+keywords: ["evm", "ethermint", "json-rpc", "metamask", "ethers", "hardhat", "foundry", "erc-721", "solidity"]
+---
+
+Autheo Chain runs a full Ethermint EVM derived from the Cronos codebase. A single `eth_secp256k1` keypair controls both Cosmos and EVM transactions, and all standard Ethereum development tools work without modification.
+
+## JSON-RPC endpoints
+
+| Port | Protocol | Default binding |
+|---|---|---|
+| 8545 | HTTP | `127.0.0.1` |
+| 8546 | WebSocket | `127.0.0.1` |
+
+Available namespaces:
+
+| Namespace | Exposed publicly | Notes |
+|---|---|---|
+| `eth` | Yes | Full Ethereum JSON-RPC |
+| `net` | Yes | Network info |
+| `web3` | Yes | Client version |
+| `autheo` | Public RPC nodes only | Chain-specific extensions |
+| `debug` | No | Internal only |
+| `personal` | No | Internal only |
+
+<Warning>
+Never expose the `debug` or `personal` namespaces on public-facing nodes. Use a reverse proxy with TLS on ports 8545 and 8546 for any public RPC endpoint.
+</Warning>
+
+## Address interoperability
+
+Each account has three equivalent representations:
+
+| Format | Example | Use |
+|---|---|---|
+| Cosmos Bech32 | `autheo1abc...` | Cosmos transactions, queries |
+| Validator Bech32 | `autheovaloper1abc...` | Validator operations |
+| Ethereum hex (EIP-55) | `0xAbCd...` | EVM transactions, MetaMask |
+
+```bash
+autheod keys show <key-name> --keyring-backend file           # Cosmos
+autheod keys show <key-name> --bech val --keyring-backend file # Validator
+autheod keys show <key-name> --bech eth --keyring-backend file # Ethereum hex
+```
+
+## ERC-721 license minting hook
+
+When Ethermint processes an ERC-721 `Transfer` event from a recognized contract, the `x/license` EVM hook fires synchronously:
+
+1. Identifies the contract category (Sovereign, Prime, or Core) from module parameters
+2. Maps the EVM recipient address to its Cosmos Bech32 equivalent
+3. Creates a `LicenseRecord` with `ISSUED` status
+4. Deduplicates using `(originChain, originContract, tokenId)` — returns `ErrLicenseAlreadyMinted` for duplicates
+
+```bash
+autheod query license params   # View current contract addresses
+```
+
+## Ethereum tool compatibility
+
+| Tool | Configuration |
+|---|---|
+| MetaMask | RPC URL: `http://localhost:8545`, Chain ID: `785`, Currency: `THEO` |
+| ethers.js | `new ethers.JsonRpcProvider("http://localhost:8545")` |
+| Hardhat | `chainId: 785` in `hardhat.config.js` |
+| Foundry | `--rpc-url http://localhost:8545 --chain-id 785` |
+
+## Deploying contracts
+
+<Tabs>
+  <Tab title="ethers.js">
+    ```javascript
+    const provider = new ethers.JsonRpcProvider("http://localhost:8545");
+    const wallet = new ethers.Wallet(privateKey, provider);
+    const factory = new ethers.ContractFactory(abi, bytecode, wallet);
+    const contract = await factory.deploy();
+    ```
+  </Tab>
+  <Tab title="Hardhat">
+    ```javascript
+    // hardhat.config.js
+    networks: {
+      autheo: {
+        url: "http://localhost:8545",
+        chainId: 785,
+        accounts: [privateKey]
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Foundry">
+    ```bash
+    forge create --rpc-url http://localhost:8545 \
+      --private-key <private-key> \
+      src/MyContract.sol:MyContract
+    ```
+  </Tab>
+</Tabs>
