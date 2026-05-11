@@ -1,0 +1,109 @@
+---
+title: "Installation"
+description: "Install the autheod binary on Ubuntu 22.04 from a pre-built release or by building from source."
+keywords: ["installation", "autheod", "binary", "build from source", "go", "ubuntu", "genesis"]
+---
+
+`autheod` is the unified Autheo Chain binary combining CometBFT consensus, Cosmos SDK application logic, and the Ethermint EVM runtime in a single process.
+
+## Option A: Pre-built binary (recommended)
+
+<Steps>
+  <Step title="Download the latest release">
+    ```bash
+    curl -L -o autheod \
+      https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/autheod
+    ```
+  </Step>
+  <Step title="Make executable and move to PATH">
+    ```bash
+    chmod +x autheod
+    sudo mv autheod /usr/local/bin/
+    ```
+  </Step>
+  <Step title="Verify the version">
+    ```bash
+    autheod version
+    ```
+    Expected output: `1.0.8`
+  </Step>
+</Steps>
+
+## Option B: Build from source
+
+**Requirements:** Go 1.23.12, GCC/Clang, Git, Make.
+
+<Steps>
+  <Step title="Install Go 1.23.12">
+    ```bash
+    wget https://go.dev/dl/go1.23.12.linux-amd64.tar.gz
+    sudo tar -C /usr/local -xzf go1.23.12.linux-amd64.tar.gz
+    echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+    source ~/.bashrc
+    ```
+  </Step>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/autheo-blockchain/autheo-chain-lab.git
+    cd autheo-chain-lab
+    ```
+  </Step>
+  <Step title="Build">
+    <Tabs>
+      <Tab title="Standard build">
+        ```bash
+        make build
+        ```
+      </Tab>
+      <Tab title="With RocksDB">
+        ```bash
+        COSMOS_BUILD_OPTIONS=rocksdb make build
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Verify and install">
+    ```bash
+    ./build/autheod version  # Expected: 1.0.8
+    make install
+    ```
+  </Step>
+</Steps>
+
+## Initialize the node
+
+```bash
+autheod init <moniker> \
+  --chain-id autheo_785-1 \
+  --home /path/to/node-home
+```
+
+## Download the genesis file
+
+```bash
+curl -L -o /path/to/node-home/config/genesis.json \
+  https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/genesis.json
+```
+
+## Bootstrap from a snapshot (optional)
+
+```bash
+wget https://snapshot.autheo.com/data_backup_latest.tar.gz
+sudo systemctl stop autheod
+rm -rf /path/to/node-home/data/
+tar xzvf data_backup_latest.tar.gz
+mv data/ /path/to/node-home/data/
+```
+
+<Warning>
+After restoring from a snapshot, always restore your own `priv_validator_state.json` from a secure backup. Never use the state file from a public snapshot.
+</Warning>
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Command not found | `/usr/local/bin` not in `$PATH` | `export PATH=$PATH:/usr/local/bin` |
+| Permission denied | Binary not executable | `sudo chmod +x /usr/local/bin/autheod` |
+| Exec format error | Wrong architecture binary | Check `uname -m`; use `linux-amd64` for x86_64 |
+| Version conflict | Old binary in PATH | Remove old binary before installing new one |

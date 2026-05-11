@@ -1,0 +1,28 @@
+---
+title: "Architecture overview"
+description: "Overview of Autheo Chain's architecture, including its custom modules, EVM runtime, and NFT license gating system."
+keywords: ["autheo chain", "architecture", "cosmos sdk", "ethermint", "modules", "cometbft"]
+---
+
+Autheo Chain is a Cosmos SDK-based Layer 1 blockchain with a full Ethermint EVM runtime. It extends the standard Cosmos SDK with six custom modules that implement NFT license gating, dual-stream emissions, and EVM-to-Cosmos bridging.
+
+<Columns cols={2}>
+  <Card title="System architecture" icon="server" href="/nodes/architecture/system-architecture">
+    Core layers, module dependencies, request lifecycle, KV store layouts, and network ports.
+  </Card>
+  <Card title="Module overview" icon="blocks" href="/nodes/architecture/module-overview">
+    The six custom Cosmos SDK modules and how they interact.
+  </Card>
+  <Card title="License gating" icon="lock" href="/nodes/architecture/license-gating">
+    How the x/licensedstaking module enforces NFT license preconditions on all staking operations.
+  </Card>
+  <Card title="License lifecycle" icon="rotate" href="/nodes/architecture/license-lifecycle">
+    The four-state machine (ISSUED → BOUND → ACTIVE → REVOKED) and all transition triggers.
+  </Card>
+  <Card title="NFT rewards" icon="coins" href="/nodes/architecture/nft-rewards">
+    Dual-stream emission model, per-block reward formula, remainder carry, and claiming.
+  </Card>
+  <Card title="EVM integration" href="/nodes/architecture/evm-integration" icon="ethereum">
+    Ethermint EVM runtime, JSON-RPC endpoints, address interoperability, and ERC-721 hooks.
+  </Card>
+</Columns>

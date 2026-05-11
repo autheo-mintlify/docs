@@ -1,4 +1,131 @@
 ---
-title: 'Configuration'
+title: "Production deployment"
+description: "Configure and launch an Autheo Chain validator node in production using systemd, including genesis setup, peer configuration, and validator creation."
+keywords: ["production deployment", "systemd", "config.toml", "app.toml", "persistent peers", "validator creation", "autheod start"]
 ---
 
+This guide walks through deploying a production Autheo Chain validator. Complete [Prerequisites](/nodes/testnet/node-setup), [Installation](/nodes/testnet/installation), [Key management](/nodes/testnet/key-management), and [License setup](/nodes/testnet/license-setup) before continuing.
+
+## Step 1: Create your operator key
+
+```bash
+autheod keys add mykey \
+  --keyring-backend file \
+  --home /path/to/node-home
+```
+
+<Warning>
+Save the mnemonic phrase immediately. Store it offline in encrypted storage.
+</Warning>
+
+## Step 2: Initialize the node
+
+```bash
+autheod init <moniker> \
+  --chain-id autheo_785-1 \
+  --home /path/to/node-home
+```
+
+Back up `config/priv_validator_key.json` to secure offline storage immediately.
+
+## Step 3: Get the genesis file and sync
+
+```bash
+curl -L -o /path/to/node-home/config/genesis.json \
+  https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/genesis.json
+```
+
+Bootstrap from snapshot to skip syncing from block 0:
+
+```bash
+wget https://snapshot.autheo.com/data_backup_latest.tar.gz
+tar xzvf data_backup_latest.tar.gz
+mv data/ /path/to/node-home/data/
+```
+
+## Step 4: Configure persistent peers
+
+Edit `config/config.toml`:
+
+```toml
+[p2p]
+persistent_peers = "<node-id>@<ip>:26656,<node-id>@<ip>:26656"
+```
+
+## Step 5: Create the systemd service
+
+Create `/etc/systemd/system/autheod.service`:
+
+```ini
+[Unit]
+Description=Autheo Node
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=autheod start \
+  --home /path/to/node-home \
+  --pruning=default \
+  --log_level info \
+  --minimum-gas-prices=0aauth \
+  --json-rpc.api=eth,net,web3
+WorkingDirectory=/path/to/node-home
+User=<your-user>
+Group=<your-user>
+Restart=always
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable autheod
+sudo systemctl start autheod
+sudo journalctl -u autheod -f
+```
+
+## Step 6: Wait for full sync
+
+```bash
+autheod status | jq '.SyncInfo.catching_up'
+```
+
+Returns `false` when fully synced. Do not proceed until sync is complete.
+
+## Step 7: Bind your Sovereign license and create validator
+
+```bash
+autheod tx license bind <license-id> \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+Then follow [Create validator](/nodes/validator-lifecycle/register-validator).
+
+## Step 8: Verify activation
+
+```bash
+autheod query staking validator <autheovaloper-address>
+autheod query license license <license-id>
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+Look for `BOND_STATUS_BONDED`, `LICENSE_STATUS_ACTIVE`, and `tombstoned: false`.
+
+## Configuration reference
+
+| `--pruning` value | Behavior |
+|---|---|
+| `default` | Keeps last 100 states and every 500th snapshot |
+| `nothing` | Archive node — retains all historical state |
+| `everything` | Minimal footprint — only current state |
+
+**Minimum gas price:** `0aauth` allows zero-fee transactions. Use `2500aauth` or higher for production to prevent mempool spam.
+
+**JSON-RPC namespaces:**
+- Validator nodes: `eth,net,web3`
+- Public RPC nodes: `eth,net,web3,autheo`

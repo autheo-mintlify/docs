@@ -1,10 +1,10 @@
 ---
 title: "Key management"
 description: "Managing operator and consensus keys on Autheo Chain: keyring backends, the eth_secp256k1 algorithm, address formats, and security best practices."
-keywords: ["key management", "keyring", "operator key", "consensus key", "eth_secp256k1", "mnemonic", "hsm", "tmkms", "ledger"]
+keywords: ["key management", "keyring", "operator key", "consensus key", "eth_secp256k1", "mnemonic", "hsm", "tmkms"]
 ---
 
-Autheo Chain uses `eth_secp256k1` — the same elliptic curve as Ethereum. A single private key controls both your Cosmos address (`autheo1...`) and your Ethereum address (`0x...`), enabling native compatibility with hardware wallets and MetaMask.
+Autheo Chain uses `eth_secp256k1` — the same elliptic curve as Ethereum. A single private key controls both your Cosmos address (`autheo1...`) and your Ethereum address (`0x...`).
 
 ## Two key types
 
@@ -13,13 +13,11 @@ Autheo Chain uses `eth_secp256k1` — the same elliptic curve as Ethereum. A sin
 | Operator key | Signs staking, governance, and all on-chain transactions | Keyring (file, OS, or hardware wallet) |
 | Consensus key | Signs block proposals for CometBFT consensus | `config/priv_validator_key.json` |
 
-A compromised operator key allows an attacker to drain your delegated funds. A compromised consensus key can cause permanent tombstoning from double-signing.
-
 ## Keyring backends
 
 | Backend | Security | Use case |
 |---|---|---|
-| `file` | Medium | Headless production servers (AES-encrypted, passphrase-protected) |
+| `file` | Medium | Headless production servers (AES-encrypted) |
 | `os` | High | Production with OS keystore integration |
 | `pass` | High | Advanced Linux setups using GPG |
 | `test` | None | Development only — never in production |
@@ -33,7 +31,7 @@ autheod keys add mykey \
 ```
 
 <Warning>
-Save the 24-word mnemonic phrase immediately. It is displayed only once. There is no way to recover it afterward. Store it offline in encrypted storage.
+Save the 24-word mnemonic phrase immediately. It is displayed only once. There is no way to recover it afterward.
 </Warning>
 
 ## Restoring a key from mnemonic
@@ -47,8 +45,6 @@ autheod keys add <key-name> \
 
 ## Viewing address formats
 
-Each key has three equivalent address representations:
-
 ```bash
 # Cosmos address (autheo1...)
 autheod keys show mykey --keyring-backend file
@@ -60,22 +56,17 @@ autheod keys show mykey --bech val --keyring-backend file
 autheod keys show mykey --bech eth --keyring-backend file
 ```
 
-The `autheovaloper1...` address is derived from the same 20 bytes as `autheo1...` — only the Bech32 prefix differs.
-
 ## Consensus key
 
-Generated automatically during `autheod init`, stored in `config/priv_validator_key.json`.
+The consensus key is generated automatically during `autheod init` and stored in `config/priv_validator_key.json`.
 
 ```bash
-# Get public key for MsgCreateValidator
 autheod tendermint show-validator --home /path/to/node-home
 ```
 
-Back up this file immediately to encrypted offline storage. If duplicated on another running node, double-signing causes permanent tombstoning.
+Back up this file to encrypted offline storage immediately. If duplicated on another running node, double-signing results in permanent tombstoning.
 
-## Remote signing (production recommendation)
-
-Keep the consensus key off the validator host entirely using `tmkms` or an HSM:
+## Remote signing (recommended for production)
 
 ```toml
 # config/config.toml
@@ -83,15 +74,12 @@ Keep the consensus key off the validator host entirely using `tmkms` or an HSM:
 priv_validator_laddr = "tcp://127.0.0.1:26658"
 ```
 
-## Hardware wallet support
-
-Autheo Chain's `eth_secp256k1` key algorithm is compatible with Ledger and Trezor. Use the `--ledger` flag with key commands when a hardware wallet is connected.
+Use `tmkms` or an HSM to keep the consensus key off the validator host entirely.
 
 ## Key security checklist
 
 - [ ] Mnemonic backed up to offline encrypted storage
-- [ ] `priv_validator_key.json` backed up separately from the mnemonic
+- [ ] `priv_validator_key.json` backed up separately
 - [ ] `--keyring-backend test` never used in production
 - [ ] Consensus key protected by remote signer or HSM
-- [ ] Keyring password stored separately from the encrypted keystore file
 - [ ] No key files committed to version control

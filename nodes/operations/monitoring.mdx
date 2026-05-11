@@ -1,5 +1,95 @@
 ---
 title: "Monitoring"
+description: "How to monitor an Autheo Chain validator node using CometBFT health endpoints, Prometheus metrics, Grafana dashboards, and structured log alerts."
+keywords: ["monitoring", "prometheus", "grafana", "metrics", "alerts", "health", "validator", "journalctl"]
 ---
 
-r
+## Health endpoints
+
+The node exposes CometBFT RPC on port 26657 (localhost only):
+
+| Endpoint | Description |
+|---|---|
+| `http://localhost:26657/health` | Returns `{}` if running |
+| `http://localhost:26657/status` | Sync status, validator info, latest block |
+| `http://localhost:26657/net_info` | Peer count and connections |
+
+```bash
+autheod status | jq '.SyncInfo.catching_up'
+autheod status | jq '.SyncInfo.latest_block_height'
+```
+
+## Enable Prometheus metrics
+
+Edit `config/config.toml`:
+
+```toml
+[instrumentation]
+prometheus = true
+prometheus_listen_addr = "127.0.0.1:26660"
+```
+
+```bash
+sudo systemctl restart autheod
+curl -s http://localhost:26660/metrics | head -20
+```
+
+<Warning>
+Port 26660 must never be exposed publicly. Proxy through your monitoring stack over private network only.
+</Warning>
+
+## Critical metrics
+
+| Metric | Alert threshold | Meaning |
+|---|---|---|
+| `tendermint_consensus_height` | No increase for >60s | Block production stopped |
+| `tendermint_consensus_validator_power` | = 0 | Validator jailed or tombstoned |
+| `tendermint_p2p_peers` | < 3 | Too few peers; sync at risk |
+| `tendermint_consensus_rounds` | Consistently > 1 | Network consensus trouble |
+| `tendermint_mempool_size` | > 4,500 | Mempool near capacity |
+| `process_resident_memory_bytes` | > 85% of total RAM | Memory pressure; OOM risk |
+| `go_goroutines` | > 5,000 | Possible goroutine leak |
+| `process_open_fds` | > 90% of limit | Increase `LimitNOFILE` |
+
+## Grafana setup
+
+<Steps>
+  <Step title="Install Prometheus and configure scraping">
+    Add `http://localhost:26660/metrics` as a scrape target.
+  </Step>
+  <Step title="Install Grafana and add data source">
+    Add Prometheus at `http://localhost:9090`.
+  </Step>
+  <Step title="Import community dashboard">
+    Dashboards → Import → Dashboard ID `11036` (Cosmos/CometBFT community dashboard).
+  </Step>
+  <Step title="Configure alerts">
+    Set up Alertmanager alerts for `validator_power = 0`, peer count < 3, and block height stall.
+  </Step>
+</Steps>
+
+## Log monitoring
+
+```bash
+sudo journalctl -u autheod -f
+sudo journalctl -u autheod -f | grep '"level":"error"'
+```
+
+Key log patterns:
+
+| Pattern | Meaning |
+|---|---|
+| `"level":"error"` | Any error condition |
+| `"jailed"` | Validator jailed |
+| `"tombstoned"` | Permanent ban — act immediately |
+| `"license"` with error | License state transition failure |
+
+## Monitoring checklist
+
+- [ ] Prometheus enabled and scraping successfully
+- [ ] Grafana dashboard imported (ID 11036)
+- [ ] Alert configured for validator power = 0
+- [ ] Alert configured for peer count < 3
+- [ ] Alert configured for block height stall (>60s)
+- [ ] Alert configured for RAM usage >85%
+- [ ] Log monitoring set up for error-level events

@@ -1,0 +1,78 @@
+---
+title: "Module overview"
+description: "The six custom Cosmos SDK modules that implement Autheo Chain's NFT license gating, dual-stream emissions, and EVM integration."
+keywords: ["modules", "x/license", "x/licensedstaking", "x/emissions", "x/licensedistribution", "x/autheo", "x/e2ee"]
+---
+
+Autheo Chain adds six custom modules on top of Cosmos SDK and Ethermint. Each module has a distinct responsibility and interacts with the others through defined interfaces.
+
+## x/license
+
+**Store:** `license`
+
+The central source of truth for all license state. Responsibilities include:
+
+- Managing license records, policies, bindings, and lifecycle state transitions
+- Providing an EVM hook for ERC-721 `Transfer` events that automatically mints license records when tokens are transferred to a recognized contract address
+- Maintaining the owner index and binding registry
+
+License records hold a unique auto-incremented ID (starting at 1), category (SOVEREIGN, PRIME, or CORE), owner Cosmos address, origin reference for deduplication, and status.
+
+## x/licensedstaking
+
+**Store:** Stateless
+
+A wrapper around the standard staking module that enforces license preconditions before any validator or delegation operation. It contains:
+
+- A `MsgServer` that intercepts `MsgCreateValidator`, `MsgDelegate`, `MsgUndelegate`, `MsgCancelUnbondingDelegation`, and related messages
+- A `JailInterceptor` injected into the slashing module that transitions license status on jail and unjail events
+- Post-call hooks that trigger `OnDelegationCreatedOrIncreased` to activate BOUND licenses after successful delegation
+
+`MsgBeginRedelegate` is permanently rejected while the license system is active.
+
+## x/emissions
+
+**Store:** `emissions`
+
+Manages all non-staking token minting via two per-block BeginBlocker routines:
+
+1. **MintBlockRewards** — Mints community pool rewards (~55.49 THEO per block by default)
+2. **MintNFTBlockRewards** — Accrues per-block rewards to individual license KV balances for all eligible ACTIVE licenses
+
+Both routines operate under a shared global emissions cap of 7 billion THEO. Staking inflation from `x/mint` is not counted against this cap.
+
+## x/licensedistribution
+
+**Store:** `licensedistribution`
+
+Provides the user-facing interface for claiming accrued NFT emission rewards via `MsgClaimNFTRewards`.
+
+```bash
+autheod tx licensedistribution claim-nft-rewards <license-id> \
+  --from <owner-key> \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+## x/autheo
+
+**Store:** `autheo`
+
+Registers EVM log handlers and chain-specific EVM extensions. Acts as the integration layer between Ethermint and the custom Autheo modules.
+
+## x/e2ee
+
+**Store:** `e2ee`
+
+Maintains an on-chain end-to-end encryption key registry. Allows participants to publish public encryption keys associated with their Cosmos addresses.
+
+## License state summary
+
+| Status | Description |
+|---|---|
+| `ISSUED` | Minted and owned; not yet bound to a validator. Can be bound or transferred. |
+| `BOUND` | Attached to a validator; no active delegation. Does not earn NFT emission rewards. |
+| `ACTIVE` | Attached to a validator with a live, positive-value delegation. Earns per-block NFT emission rewards. |
+| `REVOKED` | Governance-suspended. Only `MsgReinstateLicense` can restore it to `ISSUED`. |
+
+See [License lifecycle](/nodes/architecture/license-lifecycle) for a complete transition table.

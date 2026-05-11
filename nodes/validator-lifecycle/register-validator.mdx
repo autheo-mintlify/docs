@@ -1,3 +1,124 @@
 ---
-title: 'Register validator'
+title: "Register validator"
+description: "How to submit MsgCreateValidator on Autheo Chain, from pre-flight checks through post-creation verification."
+keywords: ["create validator", "MsgCreateValidator", "register", "sovereign license", "self-delegation", "bonded", "active"]
 ---
+
+This guide walks through submitting `MsgCreateValidator` on Autheo Chain. Complete [Prerequisites](/nodes/testnet/node-setup), [Installation](/nodes/testnet/installation), [Key management](/nodes/testnet/key-management), [License setup](/nodes/testnet/license-setup), and [Production deployment](/nodes/testnet/configuration) before starting.
+
+## Pre-flight checklist
+
+- [ ] `autheod version` returns `1.0.8`
+- [ ] Sovereign NFT license is in `LICENSE_STATUS_BOUND`
+- [ ] Node is fully synchronized (`catching_up: false`)
+- [ ] Operator account has sufficient `aauth` balance
+
+## Step 1: Confirm your Sovereign license is BOUND
+
+```bash
+autheod query license licenses-by-owner <cosmos-address>
+```
+
+Must show `status: BOUND`. If showing `ISSUED`, bind it first:
+
+```bash
+autheod tx license bind <license-id> \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+<Note>
+If binding fails with `ErrCooldownNotElapsed`, query the cooldown: `autheod query license category-policy 1`
+</Note>
+
+## Step 2: Get your consensus public key
+
+```bash
+autheod tendermint show-validator --home /path/to/node-home
+```
+
+Copy the full JSON output — you need it in the next step.
+
+## Step 3: Submit MsgCreateValidator
+
+```bash
+autheod tx staking create-validator \
+  --amount 1000000000000000000aauth \
+  --pubkey $(autheod tendermint show-validator --home /path/to/node-home) \
+  --moniker "your-validator-name" \
+  --commission-rate "0.10" \
+  --commission-max-rate "0.20" \
+  --commission-max-change-rate "0.01" \
+  --min-self-delegation "1" \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file \
+  --home /path/to/node-home \
+  --gas auto \
+  --gas-adjustment 1.5 \
+  --fees 5000000aauth \
+  --yes
+```
+
+`--amount 1000000000000000000aauth` = 1 THEO. Adjust to your desired self-delegation.
+
+## Step 4: Verify activation
+
+```bash
+# Check bonded status
+autheod query staking validator <autheovaloper-address>
+
+# Check license transitioned to ACTIVE
+autheod query license license <license-id>
+
+# Check signing info
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+Look for `BOND_STATUS_BONDED`, `LICENSE_STATUS_ACTIVE`, and `tombstoned: false`.
+
+## Post-creation operations
+
+### Edit validator details
+
+```bash
+autheod tx staking edit-validator \
+  --moniker "new-name" \
+  --website "https://your-site.com" \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+### Unjail after downtime
+
+```bash
+autheod tx slashing unjail \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+```
+
+<Warning>
+If your validator was tombstoned from double-signing, unjail is not possible. You must create a new validator with a new consensus key.
+</Warning>
+
+### Day-to-day commands
+
+```bash
+# Check validator status
+autheod query staking validator <autheovaloper-address>
+
+# Withdraw staking rewards
+autheod tx distribution withdraw-all-rewards \
+  --from mykey --chain-id autheo_785-1 --keyring-backend file
+
+# Check NFT emission rewards
+autheod query emissions nft-rewards <cosmos-address>
+
+# Claim NFT emission rewards
+autheod tx licensedistribution claim-nft-rewards <license-id> \
+  --from mykey --chain-id autheo_785-1 --keyring-backend file
+```
