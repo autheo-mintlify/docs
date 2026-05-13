@@ -1,4 +1,95 @@
 ---
-title: 'Pause Resume'
+title: "Pause and resume a validator"
+description: "How to temporarily pause a validator node for maintenance without being jailed, and how to resume operation."
+keywords: ["pause", "resume", "maintenance", "validator", "unbond", "downtime"]
 ---
 
+There is no native "pause" command in Cosmos SDK. Pausing a validator means it will stop signing blocks, which will eventually trigger jailing due to liveness failures. Plan maintenance carefully to minimize missed blocks and avoid jailing.
+
+## Understanding liveness requirements
+
+The `x/slashing` module tracks missed blocks via a sliding window. Check the current parameters:
+
+```bash
+autheod query slashing params --chain-id autheo_785-1
+```
+
+Key parameters:
+- `signed_blocks_window` — the window size (e.g., 10,000 blocks)
+- `min_signed_per_window` — the minimum fraction that must be signed (e.g., 0.5 = 50%)
+
+If you miss more than `(1 - min_signed_per_window) × signed_blocks_window` consecutive blocks, the validator is jailed.
+
+## Short maintenance (< a few hours)
+
+For brief maintenance within the liveness window, you can stop the node and restart without additional steps:
+
+```bash
+sudo systemctl stop autheod
+
+# Perform maintenance (upgrades, disk expansion, config changes, etc.)
+
+sudo systemctl start autheod
+sudo journalctl -u autheod -f
+```
+
+Monitor the node's missed block count after restart:
+
+```bash
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+## Long maintenance (risk of jailing)
+
+For extended maintenance that exceeds the liveness window, temporarily reduce your validator's power by unbonding stake:
+
+<Steps>
+  <Step title="Unbond your self-delegation">
+    ```bash
+    autheod tx staking unbond <autheovaloper-address> <amount>aauth \
+      --from mykey \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+
+    Unbonding reduces voting power to zero, which removes the node from the active set and stops jailing eligibility.
+
+    <Note>
+    The unbonding period is ~21 days. During this period, the THEO cannot be transferred or re-delegated.
+    </Note>
+  </Step>
+  <Step title="Perform maintenance">
+    With zero voting power, the validator is not required to sign blocks. Perform all necessary maintenance.
+  </Step>
+  <Step title="Re-delegate when ready to resume">
+    After the unbonding period, re-delegate to re-enter the active set:
+    ```bash
+    autheod tx staking delegate <autheovaloper-address> <amount>aauth \
+      --from mykey \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+  </Step>
+</Steps>
+
+## Resuming after jailing
+
+If the node was jailed during maintenance:
+
+1. Ensure the node is fully synced: `autheod status | jq '.SyncInfo.catching_up'`
+2. Unjail:
+   ```bash
+   autheod tx slashing unjail \
+     --from mykey \
+     --chain-id autheo_785-1 \
+     --keyring-backend file
+   ```
+3. If the license shows `BOUND`, re-delegate to restore `ACTIVE` status.
+
+## Best practices
+
+- Schedule maintenance during low-activity periods
+- Use a monitoring alert to track missed blocks in real time
+- For planned extended maintenance, notify delegators in advance
+- Always have a snapshot ready to restore quickly if the node fails to sync after restart

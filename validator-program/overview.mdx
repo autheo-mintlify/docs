@@ -1,4 +1,73 @@
 ---
-title: 'Overview'
+title: "Validator program overview"
+description: "Overview of the Autheo validator program: license tiers, responsibilities, rewards, and how to participate."
+keywords: ["validator program", "node operator", "sovereign", "prime", "core", "nft license", "rewards"]
 ---
 
+The Autheo validator program enables node operators to secure the network and earn THEO rewards in exchange for running reliable, performant infrastructure. Participation requires holding an NFT license — a tier-based credential that governs what role you can play in the network.
+
+## License tiers
+
+| Tier | Role | Annual THEO emission | Requirement |
+|---|---|---|---|
+| **Sovereign** | Create and operate a validator node | ~187,969 THEO | 1 Sovereign NFT license |
+| **Prime** | Delegate to external validators (higher tier) | ~18,797 THEO | 1 Prime NFT license |
+| **Core** | Delegate to external validators (standard tier) | ~1,880 THEO | 1 Core NFT license |
+
+Licenses originate as ERC-721 tokens on **Arbitrum** and are bridged to Autheo Chain. A Sovereign license is required to run a validator; Prime and Core licenses enable delegation without running a node.
+
+## Validator responsibilities
+
+As a validator, you are responsible for:
+
+- Maintaining a node that meets the [hardware requirements](/nodes/testnet/node-setup)
+- Keeping the node synced and signing blocks with ≥ the minimum liveness threshold
+- Securing both the operator key and consensus key
+- Monitoring for liveness failures and responding to incidents promptly
+- Keeping the binary version up to date
+
+## Reward streams
+
+Validators earn rewards from two independent sources:
+
+1. **Staking rewards** — Proportional to bonded stake; auto-accrued via `x/distribution`; manually withdrawn via `withdraw-all-rewards`
+2. **NFT emission rewards** — Fixed per-block allocation based on the Sovereign license tier; manually claimed via `claim-nft-rewards`
+
+See [Staking and rewards](/token/staking-and-rewards) for the full mechanics.
+
+## How to participate
+
+<Steps>
+  <Step title="Acquire a Sovereign NFT license">
+    Purchase a Sovereign license through the [node sale](/validator-program/brochure) or secondary market on Arbitrum.
+  </Step>
+  <Step title="Set up infrastructure">
+    Provision a server meeting the [hardware requirements](/nodes/testnet/node-setup) or use a [managed hosting provider](/validator-program/hosting-options).
+  </Step>
+  <Step title="Install and configure the node">
+    Follow the [installation](/nodes/testnet/installation) and [configuration](/nodes/testnet/configuration) guides.
+  </Step>
+  <Step title="Bridge and bind your license">
+    Follow the [license setup](/nodes/testnet/license-setup) guide to bridge from Arbitrum and bind on-chain.
+  </Step>
+  <Step title="Register your validator">
+    Submit `MsgCreateValidator` following the [register validator](/nodes/validator-lifecycle/register-validator) guide.
+  </Step>
+</Steps>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Hosting options" href="/validator-program/hosting-options" icon="server">
+    Self-host or use a managed provider
+  </Card>
+  <Card title="Economics" href="/validator-program/economics" icon="chart-line">
+    Revenue estimates and cost breakdown
+  </Card>
+  <Card title="Node brochure" href="/validator-program/brochure" icon="file">
+    Full node sale brochure
+  </Card>
+  <Card title="Compliance" href="/validator-program/compliance" icon="shield">
+    KYC and jurisdictional requirements
+  </Card>
+</CardGroup>

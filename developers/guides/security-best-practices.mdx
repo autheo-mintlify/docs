@@ -1,4 +1,98 @@
 ---
-title: 'Security Best Practices'
+title: "Security best practices"
+description: "Security recommendations for developers building smart contracts and applications on Autheo Chain."
+keywords: ["security", "smart contracts", "best practices", "reentrancy", "auditing", "private keys"]
 ---
 
+Building on an EVM-compatible chain means Ethereum's security patterns and common vulnerabilities apply directly to Autheo Chain. This guide covers the most important practices for contract security, key management, and application hardening.
+
+## Private key management
+
+<Warning>
+Never expose private keys in source code, environment variables committed to version control, or client-side JavaScript. A single key compromise can drain all associated funds irreversibly.
+</Warning>
+
+- Store private keys in environment variables loaded from `.env` files that are **gitignored**
+- For production deployments, use a hardware wallet (Ledger/Trezor) or a secrets manager (AWS Secrets Manager, HashiCorp Vault)
+- Rotate keys immediately if any exposure is suspected
+- Use separate deployment keys for testnet and mainnet — never reuse keys across environments
+
+## Smart contract security
+
+### Reentrancy
+
+Always follow the checks-effects-interactions pattern:
+
+```solidity
+// ✅ Safe: update state before external call
+function withdraw(uint256 amount) external {
+    require(balances[msg.sender] >= amount, "Insufficient balance");
+    balances[msg.sender] -= amount; // Effect first
+    (bool success, ) = msg.sender.call{value: amount}(""); // Interaction last
+    require(success, "Transfer failed");
+}
+
+// ❌ Unsafe: external call before state update
+function withdraw(uint256 amount) external {
+    (bool success, ) = msg.sender.call{value: amount}("");
+    balances[msg.sender] -= amount; // Too late
+}
+```
+
+Use OpenZeppelin's `ReentrancyGuard` as a defense-in-depth measure.
+
+### Integer overflow
+
+Use Solidity 0.8.x or higher (built-in overflow checks), or OpenZeppelin's `SafeMath` for older compiler versions.
+
+### Access control
+
+Use OpenZeppelin's `Ownable` or `AccessControl` for privileged functions:
+
+```solidity
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyContract is Ownable {
+    function sensitiveOperation() external onlyOwner {
+        // ...
+    }
+}
+```
+
+### Input validation
+
+- Validate all user-supplied inputs at the start of functions
+- Check address parameters are non-zero
+- Bound numeric inputs to reasonable ranges
+
+## Auditing
+
+Before deploying any contract that holds real value:
+
+1. **Internal review** — Have at least one other developer read every line
+2. **Static analysis** — Run [Slither](https://github.com/crytic/slither) or [Mythril](https://github.com/ConsenSys/mythril)
+3. **External audit** — Engage a professional audit firm for high-value contracts
+4. **Bug bounty** — Consider a public bug bounty program post-deployment
+
+## Deployment checklist
+
+See the [deployment checklist](/developers/guides/deployment-checklist) for a pre-launch verification procedure.
+
+## EVM version
+
+Always compile with `evmVersion: "paris"` to ensure opcode compatibility with Autheo Chain. Using `shanghai` or later may introduce opcodes not supported by the chain's current EVM configuration.
+
+## RPC security
+
+- Use HTTPS endpoints only in production — never plain HTTP
+- Do not expose private node RPC endpoints publicly
+- Implement rate limiting on any middleware that proxies RPC calls
+- Never log raw transaction data that may contain private keys or sensitive parameters
+
+## Upgrade patterns
+
+If your contracts need upgradeability, use audited proxy patterns:
+- [OpenZeppelin UUPS Proxy](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable)
+- [OpenZeppelin Transparent Proxy](https://docs.openzeppelin.com/contracts/4.x/api/proxy#TransparentUpgradeableProxy)
+
+Document the upgrade key holder and consider timelocks for governance-level changes.

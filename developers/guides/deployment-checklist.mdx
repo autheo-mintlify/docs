@@ -1,4 +1,69 @@
 ---
-title: 'Deployment Checklist'
+title: "Deployment checklist"
+description: "Pre-deployment verification steps before launching a smart contract on Autheo Chain mainnet."
+keywords: ["deployment", "checklist", "mainnet", "pre-launch", "verification", "smart contract"]
 ---
 
+Use this checklist before deploying any contract to Autheo Chain mainnet. Complete each item on testnet first.
+
+## Compilation
+
+- [ ] Solidity version pinned (`pragma solidity ^0.8.20` or specific version)
+- [ ] EVM version set to `paris` in Hardhat/Foundry config
+- [ ] No compiler warnings in the output
+- [ ] All imports are from audited, versioned packages (e.g., `@openzeppelin/contracts@5.0.x`)
+
+## Testing
+
+- [ ] Unit tests cover all public functions
+- [ ] Unit tests cover edge cases and revert conditions
+- [ ] Test coverage ≥ 90% (use `forge coverage` or `hardhat coverage`)
+- [ ] Integration tests run against a fork or devnet
+- [ ] Gas usage benchmarked — no unexpectedly high-cost functions
+
+## Security review
+
+- [ ] Static analysis run (Slither, Mythril, or equivalent)
+- [ ] Reentrancy risks identified and mitigated
+- [ ] Access control on all privileged functions
+- [ ] Integer overflow protection (Solidity 0.8+ or SafeMath)
+- [ ] External audit completed (for contracts holding significant value)
+- [ ] No hardcoded addresses, private keys, or secrets in contract code
+
+## Testnet deployment
+
+- [ ] Contract deployed and verified on Autheo Testnet
+- [ ] All functions tested with real transactions on testnet
+- [ ] Events and logs verified in the block explorer
+- [ ] Upgrade path tested if using a proxy pattern
+- [ ] Gas estimates confirmed on testnet match expectations
+
+## Configuration
+
+- [ ] Constructor arguments documented and verified
+- [ ] Proxy admin key secured (if using an upgradeable proxy)
+- [ ] Contract ownership transferred to the correct multisig or DAO address
+- [ ] Any time locks or governance delays configured correctly
+- [ ] Contract verified on the [block explorer](https://testnet-explorer.autheo.com/) (upload ABI/source)
+
+## Network settings
+
+- [ ] Deployment script targets `autheoTestnet` network config
+- [ ] `chainId: 785` set in Hardhat/Foundry config
+- [ ] `evmVersion: "paris"` confirmed in compiler settings
+- [ ] Deployer account has sufficient `aauth` for gas
+
+## Post-deployment
+
+- [ ] Contract address recorded in deployment log
+- [ ] ABI exported and stored in version control
+- [ ] Contract source verified on block explorer
+- [ ] Initial state validated (e.g., owner set correctly, initial balances match)
+- [ ] Monitoring configured for critical events (see [security best practices](/developers/guides/security-best-practices))
+
+## Emergency plan
+
+- [ ] Pause mechanism in place (if contract is pausable)
+- [ ] Owner/admin key documented and secured
+- [ ] Incident response contact list documented
+- [ ] Upgrade or migration plan documented if a critical bug is found post-deployment

@@ -1,4 +1,74 @@
 ---
-title: 'Endpoints'
+title: "Network endpoints"
+description: "Public RPC, WebSocket, REST, and explorer endpoints for Autheo Testnet."
+keywords: ["endpoints", "rpc", "json-rpc", "websocket", "rest", "testnet", "api"]
 ---
 
+## Testnet
+
+| Service | URL |
+|---|---|
+| JSON-RPC HTTP (primary) | `https://testnet-rpc1.autheo.com` |
+| JSON-RPC HTTP (secondary) | `https://testnet-rpc2.autheo.com` |
+| Block explorer | `https://testnet-explorer.autheo.com/` |
+| Block explorer API | `https://testnet-explorer.autheo.com/api/v2/` |
+| Testnet faucet | `https://testnet-faucet.autheo.com/` |
+
+## Network parameters
+
+| Parameter | Value |
+|---|---|
+| Chain ID (Cosmos) | `autheo_785-1` |
+| Chain ID (EVM) | `785` |
+| Currency symbol | `THEO` |
+| Native token denom | `aauth` (18 decimals) |
+| Block time | ~5 seconds |
+
+## Connecting with MetaMask
+
+Use the following settings when adding Autheo Testnet as a custom network in MetaMask:
+
+| Field | Value |
+|---|---|
+| Network name | Autheo Testnet |
+| Default RPC URL | `https://testnet-rpc1.autheo.com` |
+| Chain ID | `785` |
+| Currency symbol | `THEO` |
+| Block explorer URL | `https://testnet-explorer.autheo.com/` |
+
+See [Connect to testnet](/getting-started/wallets/connect-to-testnet) for step-by-step instructions.
+
+## Connecting with ethers.js
+
+```javascript
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+const network = await provider.getNetwork();
+console.log(network.chainId); // 785n
+```
+
+## Connecting with the CLI
+
+```bash
+# Query a node's sync status
+autheod status --node https://testnet-rpc1.autheo.com:443
+
+# Send a transaction against testnet
+autheod tx bank send <from-key> <to-address> 1000000000000000000aauth \
+  --chain-id autheo_785-1 \
+  --node https://testnet-rpc1.autheo.com:443 \
+  --keyring-backend file
+```
+
+## WebSocket connections
+
+Use the `wss://` scheme on port 8546 when connecting via WebSocket:
+
+```javascript
+const wsProvider = new ethers.WebSocketProvider("wss://testnet-rpc1.autheo.com:8546");
+```
+
+<Note>
+If you need dedicated node access with higher rate limits or guaranteed uptime, see [managed hosting options](/validator-program/hosting-options) from approved providers such as InfStones and Zeeve.
+</Note>

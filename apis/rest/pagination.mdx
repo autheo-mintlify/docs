@@ -1,4 +1,78 @@
 ---
-title: 'Pagination'
+title: "Pagination"
+description: "How pagination works in the Autheo Chain REST API."
+keywords: ["pagination", "rest api", "cursor", "next page", "items"]
 ---
 
+The Autheo REST API returns paginated results for endpoints that can return large collections of data. All paginated responses follow a consistent format.
+
+## Response format
+
+Paginated endpoints return a JSON object with an `items` array and a `next_page_params` object:
+
+```json
+{
+  "items": [
+    { "...": "..." }
+  ],
+  "next_page_params": {
+    "block_number": 12345,
+    "index": 10,
+    "items_count": 50
+  }
+}
+```
+
+When `next_page_params` is `null`, you have reached the last page.
+
+## Fetching the next page
+
+Pass `next_page_params` as query parameters to retrieve the next page:
+
+```bash
+# Initial request
+curl "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions"
+
+# Next page — pass the params from next_page_params
+curl "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions?block_number=12345&index=10&items_count=50"
+```
+
+## JavaScript pagination helper
+
+```javascript
+async function fetchAllPages(url) {
+  const allItems = [];
+  let nextParams = null;
+
+  do {
+    const queryString = nextParams
+      ? "?" + new URLSearchParams(nextParams).toString()
+      : "";
+
+    const response = await fetch(url + queryString);
+    const data = await response.json();
+
+    allItems.push(...data.items);
+    nextParams = data.next_page_params;
+  } while (nextParams !== null);
+
+  return allItems;
+}
+
+const transactions = await fetchAllPages(
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions"
+);
+console.log("Total transactions:", transactions.length);
+```
+
+## Page size
+
+The default page size is **50 items**. This is fixed per endpoint and cannot be changed via query parameters.
+
+## Rate limiting
+
+Paginating through large datasets with many sequential requests can trigger rate limits. Add a small delay between pages for large backfills:
+
+```javascript
+await new Promise(r => setTimeout(r, 100)); // 100ms between pages
+```

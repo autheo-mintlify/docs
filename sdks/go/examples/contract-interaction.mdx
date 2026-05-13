@@ -1,4 +1,113 @@
 ---
-title: 'Contract Interaction'
+title: "Contract interaction"
+description: "Example: deploying and calling smart contracts using the Autheo Go SDK."
+keywords: ["go", "contract", "deploy", "call", "example", "sdk", "abi"]
 ---
 
+This example demonstrates deploying a contract and calling its functions using the Autheo Go SDK.
+
+## Deploy a contract
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    autheo "github.com/autheo-blockchain/autheo-go-sdk"
+)
+
+func main() {
+    client, err := autheo.NewClient(autheo.Config{
+        RPCURL:     "https://testnet-rpc1.autheo.com",
+        PrivateKey: "<your-private-key-hex>",
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Close()
+
+    // Load compiled contract ABI and bytecode
+    abi := `[...]`      // from artifacts/MyContract.json
+    bytecode := "0x..." // compiled bytecode
+
+    // Deploy with constructor arguments
+    address, txHash, err := client.DeployContract(context.Background(), autheo.DeployParams{
+        ABI:          abi,
+        Bytecode:     bytecode,
+        ConstructorArgs: []interface{}{
+            client.Address(), // initialOwner
+        },
+    })
+    if err != nil {
+        log.Fatalf("deploy failed: %v", err)
+    }
+
+    fmt.Printf("Contract deployed at: %s\n", address)
+    fmt.Printf("Deploy tx: %s\n", txHash)
+}
+```
+
+## Call a read function (no gas)
+
+```go
+abi := `[{"inputs":[{"name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]`
+
+result, err := client.CallContractView(context.Background(), autheo.ViewCallParams{
+    ContractAddress: "0x<contract-address>",
+    ABI:             abi,
+    Method:          "balanceOf",
+    Args:            []interface{}{"0x<wallet-address>"},
+})
+if err != nil {
+    log.Fatal(err)
+}
+
+balance := result[0].(*big.Int)
+fmt.Printf("Balance: %s\n", autheo.FormatEther(balance))
+```
+
+## Call a write function
+
+```go
+writeABI := `[{"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"mint","outputs":[],"type":"function"}]`
+
+txHash, err := client.CallContract(context.Background(), autheo.ContractCallParams{
+    ContractAddress: "0x<contract-address>",
+    ABI:             writeABI,
+    Method:          "mint",
+    Args: []interface{}{
+        "0x<recipient>",
+        autheo.ParseEther("1000"),
+    },
+})
+if err != nil {
+    log.Fatalf("call failed: %v", err)
+}
+
+receipt, err := client.WaitForReceipt(context.Background(), txHash)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Mint confirmed in block %d\n", receipt.BlockNumber)
+```
+
+## Query past events
+
+```go
+logs, err := client.GetLogs(context.Background(), autheo.LogsQuery{
+    ContractAddress: "0x<contract-address>",
+    EventSignature:  "Transfer(address,address,uint256)",
+    FromBlock:       0,
+    ToBlock:         0, // 0 = latest
+})
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, log := range logs {
+    fmt.Printf("Block %d: %s\n", log.BlockNumber, log.TxHash)
+}
+```

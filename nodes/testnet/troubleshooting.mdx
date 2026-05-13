@@ -1,4 +1,140 @@
 ---
-title: 'Troubleshooting'
+title: "Node troubleshooting"
+description: "Common issues encountered when running an Autheo Chain validator node and how to resolve them."
+keywords: ["troubleshooting", "node", "validator", "sync", "peers", "jailed", "errors"]
 ---
 
+## Node won't start
+
+**Check for port conflicts:**
+```bash
+sudo ss -tlnp | grep -E '26656|26657|8545|9090'
+```
+
+If another process occupies port 26656 or 26657, either stop it or change the Autheo port in `config/config.toml`.
+
+**Check for config syntax errors:**
+```bash
+autheod start --dry-run --home /path/to/node-home 2>&1 | head -50
+```
+
+**Check systemd logs:**
+```bash
+sudo journalctl -u autheod -n 100 --no-pager
+```
+
+---
+
+## Node is stuck syncing (`catching_up: true`)
+
+```bash
+autheod status | jq '.SyncInfo'
+```
+
+**Possible causes:**
+
+1. **Not enough peers** — check peer count:
+   ```bash
+   curl -s localhost:26657/net_info | jq '.result.n_peers'
+   ```
+   If below 3, add persistent peers in `config/config.toml` and restart.
+
+2. **Chain data corrupted** — restore from the official snapshot:
+   ```bash
+   sudo systemctl stop autheod
+   rm -rf /path/to/node-home/data/
+   wget https://snapshot.autheo.com/data_backup_latest.tar.gz
+   tar xzvf data_backup_latest.tar.gz
+   mv data/ /path/to/node-home/data/
+   cp /secure/backup/priv_validator_state.json /path/to/node-home/data/priv_validator_state.json
+   sudo systemctl start autheod
+   ```
+
+3. **Wrong genesis file** — ensure `config/genesis.json` matches the network genesis hash.
+
+---
+
+## No peers connecting
+
+1. Verify port 26656 is open in your firewall:
+   ```bash
+   sudo ufw allow 26656/tcp
+   ```
+2. Add bootstrap peers to `config.toml`:
+   ```toml
+   [p2p]
+   persistent_peers = "<node-id>@<ip>:26656,..."
+   ```
+3. Check that `external_address` is set to your public IP if behind NAT:
+   ```toml
+   external_address = "<your-public-ip>:26656"
+   ```
+
+---
+
+## Validator is jailed
+
+```bash
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+**Causes:**
+- Missing too many consecutive blocks (liveness failure)
+- Governance revocation of Sovereign license
+
+**Fix for liveness jailing:**
+```bash
+# 1. Ensure the node is synced and running correctly
+autheod status | jq '.SyncInfo.catching_up'
+
+# 2. Unjail
+autheod tx slashing unjail \
+  --from mykey \
+  --chain-id autheo_785-1 \
+  --keyring-backend file
+
+# 3. If license became BOUND after unjail, re-delegate
+autheod tx staking delegate <autheovaloper-address> <amount>aauth \
+  --from mykey --chain-id autheo_785-1 --keyring-backend file
+```
+
+---
+
+## High memory usage
+
+Autheo Chain uses MemIAVL which requires 8–16 GB of RAM above the process baseline. If you're hitting memory limits:
+
+1. Verify the host meets the minimum 32 GB RAM requirement
+2. Check for memory leaks: `sudo journalctl -u autheod -f | grep -i "out of memory"`
+3. Increase system swap as a temporary measure
+4. Upgrade to the recommended 64 GB RAM configuration
+
+---
+
+## `panic: failed to load latest version` at startup
+
+**Cause**: The chain database is corrupted.
+
+**Fix**: Restore from snapshot (see "Node is stuck syncing" above).
+
+---
+
+## License stuck in BOUND after unjail
+
+See [FAQ: My license is stuck in BOUND after unjailing](/getting-started/faq#my-license-is-stuck-in-bound-after-unjailing-how-do-i-fix-it) for the resolution steps.
+
+---
+
+## `address already in use` on port 8545
+
+The EVM JSON-RPC port is already bound by another process.
+
+```bash
+# Find the process using port 8545
+sudo ss -tlnp | grep 8545
+
+# Either stop the conflicting process or change the EVM port in app.toml:
+# [json-rpc]
+# address = "0.0.0.0:8546"
+```

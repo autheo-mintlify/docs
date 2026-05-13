@@ -1,4 +1,124 @@
 ---
-title: 'Project Scaffolding'
+title: "Project scaffolding"
+description: "Set up a new smart contract or dApp project for Autheo Chain using Hardhat, Foundry, or a bare ethers.js setup."
+keywords: ["scaffolding", "hardhat", "foundry", "project setup", "smart contract", "boilerplate"]
 ---
 
+Autheo Chain is EVM-compatible with Chain ID `785`, which means any Hardhat, Foundry, or ethers.js project can target it with minimal configuration. This page shows the minimum setup for each major toolchain.
+
+## Hardhat
+
+<Steps>
+  <Step title="Create a new project">
+    ```bash
+    mkdir my-autheo-project && cd my-autheo-project
+    npm init -y
+    npm install --save-dev hardhat
+    npx hardhat init
+    ```
+    Select **Create a JavaScript project** (or TypeScript).
+  </Step>
+  <Step title="Install dependencies">
+    ```bash
+    npm install --save-dev @nomicfoundation/hardhat-toolbox dotenv
+    ```
+  </Step>
+  <Step title="Configure hardhat.config.js">
+    ```javascript
+    require("@nomicfoundation/hardhat-toolbox");
+    require("dotenv").config();
+
+    module.exports = {
+      solidity: {
+        version: "0.8.20",
+        settings: { evmVersion: "paris" }
+      },
+      networks: {
+        autheoTestnet: {
+          url: "https://testnet-rpc1.autheo.com",
+          chainId: 785,
+          accounts: [process.env.PRIVATE_KEY]
+        }
+      }
+    };
+    ```
+  </Step>
+  <Step title="Create a .env file">
+    ```bash
+    echo "PRIVATE_KEY=0x<your-private-key>" > .env
+    ```
+    <Warning>Never commit your `.env` file to version control. Add it to `.gitignore`.</Warning>
+  </Step>
+  <Step title="Deploy">
+    ```bash
+    npx hardhat run scripts/deploy.js --network autheoTestnet
+    ```
+  </Step>
+</Steps>
+
+## Foundry
+
+<Steps>
+  <Step title="Install Foundry">
+    ```bash
+    curl -L https://foundry.paradigm.xyz | bash
+    foundryup
+    ```
+  </Step>
+  <Step title="Create a new project">
+    ```bash
+    forge init my-autheo-project && cd my-autheo-project
+    ```
+  </Step>
+  <Step title="Configure foundry.toml">
+    ```toml
+    [profile.default]
+    src = "src"
+    out = "out"
+    libs = ["lib"]
+    evm_version = "paris"
+
+    [rpc_endpoints]
+    autheo_testnet = "https://testnet-rpc1.autheo.com"
+    ```
+  </Step>
+  <Step title="Deploy">
+    ```bash
+    forge create src/MyContract.sol:MyContract \
+      --rpc-url autheo_testnet \
+      --private-key $PRIVATE_KEY \
+      --broadcast
+    ```
+  </Step>
+</Steps>
+
+## Bare ethers.js
+
+For scripts or backend services that don't need a full framework:
+
+```javascript
+import { ethers } from "ethers";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+// Deploy a contract
+const factory = new ethers.ContractFactory(abi, bytecode, wallet);
+const contract = await factory.deploy();
+await contract.waitForDeployment();
+console.log("Deployed at:", await contract.getAddress());
+```
+
+## EVM version note
+
+<Warning>
+Always set the EVM version to `paris` (or earlier) when compiling contracts for Autheo Chain. Using `shanghai` or later may produce opcodes not yet supported by the chain's EVM configuration.
+</Warning>
+
+## Next steps
+
+- [Deploy a smart contract](/developers/tutorials/deploy-smart-contract) — step-by-step Remix tutorial
+- [Gas fees and transaction lifecycle](/developers/guides/gas-fees-and-tx-lifecycle) — understand fee estimation
+- [Deployment checklist](/developers/guides/deployment-checklist) — pre-mainnet verification

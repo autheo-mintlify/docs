@@ -1,4 +1,79 @@
 ---
-title: 'Utility And Fees'
+title: "Utility and fees"
+description: "How THEO is used across the Autheo ecosystem: transaction fees, compute payments, staking, governance, and developer access."
+keywords: ["utility", "fees", "gas", "compute", "governance", "staking", "theo", "ascf"]
 ---
 
+THEO is a productive token — its value is anchored to real, recurring activity across the Autheo network rather than speculation. Every major operation in the ecosystem involves THEO.
+
+## Transaction fees
+
+Every transaction on Autheo Chain requires a fee paid in `aauth` (the base denomination of THEO). Fees compensate validators for including transactions in blocks and are partially recycled through the Autheo Storage & Compute Fund (ASCF).
+
+```bash
+# Example: bank send with explicit fee
+autheod tx bank send mykey <recipient> 1000000000000000000aauth \
+  --chain-id autheo_785-1 \
+  --keyring-backend file \
+  --fees 5000000aauth
+```
+
+Typical transfer fee: ~5,000,000 `aauth` (0.000005 THEO).
+
+## Staking and validator access
+
+| Activity | THEO requirement |
+|---|---|
+| Create a validator | Self-delegate THEO (minimum: 1 `aauth`); requires Sovereign license |
+| Delegate to a validator | Delegate THEO; requires Prime or Core license |
+| Earn staking rewards | Proportional to bonded stake |
+
+Staking is the mechanism by which THEO secures the network. Bonded THEO is subject to slashing for validator misbehavior.
+
+## NFT license emissions
+
+Active NFT license holders earn per-block THEO from the `x/emissions` module:
+
+| License tier | Annual THEO emission |
+|---|---|
+| Sovereign | ~187,969 |
+| Prime | ~18,797 |
+| Core | ~1,880 |
+
+Emission rewards must be manually claimed via `claim-nft-rewards`. Rewards accumulate indefinitely and do not expire.
+
+## Compute and AI services
+
+Within Autheo's decentralized compute layer, all AI task execution, cloud compute operations, and data storage transactions are settled in THEO. Usage fees flow into ASCF and are redistributed to validators and ecosystem pools, sustaining the productive deflation cycle.
+
+## Developer access (stake-to-build)
+
+Developers stake THEO to access:
+- SDKs and orchestration tools at higher tiers
+- Increased visibility in the DevHub marketplace
+- Eligibility for ecosystem grants
+
+This "stake-to-build" model aligns developer incentives with long-term ecosystem participation.
+
+## Governance
+
+THEO holders submit and vote on on-chain governance proposals. Governance controls:
+- Chain parameter changes
+- Module upgrades
+- License revocations and reinstatements (`MsgRevokeLicense`, `MsgReinstateLicense`)
+- Emissions cap adjustments (within predefined bounds)
+
+## Fee recycling (ASCF)
+
+Fees and compute revenue are redistributed through the Autheo Storage & Compute Fund:
+
+```
+Transaction fee revenue
+        ↓
+   ASCF pool
+   ↙       ↘
+Validator   Developer
+ rewards    grants
+```
+
+As network activity grows, ASCF revenue increasingly replaces inflationary emissions as the primary incentive source — this is the productive deflation model described in the [Tokenomics paper](/token/tokenomics-paper-v1-2).

@@ -1,4 +1,148 @@
 ---
-title: 'Events And Logs'
+title: "Events and logs"
+description: "How to emit, query, filter, and decode on-chain events on Autheo Chain."
+keywords: ["events", "logs", "eth_getLogs", "filter", "topics", "ethers.js", "indexing"]
 ---
 
+Events are the primary mechanism for smart contracts to communicate what happened on-chain. This tutorial covers emitting events in Solidity, querying them via JSON-RPC, and decoding them with ethers.js.
+
+## Emitting events in Solidity
+
+```solidity
+pragma solidity ^0.8.20;
+
+contract Vault {
+    event Deposited(address indexed depositor, uint256 amount, uint256 timestamp);
+    event Withdrawn(address indexed recipient, uint256 amount);
+
+    mapping(address => uint256) public balances;
+
+    function deposit() external payable {
+        balances[msg.sender] += msg.value;
+        emit Deposited(msg.sender, msg.value, block.timestamp);
+    }
+
+    function withdraw(uint256 amount) external {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        (bool ok, ) = msg.sender.call{value: amount}("");
+        require(ok, "Transfer failed");
+        emit Withdrawn(msg.sender, amount);
+    }
+}
+```
+
+## Querying events with ethers.js
+
+```javascript
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+
+const abi = [
+  "event Deposited(address indexed depositor, uint256 amount, uint256 timestamp)",
+  "event Withdrawn(address indexed recipient, uint256 amount)"
+];
+
+const contract = new ethers.Contract("0x<contract-address>", abi, provider);
+
+// Query last 10,000 blocks
+const currentBlock = await provider.getBlockNumber();
+const logs = await contract.queryFilter("Deposited", currentBlock - 10000, currentBlock);
+
+logs.forEach(log => {
+  const { depositor, amount, timestamp } = log.args;
+  console.log(`Block ${log.blockNumber}: ${depositor} deposited ${ethers.formatEther(amount)} THEO`);
+});
+```
+
+## Filtering by indexed parameters
+
+Indexed event parameters can be used as topics for efficient filtering:
+
+```javascript
+// Filter Deposited events for a specific address
+const filter = contract.filters.Deposited("0x<depositor-address>");
+const logs = await contract.queryFilter(filter, -5000, "latest");
+```
+
+You can also filter with `null` to match any value:
+
+```javascript
+// All Deposited events (any depositor)
+const allDeposits = contract.filters.Deposited(null);
+```
+
+## Raw eth_getLogs
+
+For lower-level access or when you don't have the ABI:
+
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "eth_getLogs",
+    "params": [{
+      "fromBlock": "0x0",
+      "toBlock": "latest",
+      "address": "0x<contract-address>",
+      "topics": ["0x<event-topic-hash>"]
+    }],
+    "id": 1
+  }'
+```
+
+Compute the topic hash for an event signature:
+
+```javascript
+const topic = ethers.id("Deposited(address,uint256,uint256)");
+console.log(topic); // 0x...
+```
+
+## Real-time event subscription
+
+```javascript
+// Subscribe to new events as they are emitted
+contract.on("Deposited", (depositor, amount, timestamp, event) => {
+  console.log(`New deposit from ${depositor}: ${ethers.formatEther(amount)} THEO`);
+  console.log(`Block: ${event.log.blockNumber}, Tx: ${event.log.transactionHash}`);
+});
+
+// Stop listening
+contract.off("Deposited");
+```
+
+<Note>
+WebSocket connections are required for real-time subscriptions. Use `wss://testnet-rpc1.autheo.com:8546` instead of the HTTP endpoint.
+</Note>
+
+## Decoding raw log data
+
+If you have raw log data without the ABI:
+
+```javascript
+const iface = new ethers.Interface([
+  "event Deposited(address indexed depositor, uint256 amount, uint256 timestamp)"
+]);
+
+const rawLog = {
+  topics: ["0x<topic0>", "0x<indexed-depositor>"],
+  data: "0x<amount-and-timestamp-abi-encoded>"
+};
+
+const parsed = iface.parseLog(rawLog);
+console.log("Depositor:", parsed.args.depositor);
+console.log("Amount:", ethers.formatEther(parsed.args.amount));
+```
+
+## Best practices
+
+- Index only parameters you need to filter on — indexed parameters cost more gas
+- Keep event payloads minimal; emit only what consumers need
+- Do not use events as the primary storage mechanism — use them for off-chain notification
+- Paginate `eth_getLogs` queries in blocks of 1,000–10,000 to avoid timeout errors
+
+## Next steps
+
+- [Indexing and analytics](/developers/tutorials/indexing-and-analytics) — build a persistent event index

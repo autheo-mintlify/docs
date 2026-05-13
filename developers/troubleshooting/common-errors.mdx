@@ -1,4 +1,162 @@
 ---
-title: 'Common Errors'
+title: "Common errors"
+description: "Troubleshooting guide for common errors encountered when developing on Autheo Chain."
+keywords: ["errors", "troubleshooting", "debugging", "smart contracts", "transactions", "revert"]
 ---
 
+## Transaction errors
+
+### `signature verification failed: chain ID does not match`
+
+**Cause**: The `--chain-id` flag is missing or set to the wrong value.
+
+**Fix**:
+```bash
+# Always include this flag
+autheod tx ... --chain-id autheo_785-1
+```
+
+---
+
+### `insufficient funds for gas * price + value`
+
+**Cause**: The sending address does not have enough `aauth` to cover the transaction value plus gas fees.
+
+**Fix**:
+1. Check the balance: `autheod query bank balance <address> aauth --chain-id autheo_785-1`
+2. Request testnet tokens from the [faucet](https://testnet-faucet.autheo.com/) if needed
+3. Reduce the transaction amount or use a lower gas price
+
+---
+
+### `out of gas`
+
+**Cause**: Gas limit set too low for the operation.
+
+**Fix**:
+```bash
+# Use auto gas estimation with a safety buffer
+--gas auto --gas-adjustment 1.5
+```
+
+---
+
+### `tx already in mempool`
+
+**Cause**: You submitted a duplicate transaction with the same nonce.
+
+**Fix**: Wait for the first transaction to confirm. If it's stuck, resubmit with a higher gas price using the same nonce.
+
+---
+
+### `account sequence mismatch`
+
+**Cause**: The account sequence (nonce) in your transaction doesn't match the chain's expected value.
+
+**Fix**:
+```bash
+# Query the current sequence
+autheod query account <address> --chain-id autheo_785-1
+```
+
+In ethers.js, set `nonce` explicitly:
+```javascript
+const nonce = await provider.getTransactionCount(wallet.address, "pending");
+const tx = await wallet.sendTransaction({ ..., nonce });
+```
+
+---
+
+## License errors
+
+### `ErrLicenseNotBound`
+
+**Cause**: You tried to delegate or create a validator without a bound license.
+
+**Fix**: Bind your license first:
+```bash
+autheod tx license bind <license-id> \
+  --from mykey --chain-id autheo_785-1 --keyring-backend file
+```
+
+---
+
+### `ErrCooldownNotElapsed`
+
+**Cause**: You tried to bind a license before the unbind cooldown expired.
+
+**Fix**: Query the category policy to see the remaining cooldown:
+```bash
+autheod query license category-policy 1
+```
+
+---
+
+### `ErrLicenseRevoked`
+
+**Cause**: The license has been suspended by governance.
+
+**Fix**: The reinstatement process requires a governance action (`MsgReinstateLicense`). See [Runbook D in backups and restore](/nodes/operations/backups-and-restore).
+
+---
+
+## Contract errors
+
+### `Error: VM Exception while processing transaction: revert`
+
+**Cause**: A `require()` or `revert()` statement was triggered in the contract.
+
+**Fix**:
+1. Check the revert reason in the transaction receipt
+2. Use `eth_call` to simulate the transaction before submitting:
+   ```javascript
+   await contract.myFunction.staticCall(args);
+   ```
+
+---
+
+### `invalid opcode` or `unsupported opcode`
+
+**Cause**: Contract compiled with an EVM version higher than `paris`, which is not supported.
+
+**Fix**: Set `evmVersion: "paris"` in your Hardhat or Foundry config and recompile.
+
+---
+
+### `contract not deployed` or empty response from `eth_getCode`
+
+**Cause**: The address doesn't contain contract code — either the deployment failed or the wrong address is being queried.
+
+**Fix**:
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x<address>","latest"],"id":1}'
+```
+
+If the result is `"0x"`, the contract is not deployed at that address.
+
+---
+
+## Keyring errors
+
+### `Error: key not found`
+
+**Cause**: The key name doesn't exist in the specified keyring backend.
+
+**Fix**:
+```bash
+# List available keys
+autheod keys list --keyring-backend file
+
+# Import a key by mnemonic if needed
+autheod keys add mykey --recover --keyring-backend file
+```
+
+---
+
+### `Error: ciphertext decryption failed`
+
+**Cause**: Incorrect keyring passphrase entered.
+
+**Fix**: Re-enter the correct passphrase for the `file` keyring backend. If the passphrase is lost, the key cannot be decrypted — restore from mnemonic.

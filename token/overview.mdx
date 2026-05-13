@@ -1,4 +1,63 @@
 ---
-title: 'Overview'
+title: "THEO token overview"
+description: "Overview of the THEO token: supply, denomination, chain parameters, and role in the Autheo ecosystem."
+keywords: ["theo", "token", "overview", "supply", "aauth", "denomination", "native token"]
 ---
 
+THEO is the native token of Autheo Chain. It is the medium of exchange, coordination, and value across the entire Autheo ecosystem — used for transaction fees, staking, governance, compute payments, and NFT emission rewards.
+
+## Token parameters
+
+| Parameter | Value |
+|---|---|
+| Token name | THEO |
+| Base denomination | `aauth` |
+| Decimals | 18 (1 THEO = 10¹⁸ `aauth`) |
+| Total supply cap | 7,000,000,000 THEO |
+| Initial circulating supply | ~358,750,000 THEO (~5.1% of total) |
+| Chain ID | `autheo_785-1` (Cosmos) / `785` (EVM) |
+
+## Denomination
+
+All on-chain amounts are expressed in `aauth`, the indivisible base unit. When using the CLI or JSON-RPC, you must specify amounts in `aauth`:
+
+| THEO | `aauth` |
+|---|---|
+| 0.000001 THEO | `1000000000000 aauth` |
+| 0.001 THEO | `1000000000000000 aauth` |
+| 1 THEO | `1000000000000000000 aauth` |
+| 1,000 THEO | `1000000000000000000000 aauth` |
+
+## Core uses
+
+| Use case | Description |
+|---|---|
+| Transaction fees | All transactions on Autheo Chain require fees denominated in `aauth` |
+| Validator staking | Validators bond THEO to participate in consensus |
+| Delegator staking | Prime and Core license holders delegate THEO to validators |
+| Governance | THEO holders participate in on-chain governance proposals |
+| Compute payments | AI compute, storage, and data transactions settled in THEO |
+| NFT emission rewards | Per-block THEO rewards earned by active NFT license holders |
+
+## Token sections
+
+<CardGroup cols={2}>
+  <Card title="Utility and fees" href="/token/utility-and-fees" icon="bolt">
+    How THEO is used for fees, compute, and ecosystem access
+  </Card>
+  <Card title="Staking and rewards" href="/token/staking-and-rewards" icon="coins">
+    Staking mechanics and dual reward streams
+  </Card>
+  <Card title="Allocations and emissions" href="/token/allocations-and-emissions" icon="chart-pie">
+    Full allocation table and 9-year emission schedule
+  </Card>
+  <Card title="Vesting" href="/token/vesting" icon="clock">
+    Vesting schedules by allocation category
+  </Card>
+  <Card title="Tokenomics paper" href="/token/tokenomics-paper-v1-2" icon="file-text">
+    Full tokenomics paper v1.2
+  </Card>
+  <Card title="Risks and disclaimers" href="/token/risks-and-disclaimers" icon="shield">
+    Important risk disclosures
+  </Card>
+</CardGroup>

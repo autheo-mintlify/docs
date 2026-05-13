@@ -1,4 +1,141 @@
 ---
-title: 'Indexing And Analytics'
+title: "Indexing and analytics"
+description: "Strategies for indexing on-chain data from Autheo Chain, from simple polling scripts to persistent databases."
+keywords: ["indexing", "analytics", "events", "database", "polling", "eth_getLogs", "subgraph"]
 ---
 
+Building analytics dashboards, portfolio trackers, or data feeds requires indexing on-chain data off-chain. This tutorial covers three approaches in order of complexity.
+
+## Approach 1: Simple polling script
+
+Suitable for low-frequency monitoring or one-off analytics.
+
+```javascript
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+const CONTRACT_ADDRESS = "0x<your-contract>";
+const POLL_INTERVAL_MS = 10_000; // 10 seconds (2 blocks)
+
+const abi = ["event Transfer(address indexed from, address indexed to, uint256 value)"];
+const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+
+let lastBlock = await provider.getBlockNumber();
+
+setInterval(async () => {
+  const currentBlock = await provider.getBlockNumber();
+  if (currentBlock <= lastBlock) return;
+
+  const logs = await contract.queryFilter("Transfer", lastBlock + 1, currentBlock);
+  
+  logs.forEach(log => {
+    const { from, to, value } = log.args;
+    console.log(`Block ${log.blockNumber}: ${from} → ${to} | ${ethers.formatEther(value)}`);
+  });
+
+  lastBlock = currentBlock;
+}, POLL_INTERVAL_MS);
+```
+
+## Approach 2: Historical backfill with pagination
+
+Fetch all events from genesis (or a start block) in paginated chunks:
+
+```javascript
+async function backfill(contract, eventName, startBlock, endBlock, chunkSize = 5000) {
+  const allEvents = [];
+  
+  for (let from = startBlock; from <= endBlock; from += chunkSize) {
+    const to = Math.min(from + chunkSize - 1, endBlock);
+    const logs = await contract.queryFilter(eventName, from, to);
+    allEvents.push(...logs);
+    console.log(`Indexed blocks ${from}–${to}, found ${logs.length} events`);
+    
+    // Respect rate limits
+    await new Promise(r => setTimeout(r, 100));
+  }
+  
+  return allEvents;
+}
+
+const events = await backfill(contract, "Transfer", 0, await provider.getBlockNumber());
+console.log("Total Transfer events:", events.length);
+```
+
+## Approach 3: Persistent database index
+
+For production dashboards, store events in a database as they arrive.
+
+### Schema example (PostgreSQL)
+
+```sql
+CREATE TABLE transfer_events (
+  id SERIAL PRIMARY KEY,
+  block_number BIGINT NOT NULL,
+  tx_hash VARCHAR(66) NOT NULL,
+  log_index INTEGER NOT NULL,
+  from_address VARCHAR(42) NOT NULL,
+  to_address VARCHAR(42) NOT NULL,
+  value NUMERIC(78, 0) NOT NULL,
+  indexed_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(tx_hash, log_index)
+);
+
+CREATE INDEX idx_transfers_from ON transfer_events(from_address);
+CREATE INDEX idx_transfers_to ON transfer_events(to_address);
+CREATE INDEX idx_transfers_block ON transfer_events(block_number);
+```
+
+### Indexer script
+
+```javascript
+import { Pool } from "pg";
+
+const db = new Pool({ connectionString: process.env.DATABASE_URL });
+
+contract.on("Transfer", async (from, to, value, event) => {
+  await db.query(
+    `INSERT INTO transfer_events (block_number, tx_hash, log_index, from_address, to_address, value)
+     VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING`,
+    [
+      event.log.blockNumber,
+      event.log.transactionHash,
+      event.log.index,
+      from.toLowerCase(),
+      to.toLowerCase(),
+      value.toString()
+    ]
+  );
+});
+```
+
+## Query account balances from indexed data
+
+```sql
+-- Net balance for an address
+SELECT
+  SUM(CASE WHEN to_address = $1 THEN value ELSE 0 END) -
+  SUM(CASE WHEN from_address = $1 THEN value ELSE 0 END) AS balance
+FROM transfer_events
+WHERE from_address = $1 OR to_address = $1;
+```
+
+## Using the block explorer REST API
+
+For simple lookups without running your own indexer, use the [REST API](/apis/rest/overview):
+
+```bash
+# Get all transactions for an address
+curl https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions
+
+# Get token transfers
+curl https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/token-transfers
+```
+
+## Tips for production indexers
+
+- **Checkpoint your progress**: Store the last indexed block in the database to resume after restarts
+- **Handle reorgs**: On Autheo Chain, CometBFT finality means there are no reorgs — one confirmation is sufficient
+- **Use WebSocket subscriptions** for real-time indexing, with HTTP fallback for historical backfills
+- **Rate limit awareness**: Public endpoints have rate limits; implement retry with backoff
+- **Deduplicate events**: Use `(tx_hash, log_index)` as a unique key to prevent duplicates from re-indexing

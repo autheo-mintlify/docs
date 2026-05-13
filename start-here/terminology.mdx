@@ -1,4 +1,75 @@
 ---
-title: 'Terminology'
+title: "Terminology"
+description: "Key terms and concepts used throughout Autheo documentation."
+keywords: ["terminology", "terms", "definitions", "glossary", "concepts"]
 ---
 
+This page defines terms used throughout the Autheo documentation. For a complete alphabetical glossary, see the [Glossary](/start-here/glossary).
+
+## Chain identifiers
+
+| Term | Definition |
+|---|---|
+| **Chain ID (Cosmos)** | `autheo_785-1` — used in all CLI `--chain-id` flags |
+| **Chain ID (EVM)** | `785` — used when adding the network to MetaMask or ethers.js |
+| **`autheod`** | The Autheo Chain node binary (current version: 1.0.8) |
+
+## Token and denomination
+
+| Term | Definition |
+|---|---|
+| **THEO** | The native token of Autheo Chain |
+| **`aauth`** | The base denomination of THEO (10⁻¹⁸ THEO). All on-chain amounts are expressed in `aauth`. |
+| **1 THEO** | Equal to 1,000,000,000,000,000,000 `aauth` (10¹⁸ `aauth`) |
+
+## Addresses
+
+| Term | Definition |
+|---|---|
+| **Cosmos address** | Bech32-encoded account address, prefix `autheo1...` |
+| **Validator operator address** | Bech32-encoded address with prefix `autheovaloper1...` |
+| **Ethereum address** | EIP-55 hex address (`0x...`), derived from the same keypair as the Cosmos address |
+| **`eth_secp256k1`** | The key algorithm used by Autheo Chain — the same elliptic curve as Ethereum |
+
+## NFT licenses
+
+| Term | Definition |
+|---|---|
+| **Sovereign license** | NFT license granting the right to create and operate a validator; earns ~187,969 THEO/year |
+| **Prime license** | NFT license granting the right to delegate to external validators (higher emission tier); earns ~18,797 THEO/year |
+| **Core license** | NFT license granting the right to delegate to external validators (standard emission tier); earns ~1,880 THEO/year |
+| **LicenseRecord** | The on-chain Cosmos-side representation of an NFT license |
+| **ISSUED** | License status: minted but not yet bound to a validator |
+| **BOUND** | License status: committed to a validator address, no active delegation |
+| **ACTIVE** | License status: committed to a validator with a live delegation — earns per-block rewards |
+| **REVOKED** | License status: governance-suspended, no operations permitted |
+
+## Staking
+
+| Term | Definition |
+|---|---|
+| **Validator** | A node operator participating in CometBFT consensus; requires a Sovereign NFT license |
+| **Delegator** | An account that stakes THEO to a validator; requires a Prime or Core NFT license |
+| **Bonded** | THEO that is actively staked to a validator |
+| **Unbonding period** | The period (~21 days) during which unbonding THEO cannot be transferred |
+| **Self-delegation** | The validator's own stake in their node, submitted via `MsgCreateValidator` |
+| **Redelegate** | Disabled on Autheo Chain. Use undelegate + delegate instead. |
+
+## Rewards
+
+| Term | Definition |
+|---|---|
+| **Staking rewards** | Proportional rewards from `x/mint` and `x/distribution` — auto-accrued, manually withdrawn |
+| **NFT emission rewards** | Fixed per-block rewards from `x/emissions` based on license tier — manually claimed via `claim-nft-rewards` |
+| **ASCF** | Autheo Storage & Compute Fund — fee revenue pool that funds validator and developer rewards |
+
+## Validator operations
+
+| Term | Definition |
+|---|---|
+| **Jailed** | A validator temporarily excluded from consensus for missing blocks or governance revocation |
+| **Tombstoned** | A validator permanently banned for double-signing; cannot be unjailed |
+| **Double-signing** | Signing two different blocks at the same height — results in tombstoning |
+| **MemIAVL** | RAM-based state tree used by Autheo Chain, requiring 8–16 GB of extra RAM above process baseline |
+| **Sentry node** | A public-facing node that relays traffic to a private validator, protecting the validator's IP |
+| **tmkms** | Tendermint Key Management System — a remote signer that keeps the consensus key off the validator host |

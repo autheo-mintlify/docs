@@ -1,4 +1,110 @@
 ---
-title: 'Gas Fees And Tx Lifecycle'
+title: "Gas fees and transaction lifecycle"
+description: "How gas estimation, fee payment, and transaction confirmation work on Autheo Chain."
+keywords: ["gas", "fees", "transaction lifecycle", "aauth", "gas price", "mempool", "confirmation"]
 ---
 
+Autheo Chain uses the same gas model as Ethereum, with fees denominated in `aauth` (the base unit of THEO). This page explains how to estimate gas, set fees, and understand when a transaction is finalized.
+
+## Fee denomination
+
+All transaction fees are paid in `aauth`:
+
+| Unit | Conversion |
+|---|---|
+| `1 aauth` | Smallest fee unit |
+| `1 THEO` | 10¹⁸ `aauth` |
+| Typical transfer fee | ~5,000,000 `aauth` (0.000005 THEO) |
+
+## Gas estimation
+
+Use `--gas auto` with `--gas-adjustment 1.5` for CLI transactions to avoid out-of-gas failures:
+
+```bash
+autheod tx bank send mykey <recipient> 1000000000000000000aauth \
+  --chain-id autheo_785-1 \
+  --keyring-backend file \
+  --gas auto \
+  --gas-adjustment 1.5 \
+  --fees 5000000aauth
+```
+
+For EVM transactions, use `eth_estimateGas`:
+
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "eth_estimateGas",
+    "params": [{"from": "0x...", "to": "0x...", "value": "0xDE0B6B3A7640000"}],
+    "id": 1
+  }'
+```
+
+## Gas price
+
+Query the current suggested gas price:
+
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":1}'
+```
+
+In ethers.js:
+
+```javascript
+const feeData = await provider.getFeeData();
+console.log("Gas price:", feeData.gasPrice.toString(), "aauth");
+```
+
+## Transaction lifecycle
+
+```
+1. Submit → mempool
+2. Validator includes tx in next block (~5 seconds)
+3. Block committed (1 confirmation = finalized in CometBFT)
+4. Receipt available via eth_getTransactionReceipt
+```
+
+Autheo Chain uses CometBFT BFT consensus — **one block confirmation is final**. There are no reorgs. You do not need to wait for multiple confirmations as you would on Ethereum.
+
+## Checking transaction status
+
+**CLI:**
+```bash
+autheod query tx <txhash> --chain-id autheo_785-1
+```
+
+**JSON-RPC:**
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params":["0x<txhash>"],"id":1}'
+```
+
+A receipt with `"status": "0x1"` means success. `"status": "0x0"` means the transaction was included but reverted.
+
+## Common fee errors
+
+| Error | Cause | Fix |
+|---|---|---|
+| `insufficient funds for gas` | Wallet balance too low | Fund the account with more `aauth` |
+| `out of gas` | Gas limit set too low | Use `--gas auto --gas-adjustment 1.5` |
+| `tx already in mempool` | Duplicate transaction | Wait for existing tx to confirm or increase gas price |
+| `signature verification failed` | Wrong chain ID | Pass `--chain-id autheo_785-1` |
+
+## EIP-1559 support
+
+Autheo Chain supports EIP-1559 fee transactions (type 2). Use `maxFeePerGas` and `maxPriorityFeePerGas` in ethers.js:
+
+```javascript
+const tx = await wallet.sendTransaction({
+  to: recipient,
+  value: ethers.parseEther("1.0"),
+  maxFeePerGas: ethers.parseUnits("25", "gwei"),
+  maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
+});
+await tx.wait(1); // 1 confirmation is final
+```

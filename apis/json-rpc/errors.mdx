@@ -1,4 +1,71 @@
 ---
-title: 'Errors'
+title: "JSON-RPC error codes"
+description: "Standard and Autheo-specific JSON-RPC error codes and how to handle them."
+keywords: ["errors", "json-rpc", "error codes", "revert", "troubleshooting"]
 ---
 
+JSON-RPC errors are returned as objects with a `code` and `message` field inside the `error` key of the response.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32601,
+    "message": "Method not found"
+  }
+}
+```
+
+## Standard JSON-RPC error codes
+
+| Code | Name | Description |
+|---|---|---|
+| `-32700` | Parse error | Invalid JSON was received |
+| `-32600` | Invalid request | The JSON is not a valid request object |
+| `-32601` | Method not found | The method does not exist or is unsupported |
+| `-32602` | Invalid params | Invalid method parameters |
+| `-32603` | Internal error | Internal JSON-RPC server error |
+| `-32000` to `-32099` | Server error | Implementation-defined server errors |
+
+## Ethereum execution errors
+
+| Code | Message | Description |
+|---|---|---|
+| `-32000` | `execution reverted` | Contract execution reverted — check the `data` field for the revert reason |
+| `-32000` | `insufficient funds for gas * price + value` | Sender balance too low |
+| `-32000` | `nonce too low` | Transaction nonce is lower than the account's current nonce |
+| `-32000` | `nonce too high` | Transaction nonce is too far ahead of the current nonce |
+| `-32000` | `gas limit reached` | Block gas limit exceeded |
+| `-32000` | `already known` | Transaction already in mempool |
+
+## Decoding revert reasons
+
+When a transaction reverts, the `data` field may contain an ABI-encoded revert reason:
+
+```javascript
+import { ethers } from "ethers";
+
+try {
+  await contract.myFunction(args);
+} catch (err) {
+  if (err.data) {
+    // Try to decode as a standard Error(string) revert
+    try {
+      const decoded = ethers.toUtf8String("0x" + err.data.slice(138));
+      console.error("Revert reason:", decoded);
+    } catch {
+      console.error("Raw revert data:", err.data);
+    }
+  }
+}
+```
+
+## Common causes and fixes
+
+| Error | Likely cause | Fix |
+|---|---|---|
+| `-32601 Method not found` | Method not supported by this node | Check [supported methods](/apis/json-rpc/overview) |
+| `-32000 execution reverted` | Contract `require()` or `revert()` triggered | Simulate with `eth_call` first to get revert reason |
+| `-32000 insufficient funds` | Low balance | Fund the sender account |
+| `-32000 nonce too low` | Stale nonce in client | Refresh nonce with `eth_getTransactionCount` |
