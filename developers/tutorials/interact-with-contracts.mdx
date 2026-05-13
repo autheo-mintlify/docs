@@ -1,4 +1,144 @@
 ---
-title: 'Interact With Contracts'
+title: "Interact with deployed contracts"
+description: "How to read from and write to smart contracts on Autheo Chain using ethers.js, Hardhat, and the JSON-RPC API."
+keywords: ["interact", "smart contracts", "ethers.js", "read", "write", "call", "transaction"]
 ---
 
+This tutorial covers reading contract state, calling write functions, and listening for events using ethers.js. The same patterns work with any deployed contract on Autheo Chain.
+
+## Prerequisites
+
+- Node.js 18+ installed
+- A contract ABI and deployed contract address
+- A funded wallet (get testnet THEO from the [faucet](/getting-started/network/faucet))
+
+## Setup
+
+```bash
+npm install ethers dotenv
+```
+
+Create a `.env` file:
+```
+RPC_URL=https://testnet-rpc1.autheo.com
+PRIVATE_KEY=0x<your-private-key>
+CONTRACT_ADDRESS=0x<deployed-contract-address>
+```
+
+## Read from a contract (no gas required)
+
+```javascript
+import { ethers } from "ethers";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const abi = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
+  "function name() view returns (string)"
+];
+
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, provider);
+
+// Read without signing
+const name = await contract.name();
+const total = await contract.totalSupply();
+const balance = await contract.balanceOf("0x<wallet-address>");
+
+console.log("Name:", name);
+console.log("Total supply:", ethers.formatEther(total));
+console.log("Balance:", ethers.formatEther(balance));
+```
+
+## Write to a contract (requires gas)
+
+```javascript
+import { ethers } from "ethers";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const abi = [
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function approve(address spender, uint256 amount) returns (bool)"
+];
+
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
+
+// Send a write transaction
+const tx = await contract.transfer(
+  "0x<recipient-address>",
+  ethers.parseEther("1.0")
+);
+
+console.log("Transaction hash:", tx.hash);
+
+// Wait for confirmation (1 block = final on Autheo Chain)
+const receipt = await tx.wait(1);
+console.log("Confirmed in block:", receipt.blockNumber);
+console.log("Gas used:", receipt.gasUsed.toString());
+```
+
+## Listen for events
+
+```javascript
+const abi = [
+  "event Transfer(address indexed from, address indexed to, uint256 value)"
+];
+
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, provider);
+
+// Listen for real-time events
+contract.on("Transfer", (from, to, value, event) => {
+  console.log(`Transfer: ${from} → ${to}, amount: ${ethers.formatEther(value)}`);
+  console.log("Block:", event.log.blockNumber);
+});
+
+// Query historical events
+const filter = contract.filters.Transfer();
+const logs = await contract.queryFilter(filter, -1000, "latest"); // Last 1000 blocks
+logs.forEach(log => {
+  const { from, to, value } = log.args;
+  console.log(`Block ${log.blockNumber}: ${from} → ${to}`);
+});
+```
+
+## Simulate before sending
+
+Use `staticCall` to simulate a write transaction without broadcasting:
+
+```javascript
+try {
+  // Simulate — throws if it would revert
+  await contract.transfer.staticCall("0x<recipient>", ethers.parseEther("1.0"));
+  
+  // Safe to submit
+  const tx = await contract.transfer("0x<recipient>", ethers.parseEther("1.0"));
+  await tx.wait(1);
+} catch (err) {
+  console.error("Transaction would revert:", err.message);
+}
+```
+
+## Encoding function calls manually
+
+For low-level interaction or debugging:
+
+```javascript
+const iface = new ethers.Interface(abi);
+
+// Encode calldata
+const data = iface.encodeFunctionData("transfer", ["0x<recipient>", ethers.parseEther("1.0")]);
+
+// Decode return value
+const result = await provider.call({ to: process.env.CONTRACT_ADDRESS, data });
+const [success] = iface.decodeFunctionResult("transfer", result);
+console.log("Success:", success);
+```
+
+## Next steps
+
+- [Events and logs](/developers/tutorials/events-and-logs) — in-depth event filtering and decoding
+- [Token contracts](/developers/tutorials/token-contracts) — working with ERC-20 and ERC-721 tokens

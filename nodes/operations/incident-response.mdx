@@ -1,4 +1,154 @@
 ---
-title: 'Incident Response'
+title: "Incident response"
+description: "Runbooks for responding to critical validator incidents: downtime, jailing, tombstoning, and infrastructure failure."
+keywords: ["incident response", "runbook", "jailed", "tombstoned", "downtime", "recovery"]
 ---
 
+This page provides step-by-step response procedures for the most critical validator incidents. Bookmark it and review it before you need it.
+
+## Severity levels
+
+| Level | Examples | Response time |
+|---|---|---|
+| **P0 — Critical** | Node down, tombstoned, signing failure | Immediate |
+| **P1 — High** | Jailed, catching up, low peers | Within 1 hour |
+| **P2 — Medium** | High memory/CPU, missed blocks trending up | Within 4 hours |
+| **P3 — Low** | Non-critical log errors, configuration drift | Next maintenance window |
+
+---
+
+## P0: Node not signing blocks
+
+**Detect:**
+```bash
+# Check validator power (0 = not signing)
+curl -s localhost:26660/metrics | grep tendermint_consensus_validator_power
+
+# Check signing info
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home)
+```
+
+**Response:**
+1. Check if the service is running: `sudo systemctl status autheod`
+2. If stopped, restart: `sudo systemctl start autheod`
+3. Check logs: `sudo journalctl -u autheod -n 200 --no-pager`
+4. Check sync status: `autheod status | jq '.SyncInfo'`
+5. If out of sync, restore from snapshot (see [Backups and restore](/nodes/operations/backups-and-restore))
+
+---
+
+## P0: Validator tombstoned
+
+**Detect:**
+```bash
+autheod query slashing signing-info \
+  $(autheod tendermint show-validator --home /path/to/node-home) \
+  | grep tombstoned
+```
+
+Returns `tombstoned: true` if tombstoned.
+
+**Response:**
+Tombstoning is **permanent** — it results from double-signing and cannot be undone.
+
+1. Stop the tombstoned node immediately
+2. Do **not** attempt unjail — it will fail
+3. Commission a new server
+4. Generate a new consensus key: `autheod init new-validator --chain-id autheo_785-1`
+5. Register a new validator with `MsgCreateValidator` and a new consensus key
+6. Bind your Sovereign license to the new validator address
+
+---
+
+## P1: Validator jailed (liveness)
+
+**Detect:**
+```bash
+autheod query staking validator <autheovaloper-address> | grep status
+# Look for: BOND_STATUS_UNBONDED (jailed)
+```
+
+**Response:**
+
+<Steps>
+  <Step title="Diagnose the cause">
+    Check why blocks were missed — look for crashes, restarts, or network interruptions in the logs:
+    ```bash
+    sudo journalctl -u autheod --since "2 hours ago" | grep -E "error|panic|missed"
+    ```
+  </Step>
+  <Step title="Fix the root cause">
+    Resolve the underlying issue before unjailing: disk full, OOM, misconfiguration, etc.
+  </Step>
+  <Step title="Ensure node is synced">
+    ```bash
+    autheod status | jq '.SyncInfo.catching_up'
+    # Must return false before unjailing
+    ```
+  </Step>
+  <Step title="Verify license is not REVOKED">
+    ```bash
+    autheod query license license <license-id>
+    ```
+  </Step>
+  <Step title="Submit unjail">
+    ```bash
+    autheod tx slashing unjail \
+      --from mykey \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+  </Step>
+  <Step title="Re-delegate if needed">
+    If the license shows `BOUND` after unjailing:
+    ```bash
+    autheod tx staking delegate <autheovaloper-address> <amount>aauth \
+      --from mykey --chain-id autheo_785-1 --keyring-backend file
+    ```
+  </Step>
+</Steps>
+
+---
+
+## P1: Node not syncing (catching_up: true)
+
+**Detect:**
+```bash
+autheod status | jq '.SyncInfo.catching_up'
+# Returns true if behind
+```
+
+**Response:**
+1. Check peer count: `curl -s localhost:26657/net_info | jq '.result.n_peers'`
+2. If peers < 3, add persistent peers in `config/config.toml`
+3. If syncing is extremely slow (hours behind), restore from snapshot:
+   ```bash
+   sudo systemctl stop autheod
+   rm -rf /path/to/node-home/data/
+   wget https://snapshot.autheo.com/data_backup_latest.tar.gz
+   tar xzvf data_backup_latest.tar.gz
+   mv data/ /path/to/node-home/data/
+   cp /secure/backup/priv_validator_state.json /path/to/node-home/data/priv_validator_state.json
+   sudo systemctl start autheod
+   ```
+
+---
+
+## P1: Hardware failure — migrate to new host
+
+See [Runbook B: Full hardware failure](/nodes/operations/backups-and-restore#runbook-b-full-hardware-failure--migration-to-new-host).
+
+The critical rule: **confirm the old host is completely powered off before starting the new host with the same consensus key.**
+
+---
+
+## Post-incident review
+
+After every P0 or P1 incident:
+
+1. Document the timeline (when detected, when resolved)
+2. Identify the root cause
+3. Update monitoring thresholds if the incident was not caught early enough
+4. Review the [monitoring checklist](/nodes/operations/monitoring#monitoring-checklist)
+5. Update runbooks if the incident revealed a gap

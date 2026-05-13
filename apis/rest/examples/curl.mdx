@@ -1,4 +1,94 @@
 ---
-title: 'Curl'
+title: "cURL examples"
+description: "cURL request examples for common Autheo Chain REST API operations."
+keywords: ["curl", "examples", "rest api", "requests", "command line"]
 ---
 
+All examples use the Autheo Testnet base URL: `https://testnet-explorer.autheo.com/api/v2`
+
+## Get address information
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>" \
+  -H "accept: application/json"
+```
+
+## Get transactions for an address
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions" \
+  -H "accept: application/json"
+```
+
+## Get a specific transaction
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/transactions/0x<tx-hash>" \
+  -H "accept: application/json"
+```
+
+## Get a specific block
+
+```bash
+# By block number
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/blocks/12345" \
+  -H "accept: application/json"
+
+# Latest block
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/blocks?type=block" \
+  -H "accept: application/json"
+```
+
+## Get token balances for an address
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/token-balances" \
+  -H "accept: application/json"
+```
+
+## Get token transfers for an address
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/token-transfers" \
+  -H "accept: application/json"
+```
+
+## Get a smart contract
+
+```bash
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/smart-contracts/0x<contract-address>" \
+  -H "accept: application/json"
+```
+
+## Search
+
+```bash
+# Search by address, tx hash, or block number
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/search?q=0x<address-or-hash>" \
+  -H "accept: application/json"
+```
+
+## Paginating results
+
+Pass `next_page_params` from the previous response as query parameters:
+
+```bash
+# Get the first page
+RESPONSE=$(curl -s "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions")
+
+# Extract next_page_params and use them for the next page
+curl -X GET \
+  "https://testnet-explorer.autheo.com/api/v2/addresses/0x<address>/transactions?block_number=12345&index=10&items_count=50" \
+  -H "accept: application/json"
+```
+
+See [Pagination](/apis/rest/pagination) for a full explanation.

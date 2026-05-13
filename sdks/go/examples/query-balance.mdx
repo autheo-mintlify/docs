@@ -1,4 +1,124 @@
 ---
-title: 'Query Balance'
+title: "Query balance"
+description: "Example: querying THEO and ERC-20 token balances using the Autheo Go SDK."
+keywords: ["go", "balance", "query", "example", "sdk", "theo"]
 ---
 
+This example demonstrates how to query native THEO balances and ERC-20 token balances using the Autheo Go SDK.
+
+## Native THEO balance
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "math/big"
+
+    autheo "github.com/autheo-blockchain/autheo-go-sdk"
+)
+
+func main() {
+    client, err := autheo.NewClient(autheo.Config{
+        RPCURL: "https://testnet-rpc1.autheo.com",
+    })
+    if err != nil {
+        log.Fatalf("failed to create client: %v", err)
+    }
+    defer client.Close()
+
+    address := "0x<wallet-address>"
+
+    balance, err := client.GetBalance(context.Background(), address, nil)
+    if err != nil {
+        log.Fatalf("failed to get balance: %v", err)
+    }
+
+    // Convert from aauth (10^18) to THEO
+    theo := new(big.Float).Quo(
+        new(big.Float).SetInt(balance),
+        new(big.Float).SetFloat64(1e18),
+    )
+
+    fmt.Printf("Balance of %s: %s THEO\n", address, theo.Text('f', 6))
+}
+```
+
+## ERC-20 token balance
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    autheo "github.com/autheo-blockchain/autheo-go-sdk"
+)
+
+func main() {
+    client, err := autheo.NewClient(autheo.Config{
+        RPCURL: "https://testnet-rpc1.autheo.com",
+    })
+    if err != nil {
+        log.Fatalf("failed to create client: %v", err)
+    }
+    defer client.Close()
+
+    tokenAddress := "0x<erc20-contract-address>"
+    walletAddress := "0x<wallet-address>"
+
+    balance, decimals, err := client.GetTokenBalance(
+        context.Background(),
+        tokenAddress,
+        walletAddress,
+    )
+    if err != nil {
+        log.Fatalf("failed to get token balance: %v", err)
+    }
+
+    fmt.Printf("Token balance: %s (raw: %s, decimals: %d)\n",
+        client.FormatUnits(balance, decimals),
+        balance.String(),
+        decimals,
+    )
+}
+```
+
+## Query multiple balances
+
+```go
+addresses := []string{
+    "0x<address-1>",
+    "0x<address-2>",
+    "0x<address-3>",
+}
+
+for _, addr := range addresses {
+    balance, err := client.GetBalance(context.Background(), addr, nil)
+    if err != nil {
+        fmt.Printf("%s: error: %v\n", addr, err)
+        continue
+    }
+    fmt.Printf("%s: %s aauth\n", addr, balance.String())
+}
+```
+
+## Using the Cosmos REST API for THEO balance
+
+For Cosmos-native queries (returns balance in `aauth`):
+
+```go
+balance, err := client.CosmosQueryBankBalance(
+    context.Background(),
+    "autheo1<cosmos-address>",
+    "aauth",
+)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Balance: %s aauth\n", balance.Amount)
+```

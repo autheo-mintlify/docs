@@ -1,4 +1,88 @@
 ---
-title: 'Troubleshooting'
+title: "Network troubleshooting"
+description: "Common connection problems when working with Autheo Testnet and how to resolve them."
+keywords: ["troubleshooting", "network", "rpc", "connection", "metamask", "errors"]
 ---
 
+## MetaMask shows wrong balance or no balance
+
+**Cause**: MetaMask may not have switched to the Autheo Testnet.
+
+**Fix**:
+1. Click the network selector in MetaMask's upper-left corner.
+2. Select **Autheo Testnet** from the list.
+3. If it's not listed, re-add it using Chain ID `785` and RPC URL `https://testnet-rpc1.autheo.com`.
+
+---
+
+## Transaction stuck as "Pending" in MetaMask
+
+**Cause**: The nonce in MetaMask may be out of sync with the chain state.
+
+**Fix**:
+1. In MetaMask, go to **Settings → Advanced**.
+2. Click **Clear activity and nonce data**.
+3. Resubmit the transaction.
+
+---
+
+## "Chain ID mismatch" error
+
+**Cause**: The RPC endpoint and MetaMask network configuration are pointing to different chains.
+
+**Fix**: Verify that both your RPC URL and MetaMask Chain ID are set to `785`. Do not mix testnet and mainnet endpoints.
+
+---
+
+## RPC request returns 429 (Too Many Requests)
+
+**Cause**: The public RPC endpoints enforce rate limits.
+
+**Fix**:
+- Switch to the secondary endpoint: `https://testnet-rpc2.autheo.com`
+- Reduce request frequency in your application
+- For high-volume workloads, use a [managed node provider](/validator-program/hosting-options)
+
+---
+
+## `autheod` CLI reports wrong chain ID
+
+**Cause**: Missing or incorrect `--chain-id` flag.
+
+**Fix**: Always pass `--chain-id autheo_785-1` to CLI commands:
+
+```bash
+autheod tx bank send ... --chain-id autheo_785-1
+```
+
+Using the wrong chain ID causes signature mismatch errors even if the transaction is otherwise valid.
+
+---
+
+## Node shows `catching_up: true`
+
+**Cause**: The node is still syncing with the network.
+
+**Fix**: Wait for sync to complete before submitting transactions. Check sync status:
+
+```bash
+autheod status | jq '.SyncInfo.catching_up'
+```
+
+Returns `false` when fully synced. If sync is stalled, see the [node troubleshooting guide](/nodes/testnet/troubleshooting).
+
+---
+
+## Faucet returns "Address has already received tokens"
+
+**Cause**: The faucet allows a maximum of 2 requests per 24-hour period per address.
+
+**Fix**: Wait 24 hours before requesting again, or use a different wallet address for additional test tokens. For larger amounts, contact the Autheo team via [Discord](https://discord.gg/McEEeXGGya).
+
+---
+
+## JSON-RPC calls return "method not found"
+
+**Cause**: Some Ethereum JSON-RPC methods are not supported by Ethermint or are limited to specific namespaces.
+
+**Fix**: Check the [JSON-RPC methods reference](/apis/json-rpc/overview) for the list of supported methods. Common unsupported methods include `eth_mining`, `eth_hashrate`, and `eth_submitWork` (not applicable to PoA/BFT chains).

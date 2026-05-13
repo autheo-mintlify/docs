@@ -1,4 +1,64 @@
 ---
-title: 'Vesting'
+title: "Vesting schedules"
+description: "THEO token vesting schedules by allocation category, including cliff and linear unlock durations."
+keywords: ["vesting", "cliff", "unlock", "schedule", "allocation", "theo", "tge"]
 ---
 
+All non-circulating THEO allocations follow structured vesting schedules designed to align long-term incentives and minimize short-term supply shocks. Vesting begins after the cliff period and proceeds linearly on a monthly basis.
+
+<Info>
+**Tokenomics disclaimer** — All vesting parameters are current estimates and remain subject to change as Autheo finalizes its tokenomics and mainnet launch details.
+</Info>
+
+## Summary
+
+At TGE, approximately **9.2% of total supply** (~645,750,000 THEO) enters circulation. All other allocations are subject to the vesting schedules below.
+
+**TGE circulating breakdown:**
+
+| Source | Amount |
+|---|---|
+| Liquidity | 490,000,000 THEO |
+| Treasury (10% unlocked) | 35,000,000 THEO |
+| Private Round (2.5% at TGE) | 15,750,000 THEO |
+| Public Round (50% at TGE) | 105,000,000 THEO |
+| **Total** | **645,750,000 THEO** |
+
+## Vesting schedule by category
+
+| Category | Tokens | % of supply | Cliff (months) | Vest after cliff (months) | Monthly unlock |
+|---|---|---|---|---|---|
+| Ecosystem | 1,400,000,000 | 20.0% | 9 | 108 | 12,962,963 |
+| Validator nodes | 525,000,000 | 7.5% | 0 | 84 | 6,250,000 |
+| Infra nodes (compute) | 1,050,000,000 | 15.0% | 1 | 108 | 9,722,222 |
+| DevHub rewards | 490,000,000 | 7.0% | 0 | 108 | 4,537,037 |
+| Liquidity | 490,000,000 | 7.0% | 0 | 0 | Fully unlocked at TGE |
+| Reserve — long-term | 315,000,000 | 4.5% | 12 | 108 | 2,916,667 |
+| Treasury — near-term | 350,000,000 | 5.0% | 4 | 48 | 7,291,667 |
+| Launch Legends | 105,000,000 | 1.5% | 12 | 108 | 972,222 |
+| Advisory | 175,000,000 | 2.5% | 6 | 48 | 3,645,833 |
+| Early contributors | 1,050,000,000 | 15.0% | 6 | 36 | 12,962,963 |
+| Airdrop / Testnets | 210,000,000 | 3.0% | 0 | 12 | 17,500,000 |
+| Private sales | 630,000,000 | 9.0% | 6 | 36 | 17,500,000 |
+| Public sale | 210,000,000 | 3.0% | 0 | 2 | 105,000,000 |
+| **Total** | **7,000,000,000** | **100%** | — | — | — |
+
+## Reading the schedule
+
+- **Cliff**: No tokens unlock during this period
+- **Vest after cliff**: Linear monthly unlocks begin after the cliff ends
+- **Monthly unlock**: Tokens released per month during the vesting period
+
+**Example — Early contributors** (15% of supply, 1.05B THEO):
+- Months 1–6: Nothing unlocks (6-month cliff)
+- Month 7 onward: 12,962,963 THEO unlocks each month for 36 months
+- All 1.05B THEO fully vested by month 42
+
+## Design principles
+
+- **Long cliffs and extended linear vesting** reduce short-term supply shocks
+- **Liquidity is fully unlocked at TGE** to support CEX/DEX provisioning and market depth
+- **Emissions for Validator and Infra pools are performance-weighted** and contingent on uptime and service metrics
+- **No tokens can be released arbitrarily** — all vesting follows predefined on-chain parameters
+
+See the [allocations and emissions](/token/allocations-and-emissions) page for the full 9-year cumulative supply schedule.

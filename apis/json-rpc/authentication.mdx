@@ -1,4 +1,53 @@
 ---
-title: 'Authentication'
+title: "Authentication"
+description: "How to authenticate requests to the Autheo Chain JSON-RPC API."
+keywords: ["authentication", "api key", "json-rpc", "authorization", "rpc"]
 ---
 
+## Public endpoints
+
+The public Autheo Testnet JSON-RPC endpoints do not require authentication:
+
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+No API key or authorization header is required for public testnet access.
+
+## Rate limits
+
+Public endpoints enforce per-IP rate limits to ensure fair access. If you encounter `429 Too Many Requests` responses, see the [Rate limits](/apis/json-rpc/rate-limits) page for strategies to stay within limits.
+
+## Managed node access
+
+For production applications that require guaranteed uptime, dedicated rate limits, or private node access, connect through an approved managed provider (InfStones, Zeeve). These providers offer authenticated endpoints with SLA guarantees.
+
+When connecting to a managed node, the provider will supply you with an authenticated endpoint URL in the format:
+
+```
+https://<your-node-endpoint>.<provider-domain>/api/v1/<your-api-key>
+```
+
+Use this URL as the `--node` flag value in CLI commands or as the `JsonRpcProvider` URL in ethers.js.
+
+## ethers.js example
+
+```javascript
+import { ethers } from "ethers";
+
+// Public endpoint (no auth)
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+
+// Managed endpoint (if applicable)
+const managedProvider = new ethers.JsonRpcProvider(
+  "https://<your-managed-endpoint>"
+);
+```
+
+## Security recommendations
+
+- Never expose RPC endpoints directly in client-side JavaScript for production applications
+- Route RPC calls through your own backend to hide provider URLs
+- Use HTTPS endpoints only — never plain HTTP in production

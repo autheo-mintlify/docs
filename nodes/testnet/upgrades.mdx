@@ -1,4 +1,88 @@
 ---
-title: 'Upgrades'
+title: "Node upgrades"
+description: "How to upgrade your Autheo Chain validator node to a new binary version."
+keywords: ["upgrade", "binary", "version", "migration", "node", "autheod"]
 ---
 
+Node upgrades follow a standard stop-replace-restart procedure. Autheo Chain uses Cosmos SDK governance-based upgrades where the network reaches consensus on an upgrade height, after which nodes must be running the new binary.
+
+## Before upgrading
+
+- [ ] Read the release notes at the [GitHub releases page](https://github.com/autheo-blockchain/autheo-chain-lab/releases)
+- [ ] Back up `config/priv_validator_key.json` and `data/priv_validator_state.json`
+- [ ] Confirm the target upgrade height or block time in the governance proposal
+
+## Upgrade procedure
+
+<Steps>
+  <Step title="Download the new binary">
+    ```bash
+    # Check current version
+    autheod version
+
+    # Download the new binary (replace X.Y.Z with the target version)
+    wget https://github.com/autheo-blockchain/autheo-chain-lab/releases/download/vX.Y.Z/autheod-linux-amd64 \
+      -O /tmp/autheod-new
+
+    chmod +x /tmp/autheod-new
+
+    # Verify the version
+    /tmp/autheod-new version
+    ```
+  </Step>
+  <Step title="Stop the node at the upgrade height">
+    The node will automatically halt at the governance-specified upgrade height if the upgrade handler is built into the binary. If performing a manual upgrade:
+
+    ```bash
+    sudo systemctl stop autheod
+    ```
+  </Step>
+  <Step title="Replace the binary">
+    ```bash
+    sudo cp /tmp/autheod-new /usr/local/bin/autheod
+    autheod version # confirm new version
+    ```
+  </Step>
+  <Step title="Restart the node">
+    ```bash
+    sudo systemctl start autheod
+    sudo journalctl -u autheod -f
+    ```
+
+    Watch the logs for `committed state` messages indicating the node is producing or following blocks.
+  </Step>
+  <Step title="Verify sync">
+    ```bash
+    autheod status | jq '.SyncInfo'
+    ```
+
+    Confirm `catching_up: false` and that the `latest_block_height` is advancing.
+  </Step>
+</Steps>
+
+## Build from source (alternative)
+
+```bash
+git clone https://github.com/autheo-blockchain/autheo-chain-lab.git
+cd autheo-chain-lab
+git checkout vX.Y.Z
+make build
+sudo cp build/autheod /usr/local/bin/autheod
+```
+
+## Rollback
+
+If the upgrade fails and you need to roll back:
+
+1. Stop the node: `sudo systemctl stop autheod`
+2. Restore the previous binary
+3. Restore `data/priv_validator_state.json` from your backup (critical — prevents double-signing)
+4. Start the node
+
+<Warning>
+Never restore an older `priv_validator_state.json` than the most recent backup. Using a stale state file will cause the node to double-sign blocks, resulting in permanent tombstoning.
+</Warning>
+
+## Cosmovisor (automatic upgrades)
+
+For automated upgrade management, consider running the node under [Cosmovisor](https://docs.cosmos.network/main/build/tooling/cosmovisor). Cosmovisor monitors for on-chain upgrade proposals and automatically swaps the binary at the target height.

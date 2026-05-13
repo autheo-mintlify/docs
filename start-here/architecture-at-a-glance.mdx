@@ -1,4 +1,84 @@
 ---
-title: 'Architecture At A Glance'
+title: "Architecture at a glance"
+description: "High-level overview of Autheo's technical architecture: chain stack, custom modules, EVM integration, and NFT license system."
+keywords: ["architecture", "cosmos sdk", "ethermint", "modules", "overview", "chain stack"]
 ---
 
+Autheo Chain is built on **Cosmos SDK v0.53.0** with **CometBFT v0.38.17** consensus and a full **Ethermint EVM** layer. The chain introduces six custom modules on top of the standard Cosmos module set, primarily to implement NFT license–gated staking and a dual reward stream.
+
+## Chain stack
+
+```
+┌─────────────────────────────────────────┐
+│           Application Layer             │
+│   (dApps, DeFi, DevHub, Compute)        │
+├─────────────────────────────────────────┤
+│         EVM Layer (Ethermint)           │
+│  JSON-RPC :8545 (HTTP) / :8546 (WS)     │
+│  Chain ID: 785 | eth_secp256k1 keys     │
+├─────────────────────────────────────────┤
+│        Cosmos SDK v0.53.0               │
+│  x/staking  x/distribution  x/gov      │
+│  x/bank  x/ibc  x/mint  x/slashing     │
+├─────────────────────────────────────────┤
+│        Custom Autheo Modules            │
+│  x/license  x/licensedstaking          │
+│  x/emissions  x/licensedistribution    │
+│  x/autheo  x/e2ee                      │
+├─────────────────────────────────────────┤
+│       CometBFT v0.38.17                 │
+│   P2P :26656 | RPC :26657              │
+│   ~5 second block time                 │
+└─────────────────────────────────────────┘
+```
+
+## Custom modules
+
+| Module | Purpose |
+|---|---|
+| `x/license` | Stores and manages NFT `LicenseRecord` objects (ISSUED → BOUND → ACTIVE → REVOKED) |
+| `x/licensedstaking` | Wraps `x/staking` with license pre-checks on delegate, undelegate, and validator operations |
+| `x/emissions` | Mints per-block NFT emission rewards based on license tier; enforces 7B THEO global cap |
+| `x/licensedistribution` | Accumulates and allows manual claiming of NFT emission rewards |
+| `x/autheo` | Chain-specific governance parameters and Autheo-native operations |
+| `x/e2ee` | End-to-end encryption key registry for secure on-chain messaging |
+
+## NFT license system
+
+Licenses originate as ERC-721 tokens on **Arbitrum**. When transferred to an Autheo Chain EVM address, an automatic hook mints a `LicenseRecord` in `ISSUED` status on the Cosmos side. Three tiers exist:
+
+| Tier | Right granted | Annual THEO emission |
+|---|---|---|
+| Sovereign | Create and operate a validator | ~187,969 |
+| Prime | Delegate to external validators (higher tier) | ~18,797 |
+| Core | Delegate to external validators (standard tier) | ~1,880 |
+
+See [License lifecycle](/nodes/architecture/license-lifecycle) for the full state machine.
+
+## Key addresses
+
+Each keypair produces three equivalent address representations using `eth_secp256k1`:
+
+| Format | Example |
+|---|---|
+| Cosmos Bech32 | `autheo1...` |
+| Validator operator Bech32 | `autheovaloper1...` |
+| Ethereum hex (EIP-55) | `0x...` |
+
+## Network endpoints
+
+| Service | Default port |
+|---|---|
+| CometBFT RPC | 26657 |
+| CometBFT P2P | 26656 |
+| Ethereum JSON-RPC (HTTP) | 8545 |
+| Ethereum JSON-RPC (WS) | 8546 |
+| Prometheus metrics | 26660 |
+| gRPC | 9090 |
+| gRPC Gateway (REST) | 1317 |
+
+## Further reading
+
+- [System architecture](/nodes/architecture/system-architecture) — detailed module dependency graph and KV store layouts
+- [Module overview](/nodes/architecture/module-overview) — per-module documentation
+- [EVM integration](/nodes/architecture/evm-integration) — JSON-RPC namespaces and tool compatibility

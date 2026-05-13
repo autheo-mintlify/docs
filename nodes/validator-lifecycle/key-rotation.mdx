@@ -1,4 +1,89 @@
 ---
-title: 'Key Rotation'
+title: "Consensus key rotation"
+description: "How to rotate the consensus key for an Autheo Chain validator node without downtime or tombstoning."
+keywords: ["key rotation", "consensus key", "priv_validator_key", "rotate", "migrate"]
 ---
 
+Rotating the consensus key is a high-risk operation. Done incorrectly, it can result in **permanent tombstoning** from double-signing. Follow these steps precisely and only perform a key rotation during a scheduled maintenance window.
+
+<Warning>
+Never run two nodes with the same consensus key simultaneously. If both nodes sign the same block, the validator is permanently tombstoned and cannot be recovered.
+</Warning>
+
+## When to rotate keys
+
+- Suspected compromise of `priv_validator_key.json`
+- Migrating to a new host with a remote signer (tmkms)
+- Hardware failure requiring a new consensus key
+
+## Preparation
+
+1. Ensure your operator key and Sovereign license are unaffected — key rotation only changes the consensus key
+2. Have a maintenance window scheduled
+3. Notify delegators if possible
+
+## Rotation procedure
+
+<Steps>
+  <Step title="Generate a new consensus key on the new/target setup">
+    On the new host or remote signer:
+    ```bash
+    # Generate a fresh consensus key
+    autheod init temp-node --chain-id autheo_785-1 --home /tmp/temp-node
+    cat /tmp/temp-node/config/priv_validator_key.json
+    ```
+    Note the new public key value.
+  </Step>
+  <Step title="Stop signing on the old key">
+    Stop the validator or remote signer that holds the old consensus key:
+    ```bash
+    sudo systemctl stop autheod
+    ```
+    Verify the node has stopped completely before proceeding.
+  </Step>
+  <Step title="Submit MsgEditValidator with the new public key">
+    ```bash
+    NEW_PUBKEY=$(cat /tmp/temp-node/config/priv_validator_key.json | jq -r '.pub_key')
+
+    autheod tx staking edit-validator \
+      --new-moniker "your-validator-name" \
+      --pubkey "$NEW_PUBKEY" \
+      --from mykey \
+      --chain-id autheo_785-1 \
+      --keyring-backend file
+    ```
+  </Step>
+  <Step title="Copy the new consensus key to the validator host">
+    ```bash
+    cp /tmp/temp-node/config/priv_validator_key.json \
+      /path/to/node-home/config/priv_validator_key.json
+    ```
+  </Step>
+  <Step title="Reset priv_validator_state.json">
+    The state file must be reset for a fresh key — do NOT copy an old state file for a new key:
+    ```bash
+    echo '{"height":"0","round":0,"step":0}' > /path/to/node-home/data/priv_validator_state.json
+    ```
+  </Step>
+  <Step title="Start the node">
+    ```bash
+    sudo systemctl start autheod
+    sudo journalctl -u autheod -f
+    ```
+    Verify the node starts signing blocks with the new key.
+  </Step>
+</Steps>
+
+## Verify the new key is active
+
+```bash
+# Check the validator's current consensus public key on-chain
+autheod query staking validator <autheovaloper-address> \
+  | jq '.consensus_pubkey'
+```
+
+The returned public key should match the new `priv_validator_key.json` public key.
+
+## Remote signer migration (tmkms)
+
+If migrating to tmkms, follow the [tmkms documentation](https://github.com/iqlusioninc/tmkms) for key import and signer configuration. The overall flow is the same: stop signing on the old key, update the validator with the new public key, start the new signer.

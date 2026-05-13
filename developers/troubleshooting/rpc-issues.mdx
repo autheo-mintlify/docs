@@ -1,4 +1,126 @@
 ---
-title: 'Rpc Issues'
+title: "RPC issues"
+description: "Troubleshooting guide for JSON-RPC and REST API problems on Autheo Chain."
+keywords: ["rpc", "json-rpc", "errors", "troubleshooting", "connection", "rate limits", "cors"]
 ---
 
+## Connection refused / ECONNREFUSED
+
+**Cause**: The RPC endpoint is unreachable or the node is not running.
+
+**Fix**:
+1. Try the secondary endpoint: `https://testnet-rpc2.autheo.com`
+2. Check node status: `autheod status --node <rpc-url>`
+3. Verify that port 8545 (HTTP) or 8546 (WebSocket) is open in your firewall
+
+---
+
+## 429 Too Many Requests
+
+**Cause**: You have exceeded the rate limit on the public RPC endpoint.
+
+**Fix**:
+- Implement exponential backoff with jitter in your application
+- Reduce polling frequency (prefer event subscriptions over polling)
+- Use the secondary endpoint to distribute load
+- For production applications, use a [managed node provider](/validator-program/hosting-options)
+
+---
+
+## CORS errors in browser applications
+
+**Cause**: Browser enforces same-origin policy; the RPC endpoint doesn't return the expected CORS headers.
+
+**Fix**: Do not call the RPC endpoint directly from a browser. Route requests through your own backend server, which can add the appropriate CORS headers.
+
+---
+
+## `invalid request` (JSON-RPC error -32600)
+
+**Cause**: The request body is malformed JSON or missing required fields.
+
+**Fix**: Ensure the request includes `jsonrpc`, `method`, `params`, and `id` fields:
+
+```bash
+curl -X POST https://testnet-rpc1.autheo.com \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+---
+
+## `method not found` (JSON-RPC error -32601)
+
+**Cause**: The requested method is not supported by the node.
+
+**Common unsupported methods**: `eth_mining`, `eth_hashrate`, `eth_submitWork`, `eth_getWork` — these are not applicable to BFT consensus chains.
+
+**Fix**: See the [JSON-RPC methods reference](/apis/json-rpc/overview) for the list of supported methods.
+
+---
+
+## `execution reverted` (JSON-RPC error -32000)
+
+**Cause**: A contract call reverted during execution.
+
+**Fix**:
+1. Simulate the call with `eth_call` first to get the revert reason
+2. Check input parameters match the contract's expected types and ranges
+3. Verify the caller has the required permissions
+
+---
+
+## WebSocket connection drops
+
+**Cause**: WebSocket connections have a default idle timeout.
+
+**Fix**: Implement reconnection logic with a backoff strategy:
+
+```javascript
+function connect() {
+  const ws = new ethers.WebSocketProvider("wss://testnet-rpc1.autheo.com:8546");
+  
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
+    setTimeout(connect, 5000); // Reconnect after 5 seconds
+  });
+  
+  return ws;
+}
+```
+
+---
+
+## `eth_getLogs` returns empty array unexpectedly
+
+**Cause**: The block range or filter parameters don't match any events.
+
+**Fix**:
+1. Verify the contract address is correct (checksummed EIP-55 format)
+2. Check the `fromBlock` and `toBlock` values bracket the expected transaction blocks
+3. Ensure the topic hash matches your event signature exactly:
+   ```javascript
+   const topic = ethers.id("Transfer(address,address,uint256)");
+   ```
+
+---
+
+## REST API 404 on block explorer endpoints
+
+**Cause**: The requested resource doesn't exist or the URL path is incorrect.
+
+**Fix**: Verify the endpoint against the [REST API reference](/apis/rest/overview). The base URL is:
+```
+https://testnet-explorer.autheo.com/api/v2/
+```
+
+---
+
+## Slow response times
+
+**Cause**: High network load or the node is processing a large request.
+
+**Fix**:
+- Use `eth_call` instead of `eth_sendTransaction` for read-only operations
+- Avoid fetching large block ranges in a single `eth_getLogs` call — paginate in chunks of 1,000–10,000 blocks
+- Cache responses for data that doesn't change frequently (e.g., contract ABIs, static configuration)

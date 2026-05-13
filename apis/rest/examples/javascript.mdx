@@ -1,4 +1,112 @@
 ---
-title: 'Javascript'
+title: "JavaScript examples"
+description: "JavaScript (fetch/node-fetch) request examples for common Autheo Chain REST API operations."
+keywords: ["javascript", "examples", "rest api", "fetch", "node.js"]
 ---
 
+All examples use the Autheo Testnet base URL. Set up a base client first:
+
+```javascript
+const BASE_URL = "https://testnet-explorer.autheo.com/api/v2";
+
+async function get(path) {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: { Accept: "application/json" }
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(`${response.status}: ${err.message ?? "Unknown error"}`);
+  }
+  return response.json();
+}
+```
+
+## Get address information
+
+```javascript
+const address = "0x<your-address>";
+const info = await get(`/addresses/${address}`);
+
+console.log("Balance:", info.coin_balance);
+console.log("Transaction count:", info.tx_count);
+console.log("Is contract:", info.is_contract);
+```
+
+## Get transactions for an address
+
+```javascript
+const txs = await get(`/addresses/${address}/transactions`);
+
+txs.items.forEach(tx => {
+  console.log(`Hash: ${tx.hash}`);
+  console.log(`Block: ${tx.block}`);
+  console.log(`From: ${tx.from.hash}`);
+  console.log(`To: ${tx.to?.hash}`);
+  console.log(`Value: ${tx.value}`);
+  console.log("---");
+});
+
+// Check for more pages
+if (txs.next_page_params) {
+  const query = new URLSearchParams(txs.next_page_params).toString();
+  const nextPage = await get(`/addresses/${address}/transactions?${query}`);
+}
+```
+
+## Get all transactions (paginated)
+
+```javascript
+async function getAllTransactions(address) {
+  const results = [];
+  let params = null;
+
+  do {
+    const query = params ? "?" + new URLSearchParams(params).toString() : "";
+    const page = await get(`/addresses/${address}/transactions${query}`);
+    results.push(...page.items);
+    params = page.next_page_params;
+  } while (params !== null);
+
+  return results;
+}
+
+const allTxs = await getAllTransactions("0x<address>");
+console.log("Total transactions:", allTxs.length);
+```
+
+## Get a specific block
+
+```javascript
+// By block number
+const block = await get("/blocks/12345");
+console.log("Hash:", block.hash);
+console.log("Transactions:", block.tx_count);
+console.log("Gas used:", block.gas_used);
+
+// Latest blocks
+const latestBlocks = await get("/blocks?type=block");
+console.log("Latest block:", latestBlocks.items[0].height);
+```
+
+## Get token transfers
+
+```javascript
+const transfers = await get(`/addresses/${address}/token-transfers`);
+
+transfers.items.forEach(transfer => {
+  console.log(`Token: ${transfer.token.symbol}`);
+  console.log(`From: ${transfer.from.hash}`);
+  console.log(`To: ${transfer.to.hash}`);
+  console.log(`Amount: ${transfer.total?.value}`);
+});
+```
+
+## Get smart contract details
+
+```javascript
+const contract = await get(`/smart-contracts/${contractAddress}`);
+
+console.log("Name:", contract.name);
+console.log("Verified:", contract.is_verified);
+console.log("Compiler:", contract.compiler_version);
+```

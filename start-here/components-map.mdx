@@ -1,4 +1,70 @@
 ---
-title: 'Components Map'
+title: "Components map"
+description: "A full inventory of Autheo's technical components grouped by layer, with links to relevant documentation."
+keywords: ["components", "map", "inventory", "modules", "services", "infrastructure"]
 ---
 
+This page is a navigational index of every major technical component in the Autheo ecosystem. Use it as a starting point to find the documentation you need.
+
+## Autheo Chain (Layer 1)
+
+| Component | Description | Docs |
+|---|---|---|
+| `autheod` binary | The Autheo Chain node daemon (v1.0.8) | [Installation](/nodes/testnet/installation) |
+| CometBFT consensus | Block production and P2P networking | [System architecture](/nodes/architecture/system-architecture) |
+| Ethermint EVM | EVM execution layer, JSON-RPC on :8545/:8546 | [EVM integration](/nodes/architecture/evm-integration) |
+| `x/license` | NFT license record management | [Module overview](/nodes/architecture/module-overview) |
+| `x/licensedstaking` | License-gated staking wrapper | [License gating](/nodes/architecture/license-gating) |
+| `x/emissions` | Per-block NFT emission rewards | [NFT rewards](/nodes/architecture/nft-rewards) |
+| `x/licensedistribution` | NFT reward accumulation and claiming | [NFT rewards](/nodes/architecture/nft-rewards) |
+| `x/e2ee` | On-chain encryption key registry | [Module overview](/nodes/architecture/module-overview) |
+
+## Validator infrastructure
+
+| Component | Description | Docs |
+|---|---|---|
+| Sovereign NFT license | Required to create and operate a validator | [License setup](/nodes/testnet/license-setup) |
+| Prime / Core NFT license | Required for delegator participation | [License lifecycle](/nodes/architecture/license-lifecycle) |
+| Operator key | Signs all on-chain transactions (`eth_secp256k1`) | [Key management](/nodes/testnet/key-management) |
+| Consensus key | Signs block proposals (Ed25519) | [Key management](/nodes/testnet/key-management) |
+| tmkms / HSM | Remote signer for consensus key | [Security hardening](/nodes/operations/security-hardening) |
+| Prometheus + Grafana | Node metrics and alerting | [Monitoring](/nodes/operations/monitoring) |
+
+## Developer tooling
+
+| Component | Description | Docs |
+|---|---|---|
+| Go SDK | Official Go SDK for Autheo Chain | [SDK overview](/sdks/go/overview) |
+| JSON-RPC API | Ethereum-compatible JSON-RPC (Chain ID 785) | [JSON-RPC overview](/apis/json-rpc/overview) |
+| REST API | Block explorer REST API | [REST overview](/apis/rest/overview) |
+| Remix IDE | Browser-based Solidity IDE | [Deploy a smart contract](/developers/tutorials/deploy-smart-contract) |
+| Hardhat / Foundry | EVM development frameworks | [EVM integration](/nodes/architecture/evm-integration) |
+| MetaMask | EVM wallet, connects to Chain ID 785 | [MetaMask install](/getting-started/wallets/metamask-install) |
+
+## Network services
+
+| Service | URL |
+|---|---|
+| Testnet RPC (HTTP) | `https://testnet-rpc1.autheo.com` |
+| Testnet RPC (HTTP, secondary) | `https://testnet-rpc2.autheo.com` |
+| Testnet block explorer | `https://testnet-explorer.autheo.com/` |
+| Testnet faucet | `https://testnet-faucet.autheo.com/` |
+| Snapshot download | `https://snapshot.autheo.com/data_backup_latest.tar.gz` |
+| Source code | `https://github.com/autheo-blockchain/autheo-chain-lab` |
+
+## Token economy
+
+| Component | Description | Docs |
+|---|---|---|
+| THEO | Native token (base denom `aauth`, 18 decimals) | [Token overview](/token/overview) |
+| NFT emission rewards | Per-block rewards from `x/emissions` | [NFT rewards](/nodes/architecture/nft-rewards) |
+| Staking rewards | Proportional rewards from `x/mint` + `x/distribution` | [Staking and rewards](/token/staking-and-rewards) |
+| ASCF | Autheo Storage & Compute Fund — fee reinvestment pool | [Tokenomics paper](/token/tokenomics-paper-v1-2) |
+
+## Papers and research
+
+| Document | Description | Link |
+|---|---|---|
+| Tokenomics paper v1.2 | THEO token design, emissions, and productive deflation | [Read](/token/tokenomics-paper-v1-2) |
+| Litepaper v1.5 | High-level ecosystem overview | [Read](/papers/litepaper/v1-5) |
+| Technical papers | Architecture deep-dives by domain | [Browse](/papers/overview) |

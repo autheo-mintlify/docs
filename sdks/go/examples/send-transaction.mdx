@@ -1,4 +1,115 @@
 ---
-title: 'Send Transaction'
+title: "Send transaction"
+description: "Example: sending THEO transfers and EVM transactions using the Autheo Go SDK."
+keywords: ["go", "transaction", "send", "transfer", "example", "sdk"]
 ---
 
+This example demonstrates how to send native THEO transfers and EVM transactions using the Autheo Go SDK.
+
+## Send native THEO
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "math/big"
+
+    autheo "github.com/autheo-blockchain/autheo-go-sdk"
+)
+
+func main() {
+    client, err := autheo.NewClient(autheo.Config{
+        RPCURL:     "https://testnet-rpc1.autheo.com",
+        PrivateKey: "<your-private-key-hex>", // without 0x prefix
+    })
+    if err != nil {
+        log.Fatalf("failed to create client: %v", err)
+    }
+    defer client.Close()
+
+    recipient := "0x<recipient-address>"
+    
+    // 1 THEO = 10^18 aauth
+    amount := new(big.Int).Mul(
+        big.NewInt(1),
+        new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil),
+    )
+
+    txHash, err := client.SendTransaction(context.Background(), autheo.TransactionParams{
+        To:    recipient,
+        Value: amount,
+    })
+    if err != nil {
+        log.Fatalf("failed to send transaction: %v", err)
+    }
+
+    fmt.Printf("Transaction submitted: %s\n", txHash)
+
+    // Wait for confirmation (1 block = final on Autheo Chain)
+    receipt, err := client.WaitForReceipt(context.Background(), txHash)
+    if err != nil {
+        log.Fatalf("failed to get receipt: %v", err)
+    }
+
+    fmt.Printf("Confirmed in block %d\n", receipt.BlockNumber)
+    fmt.Printf("Gas used: %d\n", receipt.GasUsed)
+    fmt.Printf("Status: %d (1=success, 0=reverted)\n", receipt.Status)
+}
+```
+
+## Send an ERC-20 token transfer
+
+```go
+transferABI := `[{"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"type":"function"}]`
+
+txHash, err := client.CallContract(context.Background(), autheo.ContractCallParams{
+    ContractAddress: "0x<token-address>",
+    ABI:             transferABI,
+    Method:          "transfer",
+    Args: []interface{}{
+        "0x<recipient-address>",
+        autheo.ParseEther("100"), // 100 tokens (assuming 18 decimals)
+    },
+})
+if err != nil {
+    log.Fatalf("contract call failed: %v", err)
+}
+
+receipt, err := client.WaitForReceipt(context.Background(), txHash)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Transfer confirmed: block %d\n", receipt.BlockNumber)
+```
+
+## Custom gas settings
+
+```go
+txHash, err := client.SendTransaction(context.Background(), autheo.TransactionParams{
+    To:       recipient,
+    Value:    amount,
+    GasLimit: 21000,           // explicit gas limit
+    GasPrice: big.NewInt(25e9), // 25 Gwei
+})
+```
+
+## Cosmos-native bank send
+
+For sending THEO via the Cosmos `x/bank` module (required for sending to `autheo1...` addresses):
+
+```go
+txHash, err := client.CosmosBankSend(context.Background(), autheo.BankSendParams{
+    FromKey:   "mykey",
+    ToAddress: "autheo1<recipient>",
+    Amount:    "1000000000000000000aauth", // 1 THEO
+    ChainID:   "autheo_785-1",
+    Fees:      "5000000aauth",
+})
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Cosmos tx: %s\n", txHash)
+```

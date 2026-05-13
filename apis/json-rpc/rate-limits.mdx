@@ -1,4 +1,88 @@
 ---
-title: 'Rate Limits'
+title: "Rate limits"
+description: "Rate limiting on Autheo Chain public JSON-RPC endpoints and strategies for staying within limits."
+keywords: ["rate limits", "throttling", "429", "rpc", "api", "requests"]
 ---
 
+The public Autheo Testnet JSON-RPC endpoints enforce per-IP rate limits to ensure fair access for all developers.
+
+## What triggers rate limiting
+
+- High-frequency polling (e.g., checking balance every 100ms)
+- Large `eth_getLogs` queries spanning many blocks
+- Burst traffic from scripts without backoff logic
+
+## Handling 429 responses
+
+When you receive a `429 Too Many Requests` HTTP response, implement exponential backoff:
+
+```javascript
+async function rpcWithRetry(provider, method, params, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await provider.send(method, params);
+    } catch (err) {
+      if (err.status === 429 || err.code === "SERVER_ERROR") {
+        const delay = Math.min(1000 * 2 ** attempt, 30_000);
+        console.warn(`Rate limited, retrying in ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error("Max retries exceeded");
+}
+```
+
+## Best practices to reduce API usage
+
+**Use WebSocket subscriptions instead of polling**
+
+Instead of calling `eth_getBlockNumber` every few seconds, subscribe to new blocks:
+
+```javascript
+const wsProvider = new ethers.WebSocketProvider("wss://testnet-rpc1.autheo.com:8546");
+wsProvider.on("block", (blockNumber) => {
+  console.log("New block:", blockNumber);
+});
+```
+
+**Paginate eth_getLogs in reasonably sized chunks**
+
+```javascript
+// Instead of one huge query from block 0 to latest:
+const logs = await contract.queryFilter("Transfer", 0, "latest"); // ❌ may hit limits
+
+// Use paginated chunks:
+for (let from = 0; from < currentBlock; from += 5000) {
+  const to = Math.min(from + 4999, currentBlock);
+  const chunk = await contract.queryFilter("Transfer", from, to); // ✅
+}
+```
+
+**Cache immutable data**
+
+Contract ABIs, deployed addresses, and historical block data don't change. Cache them locally rather than re-fetching on every request.
+
+**Load balance across endpoints**
+
+Distribute requests between the two public endpoints:
+
+```javascript
+const endpoints = [
+  "https://testnet-rpc1.autheo.com",
+  "https://testnet-rpc2.autheo.com"
+];
+
+let index = 0;
+function getProvider() {
+  const url = endpoints[index % endpoints.length];
+  index++;
+  return new ethers.JsonRpcProvider(url);
+}
+```
+
+## Production workloads
+
+For applications that require consistent high-volume access, use a managed node provider (InfStones, Zeeve) which offers dedicated capacity with SLA guarantees. See [hosting options](/validator-program/hosting-options) for details.

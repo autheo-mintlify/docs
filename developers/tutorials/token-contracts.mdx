@@ -1,4 +1,136 @@
 ---
-title: 'Token Contracts'
+title: "Token contracts"
+description: "Deploy and interact with ERC-20 and ERC-721 token contracts on Autheo Chain."
+keywords: ["erc20", "erc721", "token", "nft", "openzeppelin", "deploy", "mint", "transfer"]
 ---
 
+Autheo Chain's EVM layer supports the full ERC-20 and ERC-721 standards. This tutorial shows how to deploy and interact with both token types using OpenZeppelin contracts.
+
+## ERC-20 token
+
+### Deploy
+
+Use the [OpenZeppelin Wizard](https://wizard.openzeppelin.com/) to generate your contract or write from scratch:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    constructor(address initialOwner)
+        ERC20("MyToken", "MTK")
+        Ownable(initialOwner)
+    {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+}
+```
+
+Deploy with Hardhat:
+
+```bash
+npx hardhat run scripts/deploy.js --network autheoTestnet
+```
+
+### Interact with ethers.js
+
+```javascript
+import { ethers } from "ethers";
+
+const abi = [
+  "function balanceOf(address) view returns (uint256)",
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "event Transfer(address indexed from, address indexed to, uint256 value)"
+];
+
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com");
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+const token = new ethers.Contract(TOKEN_ADDRESS, abi, wallet);
+
+// Check balance
+const balance = await token.balanceOf(wallet.address);
+console.log("Balance:", ethers.formatEther(balance), "MTK");
+
+// Transfer tokens
+const tx = await token.transfer("0x<recipient>", ethers.parseEther("100"));
+await tx.wait(1);
+console.log("Transferred in block:", (await tx.wait(1)).blockNumber);
+```
+
+## ERC-721 (NFT)
+
+### Deploy
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyNFT is ERC721, Ownable {
+    uint256 private _nextTokenId;
+
+    constructor(address initialOwner)
+        ERC721("MyNFT", "MNFT")
+        Ownable(initialOwner)
+    {}
+
+    function safeMint(address to) external onlyOwner returns (uint256) {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        return tokenId;
+    }
+}
+```
+
+### Interact with ethers.js
+
+```javascript
+const abi = [
+  "function safeMint(address to) returns (uint256)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
+  "function balanceOf(address owner) view returns (uint256)",
+  "function transferFrom(address from, address to, uint256 tokenId)",
+  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+];
+
+const nft = new ethers.Contract(NFT_ADDRESS, abi, wallet);
+
+// Mint a new NFT
+const tx = await nft.safeMint(wallet.address);
+const receipt = await tx.wait(1);
+
+// Find the token ID from the Transfer event
+const transferEvent = receipt.logs
+  .map(log => { try { return nft.interface.parseLog(log); } catch { return null; } })
+  .find(e => e?.name === "Transfer");
+
+const tokenId = transferEvent.args.tokenId;
+console.log("Minted token ID:", tokenId.toString());
+
+// Check owner
+const owner = await nft.ownerOf(tokenId);
+console.log("Owner:", owner);
+```
+
+## EVM version note
+
+<Warning>
+Compile with `evmVersion: "paris"` to ensure compatibility with Autheo Chain. Using `shanghai` or later may cause deployment failures.
+</Warning>
+
+## Next steps
+
+- [Interact with contracts](/developers/tutorials/interact-with-contracts) — general contract interaction patterns
+- [Events and logs](/developers/tutorials/events-and-logs) — track Transfer events and other token activity
+- [Indexing and analytics](/developers/tutorials/indexing-and-analytics) — build a token balance tracker
