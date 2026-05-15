@@ -59,12 +59,14 @@ autheod query license params   # View current contract addresses
 
 ## Ethereum tool compatibility
 
-| Tool | Configuration |
-|---|---|
-| MetaMask | RPC URL: `http://localhost:8545`, Chain ID: `785`, Currency: `THEO` |
-| ethers.js | `new ethers.JsonRpcProvider("http://localhost:8545")` |
-| Hardhat | `chainId: 785` in `hardhat.config.js` |
-| Foundry | `--rpc-url http://localhost:8545 --chain-id 785` |
+When connecting tools to a **local node** (e.g., during development), use port `8545` and the chain ID matching your node's network. When connecting to public endpoints, use the values below.
+
+| Tool | Local node | Mainnet (public) | Testnet (public) |
+|---|---|---|---|
+| MetaMask | `http://localhost:8545`, Chain ID: `2127` | `https://rpc1.autheo.com`, Chain ID: `2127` | `https://testnet-rpc1.autheo.com`, Chain ID: `785` |
+| ethers.js | `new ethers.JsonRpcProvider("http://localhost:8545")` | `new ethers.JsonRpcProvider("https://rpc1.autheo.com")` | `new ethers.JsonRpcProvider("https://testnet-rpc1.autheo.com")` |
+| Hardhat | `chainId: 2127` | `chainId: 2127` | `chainId: 785` |
+| Foundry | `--rpc-url http://localhost:8545` | `--rpc-url https://rpc1.autheo.com` | `--rpc-url https://testnet-rpc1.autheo.com` |
 
 ## Deploying contracts
 
@@ -81,8 +83,13 @@ autheod query license params   # View current contract addresses
     ```javascript
     // hardhat.config.js
     networks: {
-      autheo: {
-        url: "http://localhost:8545",
+      autheoMainnet: {
+        url: "https://rpc1.autheo.com",
+        chainId: 2127,
+        accounts: [privateKey]
+      },
+      autheoTestnet: {
+        url: "https://testnet-rpc1.autheo.com",
         chainId: 785,
         accounts: [privateKey]
       }

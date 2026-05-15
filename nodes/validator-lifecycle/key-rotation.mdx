@@ -29,7 +29,7 @@ Never run two nodes with the same consensus key simultaneously. If both nodes si
     On the new host or remote signer:
     ```bash
     # Generate a fresh consensus key
-    autheod init temp-node --chain-id autheo_785-1 --home /tmp/temp-node
+    autheod init temp-node --chain-id autheo_2127-1 --home /tmp/temp-node
     cat /tmp/temp-node/config/priv_validator_key.json
     ```
     Note the new public key value.
@@ -49,7 +49,7 @@ Never run two nodes with the same consensus key simultaneously. If both nodes si
       --new-moniker "your-validator-name" \
       --pubkey "$NEW_PUBKEY" \
       --from mykey \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
   </Step>

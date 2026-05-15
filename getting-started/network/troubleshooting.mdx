@@ -1,17 +1,22 @@
 ---
 title: "Network troubleshooting"
-description: "Common connection problems when working with Autheo Testnet and how to resolve them."
+description: "Common connection problems when working with Autheo Chain and how to resolve them."
 keywords: ["troubleshooting", "network", "rpc", "connection", "metamask", "errors"]
 ---
 
 ## MetaMask shows wrong balance or no balance
 
-**Cause**: MetaMask may not have switched to the Autheo Testnet.
+**Cause**: MetaMask may not have switched to the correct Autheo network.
 
 **Fix**:
 1. Click the network selector in MetaMask's upper-left corner.
-2. Select **Autheo Testnet** from the list.
-3. If it's not listed, re-add it using Chain ID `785` and RPC URL `https://rpc1.autheo.com`.
+2. Select **Autheo** (mainnet) or **Autheo Testnet** from the list.
+3. If the network isn't listed, re-add it:
+
+   | Field | Mainnet | Testnet |
+   |---|---|---|
+   | Chain ID | `2127` | `785` |
+   | RPC URL | `https://rpc1.autheo.com` | `https://testnet-rpc1.autheo.com` |
 
 ---
 
@@ -30,7 +35,7 @@ keywords: ["troubleshooting", "network", "rpc", "connection", "metamask", "error
 
 **Cause**: The RPC endpoint and MetaMask network configuration are pointing to different chains.
 
-**Fix**: Verify that both your RPC URL and MetaMask Chain ID are set to `785`. Do not mix testnet and mainnet endpoints.
+**Fix**: Verify that your RPC URL and MetaMask Chain ID match the same network — `2127` + `https://rpc1.autheo.com` for mainnet, or `785` + `https://testnet-rpc1.autheo.com` for testnet. Do not mix endpoints from different networks.
 
 ---
 
@@ -49,9 +54,13 @@ keywords: ["troubleshooting", "network", "rpc", "connection", "metamask", "error
 
 **Cause**: Missing or incorrect `--chain-id` flag.
 
-**Fix**: Always pass `--chain-id autheo_785-1` to CLI commands:
+**Fix**: Always pass the correct `--chain-id` flag matching your target network:
 
 ```bash
+# Mainnet
+autheod tx bank send ... --chain-id autheo_2127-1
+
+# Testnet
 autheod tx bank send ... --chain-id autheo_785-1
 ```
 

@@ -91,12 +91,12 @@ autheod status | jq '.SyncInfo.catching_up'
 # 2. Unjail
 autheod tx slashing unjail \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 
 # 3. If license became BOUND after unjail, re-delegate
 autheod tx staking delegate <autheovaloper-address> <amount>aauth \
-  --from mykey --chain-id autheo_785-1 --keyring-backend file
+  --from mykey --chain-id autheo_2127-1 --keyring-backend file
 ```
 
 ---

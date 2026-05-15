@@ -22,7 +22,7 @@ Use `--gas auto` with `--gas-adjustment 1.5` for CLI transactions to avoid out-o
 
 ```bash
 autheod tx bank send mykey <recipient> 1000000000000000000aauth \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --gas auto \
   --gas-adjustment 1.5 \
@@ -74,7 +74,7 @@ Autheo Chain uses CometBFT BFT consensus — **one block confirmation is final**
 
 **CLI:**
 ```bash
-autheod query tx <txhash> --chain-id autheo_785-1
+autheod query tx <txhash> --chain-id autheo_2127-1
 ```
 
 **JSON-RPC:**
@@ -93,7 +93,7 @@ A receipt with `"status": "0x1"` means success. `"status": "0x0"` means the tran
 | `insufficient funds for gas` | Wallet balance too low | Fund the account with more `aauth` |
 | `out of gas` | Gas limit set too low | Use `--gas auto --gas-adjustment 1.5` |
 | `tx already in mempool` | Duplicate transaction | Wait for existing tx to confirm or increase gas price |
-| `signature verification failed` | Wrong chain ID | Pass `--chain-id autheo_785-1` |
+| `signature verification failed` | Wrong chain ID | Pass `--chain-id autheo_2127-1` |
 
 ## EIP-1559 support
 

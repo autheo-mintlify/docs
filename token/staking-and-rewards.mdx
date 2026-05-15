@@ -40,7 +40,7 @@ autheod query emissions license-accrued-rewards <license-id>
 ```bash
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 
@@ -64,14 +64,14 @@ autheod query distribution validator-outstanding-rewards <autheovaloper-address>
 # Withdraw all delegation rewards across all validators
 autheod tx distribution withdraw-all-rewards \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 
 # Withdraw rewards + commission for validators
 autheod tx distribution withdraw-rewards <autheovaloper-address> \
   --commission \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 

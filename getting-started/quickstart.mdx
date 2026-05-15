@@ -1,52 +1,74 @@
 ---
 title: "Quickstart"
-description: "Get connected to Autheo Chain in under 5 minutes: add the network to MetaMask, get testnet THEO from the faucet, and send your first transaction."
-keywords: ["quickstart", "metamask", "testnet", "faucet", "connect", "get started"]
+description: "Get connected to Autheo Chain in under 5 minutes: add the network to MetaMask and send your first transaction."
+keywords: ["quickstart", "metamask", "mainnet", "testnet", "connect", "get started"]
 ---
 
-This guide gets you connected to Autheo Testnet and holding your first THEO tokens in under 5 minutes.
+This guide gets you connected to Autheo Chain in under 5 minutes. Connect to **Mainnet** to use the live network, or **Testnet** if you're a developer exploring the chain before deploying.
 
 ## What you need
 
 - A web browser with [MetaMask installed](https://metamask.io/)
 - 2 minutes
 
-## Step 1: Add Autheo Testnet to MetaMask
+## Step 1: Add Autheo to MetaMask
 
-<Steps>
-  <Step title="Open the network selector">
-    Click the network name in the upper-left corner of MetaMask (shows "Ethereum Mainnet" by default).
-  </Step>
-  <Step title="Add a custom network">
-    Scroll to the bottom of the network list and click **Add a custom network**.
-  </Step>
-  <Step title="Enter network details">
-    Fill in the following:
+<Tabs>
+  <Tab title="Mainnet">
+    <Steps>
+      <Step title="Open the network selector">
+        Click the network name in the upper-left corner of MetaMask (shows "Ethereum Mainnet" by default).
+      </Step>
+      <Step title="Add a custom network">
+        Scroll to the bottom of the network list and click **Add a custom network**.
+      </Step>
+      <Step title="Enter network details">
+        Fill in the following:
 
-    | Field | Value |
-    |---|---|
-    | Network name | Autheo Testnet |
-    | Default RPC URL | `https://rpc1.autheo.com` |
-    | Chain ID | `785` |
-    | Currency symbol | `THEO` |
-    | Block explorer URL | `https://evm-explorer.autheo.com/` |
-  </Step>
-  <Step title="Save and switch">
-    Click **Save**. MetaMask will switch to the Autheo Testnet automatically.
-  </Step>
-</Steps>
+        | Field | Value |
+        |---|---|
+        | Network name | Autheo |
+        | Default RPC URL | `https://rpc1.autheo.com` |
+        | Chain ID | `2127` |
+        | Currency symbol | `THEO` |
+        | Block explorer URL | `https://evm-explorer.autheo.com/` |
+      </Step>
+      <Step title="Save and switch">
+        Click **Save**. MetaMask will switch to Autheo Mainnet automatically.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Testnet (developers)">
+    <Steps>
+      <Step title="Open the network selector">
+        Click the network name in the upper-left corner of MetaMask (shows "Ethereum Mainnet" by default).
+      </Step>
+      <Step title="Add a custom network">
+        Scroll to the bottom of the network list and click **Add a custom network**.
+      </Step>
+      <Step title="Enter network details">
+        Fill in the following:
 
-## Step 2: Get testnet THEO
+        | Field | Value |
+        |---|---|
+        | Network name | Autheo Testnet |
+        | Default RPC URL | `https://testnet-rpc1.autheo.com` |
+        | Chain ID | `785` |
+        | Currency symbol | `THEO` |
+        | Block explorer URL | `https://evm-explorer.autheo.com/` |
+      </Step>
+      <Step title="Save and switch">
+        Click **Save**. MetaMask will switch to Autheo Testnet automatically.
+      </Step>
+    </Steps>
 
-1. Copy your wallet address from the top of MetaMask (the `0x...` value).
-2. Open the [Autheo Testnet Faucet](https://testnet-faucet.autheo.com/).
-3. Paste your address and request tokens.
+    After connecting, get free test THEO from the [Autheo Testnet Faucet](https://testnet-faucet.autheo.com/). Paste your `0x...` wallet address and request up to **2 THEO** per request (limit: two per 24-hour period).
+  </Tab>
+</Tabs>
 
-The faucet distributes up to **2 THEO** per request, with a limit of two requests per 24-hour period.
+## Step 2: Verify your connection
 
-## Step 3: Verify your balance
-
-After a few seconds (target block time is ~5 seconds), your balance should update in MetaMask. You can also verify on the [block explorer](https://evm-explorer.autheo.com/) by searching your `0x...` address.
+After a few seconds (target block time is ~5 seconds), your balance should appear in MetaMask. You can also search your `0x...` address on the [EVM block explorer](https://evm-explorer.autheo.com/) to confirm.
 
 ## What's next?
 

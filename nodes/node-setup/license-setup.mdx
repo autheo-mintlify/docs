@@ -50,7 +50,7 @@ You should see `status: ISSUED`.
     ```bash
     autheod tx license bind <license-id> \
       --from <owner-key> \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
     The validator address is derived automatically from your operator key.
@@ -60,7 +60,7 @@ You should see `status: ISSUED`.
     autheod tx license bind <license-id> \
       --validator-address <autheovaloper-address> \
       --from <owner-key> \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
     The target validator must be bonded and not jailed.
@@ -94,7 +94,7 @@ autheod query emissions license-accrued-rewards <license-id>
 
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --from <owner-key> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 

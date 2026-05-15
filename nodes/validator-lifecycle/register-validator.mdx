@@ -24,7 +24,7 @@ Must show `status: BOUND`. If showing `ISSUED`, bind it first:
 ```bash
 autheod tx license bind <license-id> \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 
@@ -52,7 +52,7 @@ autheod tx staking create-validator \
   --commission-max-change-rate "0.01" \
   --min-self-delegation "1" \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --home /path/to/node-home \
   --gas auto \
@@ -92,7 +92,7 @@ autheod tx staking edit-validator \
   --moniker "new-name" \
   --website "https://your-site.com" \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 
@@ -101,7 +101,7 @@ autheod tx staking edit-validator \
 ```bash
 autheod tx slashing unjail \
   --from mykey \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 
@@ -117,12 +117,12 @@ autheod query staking validator <autheovaloper-address>
 
 # Withdraw staking rewards
 autheod tx distribution withdraw-all-rewards \
-  --from mykey --chain-id autheo_785-1 --keyring-backend file
+  --from mykey --chain-id autheo_2127-1 --keyring-backend file
 
 # Check NFT emission rewards
 autheod query emissions nft-rewards <cosmos-address>
 
 # Claim NFT emission rewards
 autheod tx licensedistribution claim-nft-rewards <license-id> \
-  --from mykey --chain-id autheo_785-1 --keyring-backend file
+  --from mykey --chain-id autheo_2127-1 --keyring-backend file
 ```

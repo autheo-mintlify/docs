@@ -10,7 +10,7 @@ keywords: ["faq", "frequently asked questions", "autheo chain", "nft license", "
 
 **What is Autheo Chain?**
 
-Autheo Chain (`autheo_785-1`) is a permissioned, EVM-compatible Layer 1 blockchain built on Cosmos SDK v0.53.0 and Ethermint. It features a custom NFT license gating system requiring validators and delegators to hold on-chain license NFTs.
+Autheo Chain is a permissioned, EVM-compatible Layer 1 blockchain built on Cosmos SDK v0.53.0 and Ethermint. It features a custom NFT license gating system requiring validators and delegators to hold on-chain license NFTs.
 
 ---
 
@@ -22,12 +22,12 @@ The native token is THEO with base denomination `aauth` at 18 decimal places: 1 
 
 **What are the chain IDs?**
 
-| Format | Value |
-|---|---|
-| Cosmos | `autheo_785-1` |
-| EVM (integer) | `785` |
+| Network | Cosmos format | EVM integer |
+|---|---|---|
+| Mainnet | `autheo_2127-1` | `2127` |
+| Testnet | `autheo_785-1` | `785` |
 
-Always pass `--chain-id autheo_785-1` to CLI commands.
+Always pass `--chain-id autheo_2127-1` to CLI commands targeting mainnet.
 
 ---
 
@@ -49,7 +49,7 @@ Binary: `autheod`, version: `1.0.8`.
 
 **Is the chain EVM-compatible?**
 
-Yes — full Ethermint EVM with JSON-RPC on port 8545 (HTTP) and 8546 (WebSocket). MetaMask, ethers.js, Hardhat, and Foundry all work with Chain ID `785`.
+Yes — full Ethermint EVM with JSON-RPC on port 8545 (HTTP) and 8546 (WebSocket). MetaMask, ethers.js, Hardhat, and Foundry all work with Chain ID `2127` (mainnet) or `785` (testnet).
 
 ---
 
@@ -120,10 +120,10 @@ No. `MsgBeginRedelegate` is permanently disabled. Use undelegate followed by del
 
 ```bash
 autheod tx staking unbond <src-valoper> <amount>aauth \
-  --from <key> --chain-id autheo_785-1 --keyring-backend file
+  --from <key> --chain-id autheo_2127-1 --keyring-backend file
 # After unbonding period (~21 days):
 autheod tx staking delegate <dst-valoper> <amount>aauth \
-  --from <key> --chain-id autheo_785-1 --keyring-backend file
+  --from <key> --chain-id autheo_2127-1 --keyring-backend file
 ```
 
 ---
@@ -154,7 +154,7 @@ autheod query license licenses-by-owner <cosmos-address> --status LICENSE_STATUS
 ```bash
 autheod query emissions license-accrued-rewards <license-id>
 autheod tx licensedistribution claim-nft-rewards <license-id> \
-  --from <owner-key> --chain-id autheo_785-1 --keyring-backend file
+  --from <owner-key> --chain-id autheo_2127-1 --keyring-backend file
 ```
 
 ---
@@ -198,7 +198,7 @@ MemIAVL requires an additional 8–16 GB of RAM above your process baseline.
 
 ```bash
 autheod tx slashing unjail \
-  --from mykey --chain-id autheo_785-1 --keyring-backend file
+  --from mykey --chain-id autheo_2127-1 --keyring-backend file
 ```
 
 The JailInterceptor verifies a non-revoked Sovereign license is bound before allowing unjail.
@@ -241,7 +241,7 @@ Check if a delegation exists, then re-delegate if needed:
 ```bash
 autheod query staking delegation <cosmos-address> <autheovaloper-address>
 autheod tx staking delegate <autheovaloper-address> <amount>aauth \
-  --from mykey --chain-id autheo_785-1 --keyring-backend file
+  --from mykey --chain-id autheo_2127-1 --keyring-backend file
 ```
 
 ---
@@ -264,7 +264,7 @@ sudo systemctl start autheod
 
 ```bash
 autheod tx bank send <sender-key> <recipient-address> <amount>aauth \
-  --chain-id autheo_785-1 --keyring-backend file \
+  --chain-id autheo_2127-1 --keyring-backend file \
   --fees 5000000aauth --yes
 ```
 

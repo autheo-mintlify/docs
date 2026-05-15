@@ -11,7 +11,7 @@ There is no native "pause" command in Cosmos SDK. Pausing a validator means it w
 The `x/slashing` module tracks missed blocks via a sliding window. Check the current parameters:
 
 ```bash
-autheod query slashing params --chain-id autheo_785-1
+autheod query slashing params --chain-id autheo_2127-1
 ```
 
 Key parameters:
@@ -49,7 +49,7 @@ For extended maintenance that exceeds the liveness window, temporarily reduce yo
     ```bash
     autheod tx staking unbond <autheovaloper-address> <amount>aauth \
       --from mykey \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
 
@@ -67,7 +67,7 @@ For extended maintenance that exceeds the liveness window, temporarily reduce yo
     ```bash
     autheod tx staking delegate <autheovaloper-address> <amount>aauth \
       --from mykey \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
   </Step>
@@ -82,7 +82,7 @@ If the node was jailed during maintenance:
    ```bash
    autheod tx slashing unjail \
      --from mykey \
-     --chain-id autheo_785-1 \
+     --chain-id autheo_2127-1 \
      --keyring-backend file
    ```
 3. If the license shows `BOUND`, re-delegate to restore `ACTIVE` status.

@@ -78,14 +78,14 @@ autheod query emissions nft-rewards <cosmos-address>
 # Claim to signing key's address
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --from <owner-key> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 
 # Claim and redirect to a different recipient
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --recipient <recipient-address> \
   --from <owner-key> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file
 ```
 

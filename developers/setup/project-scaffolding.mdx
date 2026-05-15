@@ -4,7 +4,7 @@ description: "Set up a new smart contract or dApp project for Autheo Chain using
 keywords: ["scaffolding", "hardhat", "foundry", "project setup", "smart contract", "boilerplate"]
 ---
 
-Autheo Chain is EVM-compatible with Chain ID `785`, which means any Hardhat, Foundry, or ethers.js project can target it with minimal configuration. This page shows the minimum setup for each major toolchain.
+Autheo Chain is EVM-compatible — Mainnet chain ID `2127`, Testnet chain ID `785` — which means any Hardhat, Foundry, or ethers.js project can target it with minimal configuration. This page shows the minimum setup for each major toolchain.
 
 ## Hardhat
 
@@ -34,8 +34,13 @@ Autheo Chain is EVM-compatible with Chain ID `785`, which means any Hardhat, Fou
         settings: { evmVersion: "paris" }
       },
       networks: {
-        autheoTestnet: {
+        autheoMainnet: {
           url: "https://rpc1.autheo.com",
+          chainId: 2127,
+          accounts: [process.env.PRIVATE_KEY]
+        },
+        autheoTestnet: {
+          url: "https://testnet-rpc1.autheo.com",
           chainId: 785,
           accounts: [process.env.PRIVATE_KEY]
         }
@@ -51,6 +56,10 @@ Autheo Chain is EVM-compatible with Chain ID `785`, which means any Hardhat, Fou
   </Step>
   <Step title="Deploy">
     ```bash
+    # Deploy to mainnet
+    npx hardhat run scripts/deploy.js --network autheoMainnet
+
+    # Deploy to testnet
     npx hardhat run scripts/deploy.js --network autheoTestnet
     ```
   </Step>
@@ -79,11 +88,19 @@ Autheo Chain is EVM-compatible with Chain ID `785`, which means any Hardhat, Fou
     evm_version = "paris"
 
     [rpc_endpoints]
-    autheo_testnet = "https://rpc1.autheo.com"
+    autheo_mainnet = "https://rpc1.autheo.com"
+    autheo_testnet = "https://testnet-rpc1.autheo.com"
     ```
   </Step>
   <Step title="Deploy">
     ```bash
+    # Deploy to mainnet
+    forge create src/MyContract.sol:MyContract \
+      --rpc-url autheo_mainnet \
+      --private-key $PRIVATE_KEY \
+      --broadcast
+
+    # Deploy to testnet
     forge create src/MyContract.sol:MyContract \
       --rpc-url autheo_testnet \
       --private-key $PRIVATE_KEY \

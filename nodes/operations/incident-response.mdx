@@ -55,7 +55,7 @@ Tombstoning is **permanent** — it results from double-signing and cannot be un
 1. Stop the tombstoned node immediately
 2. Do **not** attempt unjail — it will fail
 3. Commission a new server
-4. Generate a new consensus key: `autheod init new-validator --chain-id autheo_785-1`
+4. Generate a new consensus key: `autheod init new-validator --chain-id autheo_2127-1`
 5. Register a new validator with `MsgCreateValidator` and a new consensus key
 6. Bind your Sovereign license to the new validator address
 
@@ -96,7 +96,7 @@ autheod query staking validator <autheovaloper-address> | grep status
     ```bash
     autheod tx slashing unjail \
       --from mykey \
-      --chain-id autheo_785-1 \
+      --chain-id autheo_2127-1 \
       --keyring-backend file
     ```
   </Step>
@@ -104,7 +104,7 @@ autheod query staking validator <autheovaloper-address> | grep status
     If the license shows `BOUND` after unjailing:
     ```bash
     autheod tx staking delegate <autheovaloper-address> <amount>aauth \
-      --from mykey --chain-id autheo_785-1 --keyring-backend file
+      --from mykey --chain-id autheo_2127-1 --keyring-backend file
     ```
   </Step>
 </Steps>

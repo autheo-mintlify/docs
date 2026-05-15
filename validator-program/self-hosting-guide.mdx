@@ -86,7 +86,7 @@ An NFT license is required before you can register a validator or delegate stake
 autheod tx license bind-license <license-id> \
   --validator-address <autheovaloper-address> \
   --from <key-name> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --fees 5000000aauth \
   --yes
@@ -98,7 +98,7 @@ autheod tx license bind-license <license-id> \
 autheod tx license bind-license <license-id> \
   --validator-address <autheovaloper-address> \
   --from <key-name> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --fees 5000000aauth \
   --yes
@@ -125,7 +125,7 @@ autheod query emissions license-accrued-rewards <license-id>
 # Claim to the license owner address
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --from <owner-key> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --fees 5000000aauth \
   --yes
@@ -134,7 +134,7 @@ autheod tx licensedistribution claim-nft-rewards <license-id> \
 autheod tx licensedistribution claim-nft-rewards <license-id> \
   --from <owner-key> \
   --recipient <recipient-address> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --fees 5000000aauth \
   --yes
@@ -161,7 +161,7 @@ Save the mnemonic phrase securely offline — in cold storage or a hardware secu
 
 ```bash
 autheod init <moniker> \
-  --chain-id autheo_785-1
+  --chain-id autheo_2127-1
 ```
 
 Replace `<moniker>` with your validator's display name.
@@ -270,7 +270,7 @@ autheod tx staking create-validator \
   --from <key-name> \
   --pubkey $(autheod tendermint show-validator) \
   --moniker "<your-moniker>" \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --commission-rate 0.10 \
   --commission-max-rate 0.20 \
   --commission-max-change-rate 0.01 \
@@ -287,7 +287,7 @@ After binding, self-delegate to move the license from `BOUND` to `ACTIVE`:
 ```bash
 autheod tx staking delegate <autheovaloper-address> <amount>aauth \
   --from <key-name> \
-  --chain-id autheo_785-1 \
+  --chain-id autheo_2127-1 \
   --keyring-backend file \
   --fees 5000000aauth \
   --yes
