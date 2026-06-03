@@ -32,7 +32,7 @@ Back up `config/priv_validator_key.json` to secure offline storage immediately.
 
 ```bash
 curl -L -o /path/to/node-home/config/genesis.json \
-  https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/genesis.json
+  https://raw.githubusercontent.com/autheo-blockchain/networks/main/mainnet/genesis.json
 ```
 
 Bootstrap from snapshot to skip syncing from block 0:
@@ -45,11 +45,11 @@ mv data/ /path/to/node-home/data/
 
 ## Step 4: Configure persistent peers
 
-Edit `config/config.toml`:
+Get the official peer list from the [autheo-blockchain/networks](https://github.com/autheo-blockchain/networks) repository and paste it into `config/config.toml`:
 
 ```toml
 [p2p]
-persistent_peers = "<node-id>@<ip>:26656,<node-id>@<ip>:26656"
+persistent_peers = "<paste contents of networks/mainnet/persistent_peers.txt here>"
 ```
 
 ## Step 5: Create the systemd service
@@ -67,7 +67,7 @@ ExecStart=autheod start \
   --home /path/to/node-home \
   --pruning=default \
   --log_level info \
-  --minimum-gas-prices=0aauth \
+  --minimum-gas-prices=10000000000000aauth \
   --json-rpc.api=eth,net,web3
 WorkingDirectory=/path/to/node-home
 User=<your-user>

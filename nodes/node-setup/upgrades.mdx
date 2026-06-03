@@ -8,7 +8,7 @@ Node upgrades follow a standard stop-replace-restart procedure. Autheo Chain use
 
 ## Before upgrading
 
-- [ ] Read the release notes at the [GitHub releases page](https://github.com/autheo-blockchain/autheo-chain-lab/releases)
+- [ ] Read the release notes at the [GitHub releases page](https://github.com/autheo-blockchain/autheo-chain-core/releases)
 - [ ] Back up `config/priv_validator_key.json` and `data/priv_validator_state.json`
 - [ ] Confirm the target upgrade height or block time in the governance proposal
 
@@ -21,7 +21,7 @@ Node upgrades follow a standard stop-replace-restart procedure. Autheo Chain use
     autheod version
 
     # Download the new binary (replace X.Y.Z with the target version)
-    wget https://github.com/autheo-blockchain/autheo-chain-lab/releases/download/vX.Y.Z/autheod-linux-amd64 \
+    wget https://github.com/autheo-blockchain/autheo-chain-core/releases/download/vX.Y.Z/autheod-linux-amd64 \
       -O /tmp/autheod-new
 
     chmod +x /tmp/autheod-new
@@ -63,8 +63,8 @@ Node upgrades follow a standard stop-replace-restart procedure. Autheo Chain use
 ## Build from source (alternative)
 
 ```bash
-git clone https://github.com/autheo-blockchain/autheo-chain-lab.git
-cd autheo-chain-lab
+git clone https://github.com/autheo-blockchain/autheo-chain-core.git
+cd autheo-chain-core
 git checkout vX.Y.Z
 make build
 sudo cp build/autheod /usr/local/bin/autheod
