@@ -209,12 +209,12 @@ sudo journalctl -u autheod -f
 
 ## 3. Method B: Docker
 
-The official image is published at `example.com/autheo-blockchain/autheod`.
+The official image is published at `ghcr.io/autheo-blockchain/autheod`.
 
 ### 3.1 Pull the Image
 
 ```bash
-docker pull example.com/autheo-blockchain/autheod:latest
+docker pull ghcr.io/autheo-blockchain/autheod:1.0.16
 ```
 
 ### 3.2 Prepare the Data Directory
@@ -236,7 +236,7 @@ git clone https://github.com/autheo-blockchain/networks
 # 2. Initialize the node
 docker run --rm \
   -v $HOME/.autheo:/root/.autheo \
-  example.com/autheo-blockchain/autheod:latest \
+  ghcr.io/autheo-blockchain/autheod:1.0.16 \
   autheod init <moniker> --chain-id autheo_2127-1 --home /root/.autheo
 
 # 3. Copy the official genesis
@@ -270,7 +270,7 @@ docker run -d \
   -p 1317:1317 \
   -p 8545:8545 \
   -p 8546:8546 \
-  example.com/autheo-blockchain/autheod:latest \
+  ghcr.io/autheo-blockchain/autheod:1.0.16 \
   autheod start --home /root/.autheo
 ```
 
