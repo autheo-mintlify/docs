@@ -12,7 +12,7 @@ keywords: ["installation", "autheod", "binary", "build from source", "go", "ubun
   <Step title="Download the latest release">
     ```bash
     curl -L -o autheod \
-      https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/autheod
+      https://github.com/autheo-blockchain/autheo-chain-core/releases/latest/download/autheod
     ```
   </Step>
   <Step title="Make executable and move to PATH">
@@ -44,8 +44,8 @@ keywords: ["installation", "autheod", "binary", "build from source", "go", "ubun
   </Step>
   <Step title="Clone the repository">
     ```bash
-    git clone https://github.com/autheo-blockchain/autheo-chain-lab.git
-    cd autheo-chain-lab
+    git clone https://github.com/autheo-blockchain/autheo-chain-core.git
+    cd autheo-chain-core
     ```
   </Step>
   <Step title="Build">
@@ -82,7 +82,7 @@ autheod init <moniker> \
 
 ```bash
 curl -L -o /path/to/node-home/config/genesis.json \
-  https://github.com/autheo-blockchain/autheo-chain-lab/releases/latest/download/genesis.json
+  https://raw.githubusercontent.com/autheo-blockchain/networks/main/mainnet/genesis.json
 ```
 
 ## Bootstrap from a snapshot (optional)
