@@ -340,5 +340,12 @@
       "discord": "https://discord.gg/McEEeXGGya",
       "telegram": "https://t.me/autheo/1"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/litepaper/litepaper-v1-0",
+      "destination": "/papers/litepaper/v1-5",
+      "permanent": true
+    }
+  ]
 }
