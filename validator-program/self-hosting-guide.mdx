@@ -6,6 +6,13 @@ keywords: ["self-host", "validator", "node setup", "docker", "systemd", "autheod
 
 This guide covers running an Autheo node from scratch. Two deployment methods are provided: **Method A — systemd** (build from source) and **Method B — Docker** (official GHCR image).
 
+<Note>
+**Before you begin:** This guide assumes you have already bridged your Sovereign license NFT from Arbitrum One to Autheo Mainnet. Complete that step first.
+
+See: [Bridging your Sovereign license NFT to Autheo Mainnet](https://hyper.autheo.com)
+{/* TODO: replace with dedicated bridging doc link */}
+</Note>
+
 ## 1. Chain reference
 
 | Property | Value |
@@ -290,7 +297,7 @@ After completing the join and configure steps for your chosen method, select one
 Downloads a recent snapshot from a live sentry and syncs only the remaining blocks.
 
 ```bash
-TRUST_HEIGHT=$(curl -s https://sentry1.autheo.com/block | jq -r '.result.block.header.height')
+TRUST_HEIGHT=$(curl -s https://sentry1.autheo.com/block | jq -r '(.result.block.header.height | tonumber / 1000 | floor * 1000)')
 TRUST_HASH=$(curl -s "https://sentry1.autheo.com/block?height=$TRUST_HEIGHT" | jq -r '.result.block_id.hash')
 
 CONFIG=$HOME/.autheo/config/config.toml
@@ -404,6 +411,26 @@ Keyring backends:
 | `os` | OS keychain | macOS Keychain / Linux Secret Service |
 | `test` | Plaintext on disk | Development only — never use in production |
 
+**Import an existing key:**
+
+If you already have a wallet (MetaMask, Keplr, or any BIP-39 wallet), you can import it using its mnemonic. Only do this if you understand the risk: entering a mnemonic on a server exposes it to that environment.
+
+```bash
+# systemd
+autheod keys add <key_name> \
+  --recover \
+  --keyring-backend file \
+  --algo eth_secp256k1 \
+  --home $HOME/.autheo
+
+# Docker
+docker exec -it autheo-node autheod keys add <key_name> \
+  --recover \
+  --keyring-backend file \
+  --algo eth_secp256k1 \
+  --home /root/.autheo
+```
+
 **Show address:**
 
 ```bash
@@ -441,6 +468,20 @@ autheod tendermint show-validator --home $HOME/.autheo
 # Docker
 docker exec autheo-node autheod tendermint show-validator --home /root/.autheo
 ```
+
+**Get your Autheo address from a hex address:**
+
+Autheo Chain uses a Bech32 address format (`autheo...`). All on-chain transactions must use this address, not the `0x` hex form. Convert your EVM hex address (without the `0x` prefix) using:
+
+```bash
+# systemd
+autheod debug addr <hex_address_without_0x>
+
+# Docker
+docker exec autheo-node autheod debug addr <hex_address_without_0x>
+```
+
+Use the `Bech32 Acc` value from the output for all Autheo chain transactions.
 
 ---
 
